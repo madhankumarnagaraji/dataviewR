@@ -9,7 +9,7 @@
 ## ✨ Features
 
 - View any R data frame or tibble in a Shiny app
-- Complex Filtering, Sorting, Column Selection and Attribute Information
+- Complex filtering, sorting, column selection and attribute information
 - Auto-generate equivalent `dplyr` code
 - Lightweight and easy to use
 
@@ -24,7 +24,7 @@ To install the development version from GitHub:
 install.packages("devtools")
 
 # Install dataviewR from GitHub
-devtools::install_github("your-username/dataviewR")
+devtools::install_github("madhankumarnagaraji/dataviewR")
 ```
 
 ---
@@ -36,7 +36,7 @@ library(dataviewR)
 
 # Launch the app with your data frame
 dataviewer(mtcars)
-dataviewer(pharmaverseadam::adae)
+dataviewer(pharmaverseadam::adae) # Requires: install.packages("pharmaverseadam")
 ```
 
 You can use any tibble or data.frame as input. The app provides:
@@ -44,7 +44,7 @@ You can use any tibble or data.frame as input. The app provides:
 - Interactive column filters (with NA values if present)
 - Code generation for reproducibility
 - Column selection
-- Attibute information
+- Attribute information
 - Responsive layout
 
 ---
@@ -53,8 +53,7 @@ You can use any tibble or data.frame as input. The app provides:
 
 - `R/` – Package functions  
 - `man/` – Help files  
-- `inst/app/` – Shiny UI and server logic (if applicable)  
-- `vignettes/` – Long-form documentation (optional)
+
 
 ---
 
