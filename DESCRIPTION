@@ -1,0 +1,23 @@
+Package: dataviewR
+Title: Interactive Data Viewer with Complex Filtering, Column Selection, Code Generation and Metadata information
+Version: 0.1.0
+Authors@R: 
+    person("Madhan", "Kumar N", , "madhanmanoj1999@gmail.com", role = c("aut", "cre"))
+Description: A Shiny-based interactive viewer provides more features to view the dataframes and tibbles such as column selection, complex filtering, code reproducibility and attribute information.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LaxyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+	shiny,
+	shinyjs,
+	DT,
+	dplyr,
+	labelled,
+	forcats,
+	stringr,
+	purrr,
+	tibble,
+	datamods,
+	htmlwidgets
