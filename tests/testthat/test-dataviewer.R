@@ -154,7 +154,7 @@ test_that("dataviewer generates default R code without filter", {
   code_output <- app$get_value(input = "code_output")
 
   expect_match(code_output, "library\\(dplyr\\)")
-  expect_match(code_output, "df \\|>")  # Check pipe used
+  expect_match(code_output, "mtcars \\|>")  # Check pipe used
   expect_match(code_output, "select\\(.*\\)")  # Should select all or specific columns
 
   app$stop()
