@@ -5,7 +5,8 @@
 #'
 #' @param data A `data.frame` or `tibble`. If `NULL` or missing, an import UI is shown to load data interactively.
 #'
-#' @return Launches a Shiny application in the browser. Does not return a value.
+#' @return
+#' Launches a Shiny application in the browser. Does not return a value.
 #'
 #' @details
 #' This function provides:
@@ -51,6 +52,7 @@ dataviewer <- function(data = NULL) {
   } else if ( !missing(data) & any(class(data) %in% c("tbl_df", "tbl", "data.frame"))) {
     cat("\033[34mNote: Argument 'data' is Passed\033[0m\n")
     trigger <- 2  # # Shows the passed dataframe directly in the Viewer
+    dataset_name <- deparse(substitute(data))
   }
 
   shiny::shinyApp(
@@ -129,6 +131,9 @@ dataviewer <- function(data = NULL) {
           shiny::updateTabsetPanel(session, "opt", selected = "Viewer")
         })
         imported <- import_globalenv_server("myid", btn_show_data = FALSE)
+        dataset_name <- shiny::reactive({
+          imported$name()
+        })
         data1 <- shiny::reactive({ imported$data() })
       } else {
         data1 <- shiny::reactive(data)
@@ -186,10 +191,9 @@ dataviewer <- function(data = NULL) {
       # Generate R code
       generated_code <- shiny::reactive({
         code_lines <- c(
-          "# Generated R Code to View the dataframe",
-          "# Change the name of the dataframe",
+          "# Generated R Code",
           "library(dplyr)",
-          "df |>"  # Insert dataframe/tibble name
+          paste0(ifelse(trigger==2,dataset_name,dataset_name()), " |>")
         )
         if (!is.null(filter_code())) {
           code_lines <- c(code_lines, paste0("  ", filter_code(), " |>"))
@@ -278,7 +282,7 @@ dataviewer <- function(data = NULL) {
       })
 
       output$tbl <- DT::renderDT({
-        DT::datatable(final_df(),
+        DT::datatable(final_df() ,
                       extensions = c("Buttons", "FixedHeader", "KeyTable"),
                       filter = "top",
                       class = "cell-border stripe hover nowrap",
