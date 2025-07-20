@@ -218,7 +218,7 @@ dataviewer <- function(data = NULL) {
 
       cols_df <- shiny::reactive({ dplyr::select(filter_df(), input$columns) })
 
-      final_df <- shiny::reactive({ dplyr::mutate(cols_df(), dplyr::across(where(is.character), ~forcats::fct_drop(forcats::fct_na_value_to_level(as.factor(.x), level = "<NA>")))) })
+      final_df <- shiny::reactive({ dplyr::mutate(cols_df(), dplyr::across(where(is.character) | where(is.factor), ~forcats::fct_drop(forcats::fct_na_value_to_level(as.factor(.x), level = "<NA>")))) })
 
       shiny::observe({
 
@@ -238,7 +238,6 @@ dataviewer <- function(data = NULL) {
             )
           })
         })
-
 
 
         class_df <- shiny::reactive({
