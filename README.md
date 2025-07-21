@@ -255,7 +255,7 @@ SOFTWARE.
 
 ## 🌟 Acknowledgments
 
-- Built with [Shiny](https://shiny.rstudio.com/) for the interactive interface
+- Built with [Shiny](https://shiny.posit.co/) for the interactive interface
 - Powered by [DT](https://rstudio.github.io/DT/) for advanced data tables
 - Utilizes [dplyr](https://dplyr.tidyverse.org/) for data manipulation
 - Special thanks to the R community for feedback and suggestions
