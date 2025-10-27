@@ -129,6 +129,8 @@ dataviewer <- function(data = NULL) {
       if (trigger == 1) {
         shiny::observeEvent(input$`myid-confirm`, {
           shiny::updateTabsetPanel(session, "opt", selected = "Viewer")
+          # Any filter added is cleared when new data is imported
+          shiny::updateTextInput(session, "filter", value = "")
         })
         imported <- import_globalenv_server("myid", btn_show_data = FALSE)
         dataset_name <- shiny::reactive({
