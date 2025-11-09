@@ -176,10 +176,16 @@ multidataviewer <- function(...) {
                 )),
                 shiny::br(),
                 shiny::fluidRow(shiny::column(12,
+                                              # --- MODIFICATION: Added pop-out link ---
+                                              shiny::div(
+                                                style = "display: flex; justify-content: space-between; align-items: center; padding: 5px;",
+                                                shiny::h4(shiny::tags$strong("Attribute Information:"), style = "margin: 0;"),
+                                                shiny::actionLink(paste0("popout_meta_", tab_id), label="", icon = icon("glyphicon glyphicon-new-window",lib = "glyphicon"))
+                                              ),
                                               shiny::div(class = "scrollable-checkbox",
-                                                         shiny::h4(shiny::tags$strong("Attribute Information:")),
                                                          shiny::tableOutput(paste0("metainfo_", tab_id))
                                               )
+                                              # --- END MODIFICATION ---
                 )),
                 width = 2
               ),
@@ -291,7 +297,6 @@ multidataviewer <- function(...) {
 
         # Selected columns code
         selected_cols_code <- shiny::reactive({
-
           columns_input <- paste0("columns_", tab_id)
           selected_cols <- input[[columns_input]]
 
@@ -382,49 +387,54 @@ multidataviewer <- function(...) {
         })
 
         # Metadata
+        # --- MODIFICATION: Refactored Metadata Reactives ---
+        # Moved these reactives to the top level of create_tab_observers
+        # so they can be shared by the sidebar table and the modal table.
+
+        att_cols <- shiny::reactive({
+          att_list <- purrr::map(get_data(), attributes)
+
+          if (all(purrr::map_lgl(att_list, is.null))) {
+            return(tibble::tibble(colname = character(), att = character(), value = character()))
+          }
+
+          purrr::imap_dfr(att_list, function(attr, colname) {
+            if (is.null(attr)) return(NULL)
+            tibble::tibble(
+              colname = colname,
+              att = names(attr),
+              value = as.character(attr)
+            )
+          })
+        })
+
+        class_df <- shiny::reactive({
+          dict <- tryCatch(labelled::generate_dictionary(get_data()), error = function(e) NULL)
+          if (is.null(dict) || nrow(dict) == 0) {
+            return(tibble::tibble(pos = integer(), colname = character(), col_type = character()))
+          }
+          dict %>%
+            dplyr::mutate(colname = .data$variable) %>%
+            dplyr::select(pos, colname, col_type)
+        })
+
+        meta_cols <- shiny::reactive({
+          dplyr::left_join(class_df(), att_cols(), by = "colname") %>%
+            dplyr::mutate(col_name = dplyr::case_when(
+              col_type == "int" ~ paste0("\U0001F522", colname),
+              col_type == "dbl" ~ paste0("\U0001F522", colname),
+              col_type == "chr" ~ paste0("\U0001F524", colname),
+              col_type == "date" ~ paste0("\U0001F4C5", colname),
+              col_type == "dttm" ~ paste0("\U0001F4C5\U0001F552", colname),
+              col_type == "Period" ~ paste0("\U0001F552", colname),
+              TRUE ~ paste0("\U0001F524", colname)
+            )) %>%
+            dplyr::select(pos, col_name, att, value) %>%
+            labelled::set_variable_labels(col_name = "Variable Name", att = "Attribute", value = "Value")
+        })
+
+        # Original sidebar table renderer (now uses shared reactive)
         shiny::observe({
-          att_cols <- shiny::reactive({
-            att_list <- purrr::map(get_data(), attributes)
-
-            if (all(purrr::map_lgl(att_list, is.null))) {
-              return(tibble::tibble(colname = character(), att = character(), value = character()))
-            }
-
-            purrr::imap_dfr(att_list, function(attr, colname) {
-              if (is.null(attr)) return(NULL)
-              tibble::tibble(
-                colname = colname,
-                att = names(attr),
-                value = as.character(attr)
-              )
-            })
-          })
-
-          class_df <- shiny::reactive({
-            dict <- tryCatch(labelled::generate_dictionary(get_data()), error = function(e) NULL)
-            if (is.null(dict) || nrow(dict) == 0) {
-              return(tibble::tibble(pos = integer(), colname = character(), col_type = character()))
-            }
-            dict %>%
-              dplyr::mutate(colname = .data$variable) %>%
-              dplyr::select(pos, colname, col_type)
-          })
-
-          meta_cols <- shiny::reactive({
-            dplyr::left_join(class_df(), att_cols(), by = "colname") %>%
-              dplyr::mutate(col_name = dplyr::case_when(
-                col_type == "int" ~ paste0("\U0001F522", colname),
-                col_type == "dbl" ~ paste0("\U0001F522", colname),
-                col_type == "chr" ~ paste0("\U0001F524", colname),
-                col_type == "date" ~ paste0("\U0001F4C5", colname),
-                col_type == "dttm" ~ paste0("\U0001F4C5\U0001F552", colname),
-                col_type == "Period" ~ paste0("\U0001F552", colname),
-                TRUE ~ paste0("\U0001F524", colname)
-              )) %>%
-              dplyr::select(pos, col_name, att, value) %>%
-              labelled::set_variable_labels(col_name = "Variable Name", att = "Attribute", value = "Value")
-          })
-
           output[[paste0("metainfo_", tab_id)]] <- shiny::renderTable({
             meta_cols() %>%
               dplyr::arrange(pos, att) %>%
@@ -435,6 +445,33 @@ multidataviewer <- function(...) {
               stats::setNames(c("Variable Name", "Attribute", "Value"))
           }, bordered = TRUE)
         })
+
+        # --- NEW: Observer for the pop-out modal ---
+        shiny::observeEvent(input[[paste0("popout_meta_", tab_id)]], {
+          shiny::showModal(shiny::modalDialog(
+            title = paste(dataset_name, "- Attribute Information"),
+            # Add a scrollable div for large tables
+            shiny::div(style = "max-height: 70vh; overflow-y: auto;",
+                       shiny::tableOutput(paste0("metainfo_modal_", tab_id))
+            ),
+            easyClose = TRUE,
+            footer = shiny::modalButton("Close")
+          ))
+        })
+
+        # --- NEW: Renderer for the modal's table ---
+        # It uses the exact same logic as the sidebar table
+        output[[paste0("metainfo_modal_", tab_id)]] <- shiny::renderTable({
+          meta_cols() %>%
+            dplyr::arrange(pos, att) %>%
+            dplyr::group_by(col_name) %>%
+            dplyr::mutate(col_name = ifelse(dplyr::row_number() == 1, col_name, "")) %>%
+            dplyr::ungroup() %>%
+            dplyr::select(col_name, att, value) %>%
+            stats::setNames(c("Variable Name", "Attribute", "Value"))
+        }, bordered = TRUE)
+        # --- END MODIFICATION ---
+
 
         # Render table - FIXED: Use observer to destroy/recreate FixedHeader on tab changes
         output[[paste0("tbl_", tab_id)]] <- DT::renderDT({
