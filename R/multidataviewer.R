@@ -72,9 +72,27 @@ multidataviewer <- function(...) {
 
   shiny::shinyApp(
     ui = shiny::fluidPage(
+      # Applied the full-width class
+      class = "full-width",
       shinyjs::useShinyjs(),
       shiny::tags$head(
         shiny::tags$style(shiny::HTML("
+
+           /* --- NEW: Full Width CSS to override Shiny's default container padding --- */
+
+          .full-width .container-fluid,
+          .full-width .row {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+          }
+
+          .full-width .col-sm-12 {
+            padding: 0;
+          }
+
+          /* --- END NEW: Full Width CSS --- */
           .close-tab-btn {
             margin-left: 10px;
             color: #d9534f;
@@ -91,6 +109,33 @@ multidataviewer <- function(...) {
           }
           .dataTables_scrollHead {
             z-index: 2 !important;
+          }
+          /* --- NEW CSS for scrollable data container --- */
+          .scrollable-data-container {
+            overflow-x: auto; /* Only allow horizontal scrolling for the main container */
+            overflow-y: hidden; /* Prevent container from adding its own vertical scrollbar */
+            width: 125%;
+            min-height: 700px; /* Minimum height for more vertical space */
+          }
+          /* ------------------------------------------- */
+          .scrollable-checkbox{
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 1px;
+            background-color: #ffffff;
+          }
+          .scrollable-checkbox::-webkit-scrollbar {
+            width: 15px;
+          }
+          .scrollable-checkbox::-webkit-scrollbar-track{
+            background-color: #ffffff;
+          }
+          .scrollable-checkbox::-webkit-scrollbar-thumb{
+            background-color: #e1e1e1;
+            border-radius: 1px;
+          }
+          .scrollable-checkbox::-webkit-scrollbar-thumb:hover{
+            background-color: #120101;
           }
         "))
       ),
@@ -144,32 +189,12 @@ multidataviewer <- function(...) {
             shiny::textInput(paste0("filter_", tab_id), NULL, value = "", width = "40%"),
             shiny::actionButton(paste0("clear_", tab_id), "Clear"),
             shiny::actionButton(paste0("submit_", tab_id), "Submit"),
-            shiny::tags$head(shiny::tags$style(shiny::HTML("
-              .scrollable-checkbox{
-                max-height: 400px;
-                overflow-y: scroll;
-                border: 1px solid #ccc;
-                padding: 1px;
-                background-color: #ffffff;
-              }
-              .scrollable-checkbox::-webkit-scrollbar {
-                width: 15px;
-              }
-              .scrollable-checkbox::-webkit-scrollbar-track{
-                background-color: #ffffff;
-              }
-              .scrollable-checkbox::-webkit-scrollbar-thumb{
-                background-color: #e1e1e1;
-                border-radius: 1px;
-              }
-              .scrollable-checkbox::-webkit-scrollbar-thumb:hover{
-                background-color: #120101;
-              }
-            "))),
+            # Removed redundant style section here, kept in tags$head
             shiny::sidebarLayout(
               shiny::sidebarPanel(
                 shiny::fluidRow(shiny::column(12,
                                               shiny::div(class = "scrollable-checkbox",
+                                                         style = "max-height: 400px;",
                                                          shiny::checkboxInput(paste0("cols_all_", tab_id), "Select/Deselect All", TRUE),
                                                          shiny::checkboxGroupInput(paste0("columns_", tab_id), "")
                                               )
@@ -183,6 +208,7 @@ multidataviewer <- function(...) {
                                                 shiny::actionLink(paste0("popout_meta_", tab_id), label="", icon = icon("glyphicon glyphicon-new-window",lib = "glyphicon"))
                                               ),
                                               shiny::div(class = "scrollable-checkbox",
+                                                         style = "max-height: 290px;",
                                                          shiny::tableOutput(paste0("metainfo_", tab_id))
                                               )
                                               # --- END MODIFICATION ---
@@ -191,11 +217,14 @@ multidataviewer <- function(...) {
               ),
               shiny::mainPanel(
                 # Wrap DataTable in a unique container for namespace isolation
+                # --- FIX: Applied the new scrollable class here ---
                 shiny::tags$div(
                   id = paste0("container_", tab_id),
+                  class = "scrollable-data-container", # Added class for scrolling
                   style = "position: relative;",
                   DT::DTOutput(paste0("tbl_", tab_id))
                 )
+                # --- END FIX ---
               )
             )
           ),
@@ -386,7 +415,6 @@ multidataviewer <- function(...) {
           )
         })
 
-        # Metadata
         # --- MODIFICATION: Refactored Metadata Reactives ---
         # Moved these reactives to the top level of create_tab_observers
         # so they can be shared by the sidebar table and the modal table.
@@ -483,11 +511,20 @@ multidataviewer <- function(...) {
             selection = "none",
             options = list(
               pageLength = 50,
+              # FixedHeader is crucial for wide tables
               fixedHeader = list(
                 header = TRUE,
                 headerOffset = 0
               ),
-              autoWidth = TRUE,
+              # Setting scrollX = TRUE and scrollY = TRUE helps DT render scrollbars,
+              # but the main scrolling for the container is handled by the wrapping div.
+              # scrollX: Enable horizontal scrolling
+              scrollX = TRUE,
+              scroller.rowHeight = "auto",
+              # scrollY: Enable vertical scrolling for the table body
+              scrollY = "600px", # Optional, can be set to a fixed height
+              scrollCollapse = TRUE,
+              autoWidth = FALSE, # Set to FALSE for better control with scrollX/Y
               searchHighlight = TRUE,
               keys = TRUE,
               dom = 'Bfrtip',
