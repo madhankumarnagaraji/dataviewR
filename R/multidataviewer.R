@@ -145,7 +145,7 @@ multidataviewer <- function(...) {
         shiny::tabPanel(
           "Import Dataset",
           value = "import_tab",
-          shiny::fluidRow(import_globalenv_ui("myid"))
+          shiny::fluidRow(datamods::import_globalenv_ui("myid"))
         )
       )
     ),
@@ -183,7 +183,7 @@ multidataviewer <- function(...) {
             title = tab_title,
             value = tab_id,
             shiny::br(),
-            shiny::actionButton(paste0("load_", tab_id), "Load the Data"),
+            shiny::actionButton(paste0("load_", tab_id), "Refresh the Data"),
             shiny::actionButton(paste0("generate_code_", tab_id), "Generate R Code"),
             shiny::h4(shiny::tags$strong("Filter")),
             shiny::textInput(paste0("filter_", tab_id), NULL, value = "", width = "40%"),
@@ -193,9 +193,10 @@ multidataviewer <- function(...) {
             shiny::sidebarLayout(
               shiny::sidebarPanel(
                 shiny::fluidRow(shiny::column(12,
+                                              # Moved 'Select/Deselect All' outside the scrollable div ---
+                                              shiny::checkboxInput(paste0("cols_all_", tab_id), shiny::h4(shiny::tags$strong("Select/Deselect All"), style = "margin: 0;"), TRUE),
                                               shiny::div(class = "scrollable-checkbox",
-                                                         style = "max-height: 400px;",
-                                                         shiny::checkboxInput(paste0("cols_all_", tab_id), "Select/Deselect All", TRUE),
+                                                         style = "max-height: 350px;",
                                                          shiny::checkboxGroupInput(paste0("columns_", tab_id), "")
                                               )
                 )),
@@ -575,7 +576,7 @@ multidataviewer <- function(...) {
       }
 
       # Handle import dataset (always available now)
-      imported <- import_globalenv_server("myid", btn_show_data = FALSE)
+      imported <- datamods::import_globalenv_server("myid", btn_show_data = FALSE)
 
       shiny::observeEvent(input$`myid-confirm`, {
         shiny::req(imported$data())
