@@ -11,12 +11,12 @@
 #' @details
 #' This function provides:
 #' \itemize{
-#'   \item A tab-based interface with data import and viewer options.
-#'   \item Support for multiple datasets in separate tabs.
-#'   \item A checkbox panel to select/deselect columns.
-#'   \item An input for dplyr-compatible filter expressions.
-#'   \item A dynamically generated `dplyr` code preview.
-#'   \item Metadata display for the variables.
+#'     \item A tab-based interface with data import and viewer options.
+#'     \item Support for multiple datasets in separate tabs.
+#'     \item A checkbox panel to select/deselect columns.
+#'     \item An input for dplyr-compatible filter expressions.
+#'     \item A dynamically generated `dplyr` code preview.
+#'     \item Metadata display for the variables.
 #' }
 #'
 #' The filtering uses `dplyr::filter()` and generates user-friendly code to replicate the steps.
@@ -36,9 +36,9 @@
 #'
 #' @examples
 #' if (interactive()) {
-#'   multidataviewer(mtcars)
-#'   multidataviewer(iris, mtcars) # Multiple datasets
-#'   multidataviewer() # Opens the import panel
+#'     multidataviewer(mtcars)
+#'     multidataviewer(iris, mtcars) # Multiple datasets
+#'     multidataviewer() # Opens the import panel
 #' }
 #'
 #' @export
@@ -84,17 +84,24 @@ multidataviewer <- function(...) {
           .close-tab-btn:hover {
             color: #c9302c;
           }
+          /* Namespace FixedHeader containers to prevent conflicts */
+          .dataTables_wrapper {
+            position: relative;
+            z-index: 1;
+          }
+          .dataTables_scrollHead {
+            z-index: 2 !important;
+          }
         "))
       ),
       shiny::tabsetPanel(
         id = "opt",
-        if (trigger == 1) {
-          shiny::tabPanel(
-            "Import Dataset",
-            value = "import_tab",
-            shiny::fluidRow(import_globalenv_ui("myid"))
-          )
-        }
+        # Always show Import Dataset panel as first tab
+        shiny::tabPanel(
+          "Import Dataset",
+          value = "import_tab",
+          shiny::fluidRow(import_globalenv_ui("myid"))
+        )
       )
     ),
     server = function(input, output, session) {
@@ -118,7 +125,7 @@ multidataviewer <- function(...) {
             shiny::tags$span(
               class = "close-tab-btn",
               onclick = sprintf("Shiny.setInputValue('close_tab', '%s', {priority: 'event'})", tab_id),
-              "\u00D7"
+              "x"
             )
           )
         } else {
@@ -176,7 +183,14 @@ multidataviewer <- function(...) {
                 )),
                 width = 2
               ),
-              shiny::mainPanel(DT::DTOutput(paste0("tbl_", tab_id)))
+              shiny::mainPanel(
+                # Wrap DataTable in a unique container for namespace isolation
+                shiny::tags$div(
+                  id = paste0("container_", tab_id),
+                  style = "position: relative;",
+                  DT::DTOutput(paste0("tbl_", tab_id))
+                )
+              )
             )
           ),
           select = TRUE
@@ -277,11 +291,24 @@ multidataviewer <- function(...) {
 
         # Selected columns code
         selected_cols_code <- shiny::reactive({
+
           columns_input <- paste0("columns_", tab_id)
-          if (length(input[[columns_input]]) > 0) {
-            paste0("select(", paste(shQuote(input[[columns_input]]), collapse = ", "), ")")
+          selected_cols <- input[[columns_input]]
+
+          if (length(selected_cols) > 0) {
+            # Check if column names follow R naming conventions
+            # Valid R names: start with letter or dot (not followed by number),
+            # contain only letters, numbers, dots, and underscores
+            needs_quotes <- !grepl("^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols)
+
+            # Use backticks for non-standard column names (R standard)
+            formatted_cols <- ifelse(needs_quotes,
+                                     paste0("`", selected_cols, "`"),
+                                     selected_cols)
+
+            paste0("select(", paste(formatted_cols, collapse = ", "), ")")
           } else {
-            "select(everything())"
+            NULL  # Return NULL if no columns selected
           }
         })
 
@@ -292,10 +319,22 @@ multidataviewer <- function(...) {
             "library(dplyr)",
             paste0(dataset_name, " |>")
           )
+
+          # Add filter if present
           if (!is.null(filter_code())) {
-            code_lines <- c(code_lines, paste0("  ", filter_code(), " |>"))
+            code_lines <- c(code_lines, paste0("  ", filter_code()))
+
+            # Add pipe operator only if there's a select statement
+            if (!is.null(selected_cols_code())) {
+              code_lines[length(code_lines)] <- paste0(code_lines[length(code_lines)], " |>")
+            }
           }
-          code_lines <- c(code_lines, paste0("  ", selected_cols_code()))
+
+          # Add select if present
+          if (!is.null(selected_cols_code())) {
+            code_lines <- c(code_lines, paste0("  ", selected_cols_code()))
+          }
+
           paste(code_lines, collapse = "\n")
         })
 
@@ -397,7 +436,7 @@ multidataviewer <- function(...) {
           }, bordered = TRUE)
         })
 
-        # Render table
+        # Render table - FIXED: Use observer to destroy/recreate FixedHeader on tab changes
         output[[paste0("tbl_", tab_id)]] <- DT::renderDT({
           DT::datatable(
             final_df(),
@@ -407,13 +446,41 @@ multidataviewer <- function(...) {
             selection = "none",
             options = list(
               pageLength = 50,
-              fixedHeader = TRUE,
+              fixedHeader = list(
+                header = TRUE,
+                headerOffset = 0
+              ),
               autoWidth = TRUE,
               searchHighlight = TRUE,
               keys = TRUE,
               dom = 'Bfrtip',
               buttons = list('copy', list(extend = 'collection', buttons = c('csv', 'excel'), text = 'Download')),
-              initComplete = DT::JS("function(settings, json) { $('<style>', { text: '.sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { color: #1B56FD !important; transform: scale(1.5) !important; }' }).appendTo('head'); }")
+              initComplete = DT::JS(sprintf("
+                function(settings, json) {
+                  $('<style>', {
+                    text: '.sorting::before, .sorting::after, .sorting_asc::before, .sorting_asc::after, .sorting_desc::before, .sorting_desc::after { color: #1B56FD !important; transform: scale(1.5) !important; }'
+                  }).appendTo('head');
+
+                  // Store reference to this table's FixedHeader
+                  var tableId = '%s';
+                  var api = this.api();
+
+                  // Destroy FixedHeader when tab becomes inactive
+                  $('a[data-value]').on('shown.bs.tab', function(e) {
+                    var activeTab = $(e.target).attr('data-value');
+                    if (activeTab !== tableId) {
+                      if (api.fixedHeader) {
+                        api.fixedHeader.disable();
+                      }
+                    } else {
+                      if (api.fixedHeader) {
+                        api.fixedHeader.enable();
+                        api.fixedHeader.adjust();
+                      }
+                    }
+                  });
+                }
+              ", tab_id))
             )
           )
         })
@@ -426,51 +493,48 @@ multidataviewer <- function(...) {
             shiny::isolate({
               tab_counter(tab_counter() + 1)
               tab_id <- create_tab_id(initial_names[i])
-              # Show close button only if more than one dataset
-              show_close <- length(initial_datasets) > 1
-              create_viewer_tab(tab_id, initial_names[i], initial_datasets[[i]], show_close_btn = show_close)
+              # Always show close button for initially passed datasets
+              create_viewer_tab(tab_id, initial_names[i], initial_datasets[[i]], show_close_btn = TRUE)
             })
           }
         }, once = TRUE)
       }
 
-      # Handle import dataset (trigger == 1)
-      if (trigger == 1) {
-        imported <- import_globalenv_server("myid", btn_show_data = FALSE)
+      # Handle import dataset (always available now)
+      imported <- import_globalenv_server("myid", btn_show_data = FALSE)
 
-        shiny::observeEvent(input$`myid-confirm`, {
-          shiny::req(imported$data())
+      shiny::observeEvent(input$`myid-confirm`, {
+        shiny::req(imported$data())
 
-          dataset_name <- imported$name()
-          dataset <- imported$data()
+        dataset_name <- imported$name()
+        dataset <- imported$data()
 
-          # Check if dataset already exists
-          if (length(names(dataset_store)) > 0) {
-            existing_tabs <- sapply(names(dataset_store), function(tid) {
-              dataset_store[[tid]]$name == dataset_name
-            }, USE.NAMES = FALSE)
+        # Check if dataset already exists
+        if (length(names(dataset_store)) > 0) {
+          existing_tabs <- sapply(names(dataset_store), function(tid) {
+            dataset_store[[tid]]$name == dataset_name
+          }, USE.NAMES = FALSE)
 
-            # Ensure it's a logical vector
-            existing_tabs <- as.logical(existing_tabs)
-          } else {
-            existing_tabs <- logical(0)
-          }
+          # Ensure it's a logical vector
+          existing_tabs <- as.logical(existing_tabs)
+        } else {
+          existing_tabs <- logical(0)
+        }
 
-          if (length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)) {
-            # Switch to existing tab
-            existing_tab_id <- names(dataset_store)[which(existing_tabs)[1]]
-            shiny::updateTabsetPanel(session, "opt", selected = existing_tab_id)
-            shiny::showNotification(paste("Switched to existing tab:", dataset_name), type = "message")
-          } else {
-            # Create new tab (always show close button in import mode)
-            shiny::isolate({
-              tab_counter(tab_counter() + 1)
-              tab_id <- create_tab_id(dataset_name)
-              create_viewer_tab(tab_id, dataset_name, dataset, show_close_btn = TRUE)
-            })
-          }
-        })
-      }
+        if (length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)) {
+          # Switch to existing tab
+          existing_tab_id <- names(dataset_store)[which(existing_tabs)[1]]
+          shiny::updateTabsetPanel(session, "opt", selected = existing_tab_id)
+          shiny::showNotification(paste("Switched to existing tab:", dataset_name), type = "message")
+        } else {
+          # Create new tab (always show close button)
+          shiny::isolate({
+            tab_counter(tab_counter() + 1)
+            tab_id <- create_tab_id(dataset_name)
+            create_viewer_tab(tab_id, dataset_name, dataset, show_close_btn = TRUE)
+          })
+        }
+      })
 
       # Handle tab closing
       shiny::observeEvent(input$close_tab, {
@@ -482,10 +546,8 @@ multidataviewer <- function(...) {
         # Remove from storage
         dataset_store[[tab_id]] <- NULL
 
-        # Switch to import tab if it exists, otherwise to first available tab
-        if (trigger == 1) {
-          shiny::updateTabsetPanel(session, "opt", selected = "import_tab")
-        }
+        # Always switch to import tab when closing a dataset tab
+        shiny::updateTabsetPanel(session, "opt", selected = "import_tab")
       })
     }
   )
