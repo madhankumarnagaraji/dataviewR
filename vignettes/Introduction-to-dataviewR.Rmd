@@ -1,0 +1,170 @@
+---
+title: "Introduction to dataviewR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to dataviewR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+<p align="center"> <img src="../man/figures/dataviewR_logo.png" width="220" alt="dataviewR logo"> </p>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+## Introduction
+
+dataviewR provides a clean and intuitive Shiny interface for interactively exploring R data frames and tibbles.
+Instead of using the general View() utils function or writing temporary filter code, you can open a dataset visually, browse its structure, filter rows, inspect values, and export results — all within seconds.
+
+## Why dataviewR?
+
+Whether you’re a statistical programmer, data scientist, or a student working with tabular data,  
+`dataviewR` helps you:
+
+- Inspect datasets interactively within seconds  
+- Compare two or more datasets side-by-side  
+- Review data quality and structure before analysis  
+
+While functions like `View()` offer a quick static snapshot of a dataset, they are limited when working with wide tables, inspecting variable values, or applying interactive filters.
+
+`dataviewR` provides a more flexible and dynamic interface that helps you explore data efficiently and intuitively.
+ 
+This guide walks you through how to launch, navigate, and work with datasets in dataviewR.
+
+For feature-specific articles and examples, visit the Articles section of the documentation.
+
+## Launching dataviewR
+
+There are three ways to start the application, depending on your workflow:
+
+### 1️⃣ Launch with a dataset
+
+When you pass a data frame, dataviewR opens directly with that dataset loaded.
+
+```r
+library(dataviewR)
+dataviewer(iris)
+```
+
+You’ll see the interactive table immediately, along with variable info and filtering options.
+
+<p align="center"> <img src="figures/dataviewer_iris.png" width="85%" alt="dataviewR viewing the iris dataset"> </p>
+
+### 2️⃣ Launch with multiple datasets (side-by-side comparison)
+
+You can now pass two or more datasets to compare them within the same session.
+
+```r
+dataviewer(iris, mtcars)
+```
+
+This is useful for:
+
+- comparing raw vs derived datasets
+
+- inspecting multiple ADaM datasets
+
+- reviewing train vs test splits
+
+- comparing outputs across pipelines
+
+<p align="center"> <img src="figures/dataviewer_multi.png" width="85%" alt="dataviewR comparing iris and mtcars"> </p>
+
+Each dataset gets its own tab, allowing you to switch seamlessly.
+
+### 3️⃣ Launch without data (use the Import Panel)
+
+Calling dataviewer() with no arguments opens the Import Panel, letting you load your own files interactively.
+
+```r
+dataviewer()
+```
+
+You can upload:
+
+- .csv
+- .xlsx
+- .sas7bdat
+
+Once imported, the viewer behaves the same as with built-in datasets.
+
+<p align="center"> <img src="figures/dataviewer_import.png" width="85%" alt="dataviewR import panel"> </p>
+
+## What Happens Inside the App?
+
+When a dataset is loaded, you can:
+
+✔ Browse and sort columns <br>
+✔ Apply flexible row filters (with dplyr-style expressions) <br>
+✔ Select or deselect variables <br>
+✔ See distinct values for character/factor columns (including NA) <br>
+✔ View metadata such as variable classes and attributes <br>
+✔ Export filtered data <br>
+✔ Copy auto-generated dplyr code for reproducibility <br>
+
+This helps integrate interactive exploration into a scripted workflow.
+
+## Typical Workflow Example
+
+```r
+library(dataviewR)
+
+# Explore data interactively
+dataviewer(iris)
+```
+<!-- https://www.veed.io/edit/d97e43d9-b262-4a74-b1e7-a652dca25f2d/media -->
+<p align="center" style="font-style: italic;">
+  Hover to watch how dataviewR helps you explore a dataset and generate reproducible code.
+</p>
+
+<p align="center">
+<video 
+  src="figures/dataviewer_workflow.mp4"
+  width="85%"
+  muted
+  playsinline
+  onmouseover="this.loop = true; this.play()"
+  onmouseout="this.loop = false; this.pause(); this.currentTime = 0;">
+</video>
+</p>
+
+```r
+# After exploring, use the exported code:
+
+library(dplyr)
+
+iris |>
+  filter(Species == "setosa" & Petal.Width > 0.1) |>
+  select('Sepal.Width', 'Petal.Width', 'Species')
+```
+
+The combination of interactive exploration + reproducible code makes dataviewR a strong addition to both analysis and QC workflows.
+
+## Next Steps
+
+To dive deeper into individual features, see:
+
+- Using Filters and Expressions
+
+- Importing External Data
+
+- Working with ADaM/Clinical Datasets
+
+- Exporting & Reproducibility
+
+All available under the Articles section of the package documentation.
+
+## Feedback
+
+If you have suggestions or run into issues, please visit the
+GitHub repository:
+https://github.com/madhankumarnagaraji/dataviewR
+
+We welcome ideas, feedback, and contributions.
+
+🏁 That’s It!
+
+You’re ready to start using dataviewR for fast, intuitive, and reproducible data exploration.
