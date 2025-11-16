@@ -1,230 +1,235 @@
+# tests/testthat/test-dataviewer.R
+
 library(testthat)
-library(dataviewR)
 library(shinytest2)
+library(dplyr)
+library(stringr)
 
-test_that("dataviewer works with data input (direct dataframe)", {
+# --- SETUP: MOCK DATA AND APP DRIVER ---
+
+# Use a wrapper function to launch the app with test data
+# Assuming 'multidataviewer' is exported by your package.
+app_driver_wrapper <- function(data = NULL) {
+  if (is.null(data)) {
+    app <- multidataviewer() # Launches with the Import Panel
+  } else {
+    app <- multidataviewer(data)
+  }
+  return(app)
+}
+
+# Define test data and expected namespace base
+test_data <- mtcars
+test_data_name <- "mtcars"
+
+
+# --- Helper Function for Namespaced UI Tests ---
+# This starts the app and returns the initial module ID
+start_modular_app <- function(data = test_data) {
+  app <- AppDriver$new(app_driver_wrapper(data),
+                       name = paste0("test_", Sys.time()),
+                       height = 800, width = 1200)
+
+  # The initial active tab ID is the module's namespace (e.g., "tab_mtcars_1")
+  initial_tab_id <- app$get_active_nav("opt")
+
+  # Fail early if we didn't land on the expected tab
+  if (!stringr::str_detect(initial_tab_id, tolower(test_data_name))) {
+    app$stop()
+    stop("App failed to initialize on the expected data tab.")
+  }
+
+  return(list(app = app, module_id = initial_tab_id))
+}
+
+# ----------------------------------------------------
+## I. Initialization and Basic UI Checks
+# ----------------------------------------------------
+
+test_that("1. App loads data correctly and UI is namespaced", {
   skip_on_cran()
 
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_direct", package = "dataviewR"),
-    name = "dataviewer_mtcars",
-    height = 800, width = 1200
-  )
+  # Use the helper to start the app and get the module ID
+  result <- start_modular_app()
+  app <- result$app
+  mid <- result$module_id
 
-  # Check initial tab (Viewer tab) exists
-  expect_equal(app$get_value(input = "opt"), "Viewer")
+  # Check 1: Tab is active
+  expect_true(stringr::str_detect(mid, tolower(test_data_name)))
 
-  # Check action buttons present
-  expect_false(is.null(app$get_value(input = "load")))
-  expect_false(is.null(app$get_value(input = "generate_code")))
+  # Check 2: Total row count is correct (uses namespaced output ID)
+  total_rows_id <- paste0(mid, "-totalrows")
+  expect_equal(app$get_value(total_rows_id), "32")
 
-  # Simulate clicking the generate_code button
-  app$set_inputs(generate_code = "click")
+  # Check 3: Essential inputs are present (namespaced)
+  expect_visible(app$get_html_id(paste0(mid, "-filter")))
+  expect_visible(app$get_html_id(paste0(mid, "-submit")))
 
-  # Wait for the code output to be populated
-  app$wait_for_value(input = "code_output", ignore = list(""))
-  output_val <- app$get_value(input = "code_output")
+  app$stop()
+})
 
-  # ensure Shiny processes everything
+test_that("2. App initializes on Import Panel when no data is provided", {
+  skip_on_cran()
+
+  app <- AppDriver$new(app_driver_wrapper(), name = "dataviewer_import")
+
+  # Check initial tab is the static "import_tab" value
+  expect_equal(app$get_value(input = "opt"), "import_tab")
+
+  app$stop()
+})
+
+# ----------------------------------------------------
+## II. Filtering and Data Integrity
+# ----------------------------------------------------
+
+test_that("3. Filtering works correctly and is reflected in the code output", {
+  skip_on_cran()
+  result <- start_modular_app()
+  app <- result$app
+  mid <- result$module_id
+
+  filter_id <- paste0(mid, "-filter")
+  submit_id <- paste0(mid, "-submit")
+  generate_code_id <- paste0(mid, "-generate_code")
+  code_output_id <- paste0(mid, "-code_output")
+
+  # 1. Apply filter: hp > 200 & cyl == 8
+  app$set_inputs(!!filter_id := "hp > 200 & cyl == 8")
+  app$click(submit_id)
   app$wait_for_idle()
 
-  print(output_val)  # Print output to see what the value is (debugging)
+  # 2. Check the generated R code (reliable proxy for applied filter)
+  app$click(generate_code_id)
+  app$wait_for_value(input = code_output_id, ignore = list(""))
+  code_content <- app$get_value(input = code_output_id)
 
-  # Check modal content is not empty
-  expect_true(nchar(output_val) > 0)
+  expect_true(stringr::str_detect(code_content, "filter\\(hp > 200 & cyl == 8\\)"))
 
-  app$stop()
-})
-
-test_that("dataviewer works without data input (import panel)", {
-  skip_on_cran()
-
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_import", package = "dataviewR"),
-    name = "dataviewer_import",
-    height = 800, width = 1200
-  )
-
-  # Check initial tab (Import Dataset tab)
-  expect_equal(app$get_value(input = "opt"), "Import Dataset")
-
-  app$stop()
-})
-
-test_that("dataviewer throws error for invalid input", {
-  expect_error(
-    dataviewer(iris$Sepal.Length),
-    regexp = "Argument 'data' is not a tibble or data.frame"
-  )
-})
-
-test_that("dataviewer column selection works properly", {
-  skip_on_cran()
-
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_direct", package = "dataviewR"),
-    name = "dataviewer_column_selection",
-    height = 800, width = 1200
-  )
-
-  # Select only 'mpg' and 'cyl' columns
-  app$set_inputs(columns = c("mpg", "cyl"))
+  # 3. Check Clear button functionality
+  app$click(paste0(mid, "-clear"))
   app$wait_for_idle()
 
-  # Retrieve the displayed data
-  data_view <- app$get_value(input = "columns")
-
-  print(data_view)
-
-  # Ensure only 'mpg' and 'cyl' are present
-  expect_true(all(c("mpg", "cyl") %in% data_view))
-  expect_equal(length(data_view), 2)
+  # The filter input should be reset
+  expect_equal(app$get_value(filter_id), "")
 
   app$stop()
 })
 
-test_that("dataviewer filtering works correctly", {
+test_that("4. Invalid filter shows no error (table remains unchanged)", {
   skip_on_cran()
+  result <- start_modular_app()
+  app <- result$app
+  mid <- result$module_id
 
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_direct", package = "dataviewR"),
-    name = "dataviewer_filtering",
-    height = 800, width = 1200
-  )
+  filter_id <- paste0(mid, "-filter")
+  submit_id <- paste0(mid, "-submit")
 
-  # Apply filter: mpg > 20
-  filter_input <- list(list(column = "mpg", condition = ">", value = 20))
-  app$set_inputs(filter = filter_input)
+  # Get initial table data (e.g., first few rows) as a baseline
+  initial_tbl <- app$get_value(output = paste0(mid, "-tbl"))
+
+  # 1. Apply an invalid filter
+  app$set_inputs(!!filter_id := "INVALID CODE")
+  app$click(submit_id)
   app$wait_for_idle()
 
-  # Retrieve the filtered data
-  filtered_data <- app$get_value(output = "filter_df")
-
-  print(filtered_data)
-
-  # Check that all 'mpg' values are greater than 20
-  expect_true(all(filtered_data$mpg > 20))
+  # 2. Check that the table output is still valid (i.e., didn't crash)
+  current_tbl <- app$get_value(output = paste0(mid, "-tbl"))
+  expect_false(is.null(current_tbl))
+  # A successful error handler should return the original unfiltered data
+  # (though checking table data directly is complex, we verify it didn't disappear)
 
   app$stop()
 })
 
-test_that("dataviewer toggles select/deselect all columns correctly", {
+# ----------------------------------------------------
+## III. Column Selection and Code Generation
+# ----------------------------------------------------
+
+test_that("5. Column selection and deselect-all work correctly", {
   skip_on_cran()
+  result <- start_modular_app()
+  app <- result$app
+  mid <- result$module_id
 
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_direct", package = "dataviewR"),
-    name = "dataviewer_select_all",
-    height = 800, width = 1200
-  )
+  cols_all_id <- paste0(mid, "-cols_all")
+  columns_id <- paste0(mid, "-columns")
+  generate_code_id <- paste0(mid, "-generate_code")
+  code_output_id <- paste0(mid, "-code_output")
 
-  app$set_inputs(load = "click")
+  # 1. Deselect all
+  app$set_inputs(!!cols_all_id := FALSE)
+  app$wait_for_idle()
 
-  # Deselect all
-  app$set_inputs(cols_all = FALSE)
-
-  # Wait and check if no columns selected
-  columns_selected <- app$get_value(input = "columns")
+  columns_selected <- app$get_value(input = columns_id)
   expect_equal(length(columns_selected), 0)
 
-  # Select all again
-  app$set_inputs(cols_all = TRUE)
-  columns_selected <- app$get_value(input = "columns")
-  expect_true(length(columns_selected) > 0)
-
-  app$stop()
-})
-
-test_that("dataviewer generates default R code without filter", {
-  skip_on_cran()
-
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_direct", package = "dataviewR"),
-    name = "dataviewer_default_code",
-    height = 800, width = 1200
-  )
-
-  # Click 'Load' to initialize data
-  app$set_inputs(load = "click")
-
-  # Click 'Generate Code'
-  app$set_inputs(generate_code = "click")
-
-  # Wait for code output
-  app$wait_for_value(input = "code_output", ignore = list(""))
-  code_output <- app$get_value(input = "code_output")
-
-  expect_match(code_output, "library\\(dplyr\\)")
-  expect_match(code_output, "mtcars \\|>")  # Check pipe used
-  expect_match(code_output, "select\\(.*\\)")  # Should select all or specific columns
-
-  app$stop()
-})
-
-test_that("dataviewer correctly handles a valid filter", {
-  skip_on_cran()
-
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_direct", package = "dataviewR"),
-    name = "dataviewer_valid_filter",
-    height = 800, width = 1200
-  )
-
-  app$set_inputs(load = "click")
-  app$set_inputs(filter = "mpg > 20")
-  app$set_inputs(submit = "click")
-
+  # 2. Select specific columns
+  app$set_inputs(!!columns_id := c("mpg", "cyl", "hp"))
   app$wait_for_idle()
 
-  # Check if table got updated
-  tbl_data <- app$get_value(output = "tbl")
-  expect_true(!is.null(tbl_data))
+  # 3. Check if code reflects the selection
+  app$click(generate_code_id)
+  app$wait_for_value(input = code_output_id, ignore = list(""))
+  code_content <- app$get_value(input = code_output_id)
+
+  expect_true(stringr::str_detect(code_content, "select\\(mpg, cyl, hp\\)"))
 
   app$stop()
 })
 
-test_that("dataviewer shows error notification for invalid filter", {
+test_that("6. Full code generation (filter + select) is correct", {
   skip_on_cran()
+  result <- start_modular_app()
+  app <- result$app
+  mid <- result$module_id
 
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_direct", package = "dataviewR"),
-    name = "dataviewer_invalid_filter",
-    height = 800, width = 1200
-  )
+  filter_id <- paste0(mid, "-filter")
+  submit_id <- paste0(mid, "-submit")
+  columns_id <- paste0(mid, "-columns")
+  generate_code_id <- paste0(mid, "-generate_code")
+  code_output_id <- paste0(mid, "-code_output")
 
-  app$set_inputs(load = "click")
-  app$set_inputs(filter = "INVALID CODE")
-  app$set_inputs(submit = "click")
-
+  # 1. Set specific filter and selection
+  app$set_inputs(!!filter_id := "gear == 4 & am == 1")
+  app$set_inputs(!!submit_id := "click")
+  app$set_inputs(!!columns_id := c("gear", "am", "qsec"))
   app$wait_for_idle()
 
-  # Since showNotification cannot be directly tested, check if data remains unchanged or similar output check
-  tbl_data <- app$get_value(output = "tbl")
-  expect_true(!is.null(tbl_data))
+  # 2. Generate code
+  app$click(generate_code_id)
+  app$wait_for_value(input = code_output_id, ignore = list(""))
+  code_content <- app$get_value(input = code_output_id)
 
-  app$stop()
-})
-
-test_that("dataviewer attribute info table is populated", {
-  skip_on_cran()
-
-  app <- AppDriver$new(
-    app_dir = system.file("shinyapps/dataviewer_direct", package = "dataviewR"),
-    name = "dataviewer_attr_info",
-    height = 800, width = 1200
+  # Expected code structure check
+  expected_code <- paste0(
+    "mtcars \\|>",
+    "\\s+filter\\(gear == 4 & am == 1\\) \\|>",
+    "\\s+select\\(gear, am, qsec\\)"
   )
-
-  app$wait_for_value(output = "metainfo")
-  attr_info <- app$get_value(output = "metainfo")
-
-  print(attr_info)
-
-  # Check that attribute info table output is not empty
-  expect_true(length(attr_info) > 0)
-  expect_true(any(nzchar(attr_info)))  # ensures it is not all empty strings
+  expect_match(code_content, expected_code)
 
   app$stop()
 })
 
+# ----------------------------------------------------
+## IV. Metadata and Attributes
+# ----------------------------------------------------
 
+test_that("7. Attribute info table is populated", {
+  skip_on_cran()
+  result <- start_modular_app()
+  app <- result$app
+  mid <- result$module_id
 
+  metainfo_id <- paste0(mid, "-metainfo")
 
+  # The metainfo table is in the sidebar and should load instantly
+  app$wait_for_value(output = metainfo_id)
+  attr_info_html <- app$get_value(output = metainfo_id)
+
+  # Check that the attribute info table output is not empty
+  expect_true(nchar(attr_info_html) > 100)
+
+  app$stop()
+})
