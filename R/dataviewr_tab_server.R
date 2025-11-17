@@ -60,6 +60,26 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
       last_action("clear")
     })
 
+    validate_filter_expression <- function(expr) {
+      # Basic validation: check for dangerous patterns
+      dangerous_patterns <- c(
+        "system\\(", "shell\\(", "eval\\(",
+        "source\\(", ":::", "assign\\("
+      )
+
+      if (any(sapply(dangerous_patterns, grepl, x = expr))) {
+        stop("Potentially unsafe expression detected")
+      }
+
+      # Check if it's a valid R expression
+      tryCatch({
+        parse(text = expr)
+        TRUE
+      }, error = function(e) {
+        stop("Invalid R syntax: ", e$message)
+      })
+    }
+
     # Filter dataframe
     filter_df <- shiny::eventReactive(
       c(input$load, input$submit, input$clear),
@@ -73,9 +93,14 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
 
         if (stringr::str_trim(input$filter) != "") {
           tryCatch({
+            validate_filter_expression(input$filter)
             dplyr::filter(get_data(), eval(parse(text = input$filter)))
           }, error = function(e) {
-            shiny::showNotification("Invalid filter condition.", type = "error")
+            shiny::showNotification(
+              paste0("Invalid filter condition: ", e$message),
+              type = "error",
+              duration = 5
+            )
             get_data()
           })
         } else {
