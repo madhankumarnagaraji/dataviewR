@@ -77,17 +77,12 @@ Each dataset gets its own tab, allowing you to switch seamlessly.
 
 ### 3️⃣ Launch without data (use the Import Panel)
 
-Calling dataviewer() with no arguments opens the Import Panel, letting you load your own files interactively.
+Calling dataviewer() with no arguments opens the Import Panel, letting you load the datasets 
+either from the global environment or from the loaded packages.
 
 ```r
 dataviewer()
 ```
-
-You can upload:
-
-- .csv
-- .xlsx
-- .sas7bdat
 
 Once imported, the viewer behaves the same as with built-in datasets.
 
@@ -97,9 +92,8 @@ Once imported, the viewer behaves the same as with built-in datasets.
 
 When a dataset is loaded, you can:
 
-✔ Browse and sort columns <br>
 ✔ Apply flexible row filters (with dplyr-style expressions) <br>
-✔ Select or deselect variables <br>
+✔ Select or deselect variables and sort columns <br>
 ✔ See distinct values for character/factor columns (including NA) <br>
 ✔ View metadata such as variable classes and attributes <br>
 ✔ Export filtered data <br>
