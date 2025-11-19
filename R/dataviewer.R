@@ -1,3 +1,8 @@
+# Package environment to store background processes
+.dataviewer_env <- new.env(parent = emptyenv())
+.dataviewer_env$processes <- list()
+.dataviewer_env$counter <- 0L
+
 #' Interactive Data Viewer with Filter and Code Generation
 #'
 #' Launches a Shiny application to explore and filter a 'data.frame' or 'tibble'.
@@ -21,7 +26,7 @@
 #' The filtering uses `dplyr::filter()` and generates user-friendly code to replicate the steps.
 #' It also provides copyable R code that includes column selection and filtering logic.
 #'
-#' @importFrom shiny fluidPage tabsetPanel tabPanel actionButton textInput updateTextInput checkboxInput checkboxGroupInput updateCheckboxGroupInput sidebarLayout sidebarPanel mainPanel renderTable tableOutput tags showModal modalDialog modalButton observeEvent updateTabsetPanel reactive reactiveVal req br
+#' @importFrom shiny fluidPage tabsetPanel tabPanel actionButton textInput updateTextInput checkboxInput checkboxGroupInput updateCheckboxGroupInput sidebarLayout sidebarPanel mainPanel renderTable tableOutput tags showModal modalDialog modalButton observeEvent updateTabsetPanel reactive reactiveVal req br runApp
 #' @importFrom DT datatable renderDT dataTableOutput
 #' @importFrom shinyjs useShinyjs runjs
 #' @import dplyr
@@ -42,20 +47,98 @@
 #' @export
 #' @name dataviewer
 utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value"))
-dataviewer <- function(data = NULL) {
+dataviewer <- function(data = NULL, background = FALSE, port = NULL) {
 
-  if (missing(data) || is.null(data)) {
-    cat("\033[34mNote: Showing the Import Dataset Panel because argument 'data' is either missing or NULL\033[0m\n")
-    trigger <- 1  # triggers the import dataset panel
-  } else if (!missing(data) & !any(class(data) %in% c("tbl_df", "tbl", "data.frame"))) {
-    stop(stringr::str_c("Argument 'data' is not a tibble or data.frame"))
-  } else if ( !missing(data) & any(class(data) %in% c("tbl_df", "tbl", "data.frame"))) {
-    cat("\033[34mNote: Argument 'data' is Passed\033[0m\n")
-    trigger <- 2  # # Shows the passed dataframe directly in the Viewer
-    dataset_name <- deparse(substitute(data))
+  # If background mode, launch in separate process
+  if (background) {
+    if (!requireNamespace("callr", quietly = TRUE)) {
+      stop("Package 'callr' is required for background mode. Install with: install.packages('callr')")
+    }
+
+    # Generate unique ID for this process
+    .dataviewer_env$counter <- .dataviewer_env$counter + 1L
+    proc_id <- paste0("dv_", .dataviewer_env$counter)
+
+    # Capture data name before launching
+    data_name <- if (!missing(data) && !is.null(data)) {
+      deparse(substitute(data))
+    } else {
+      NULL
+    }
+
+    # Launch in background
+    proc <- callr::r_bg(
+      func = function(data, port, data_name) {
+        # Load the dataviewer function
+        dataviewR:::.run_dataviewer_app(data = data, port = port, data_name = data_name)
+      },
+      args = list(data = data, port = port, data_name = data_name),
+      supervise = TRUE
+    )
+
+    # Store process
+    .dataviewer_env$processes[[proc_id]] <- list(
+      process = proc,
+      started = Sys.time(),
+      data_name = data_name,
+      port = port
+    )
+
+    # Wait a moment for the app to start
+    Sys.sleep(1)
+
+    # Try to detect the port if not specified
+    if (is.null(port)) {
+      # Read stdout to find the port
+      if (proc$is_alive()) {
+        output <- proc$read_output_lines()
+        port_line <- grep("Listening on", output, value = TRUE)
+        if (length(port_line) > 0) {
+          port_match <- regmatches(port_line, regexpr("http://[^\\s]+", port_line))
+          if (length(port_match) > 0) {
+            message(port_match[1])
+            message("Dataviewer running in background (ID: ", proc_id, ")")
+            message("Use stop_dataviewer('", proc_id, "') to stop this viewer")
+          }
+        } else {
+          message("Dataviewer starting in background (ID: ", proc_id, ")")
+          message("Use stop_dataviewer('", proc_id, "') to stop this viewer")
+        }
+      }
+    } else {
+      message("Listening on http://127.0.0.1:", port)
+      message("Dataviewer running in background (ID: ", proc_id, ")")
+      message("Use stop_dataviewer('", proc_id, "') to stop this viewer")
+    }
+
+    return(invisible(proc_id))
   }
 
-  shiny::shinyApp(
+  # Original blocking mode
+  dataset_name <- if (!missing(data) && !is.null(data)) {
+    deparse(substitute(data))
+  } else {
+    NULL
+  }
+
+  .run_dataviewer_app(data = data, port = port, data_name = dataset_name)
+}
+
+# Internal function that contains the actual app logic
+.run_dataviewer_app <- function(data = NULL, port = NULL, data_name = NULL) {
+
+  if (is.null(data)) {
+    message("Note: Showing the Import Dataset Panel because argument 'data' is either missing or NULL")
+    trigger <- 1  # triggers the import dataset panel
+  } else if (!any(class(data) %in% c("tbl_df", "tbl", "data.frame"))) {
+    stop(stringr::str_c("Argument 'data' is not a tibble or data.frame"))
+  } else {
+    message("Note: Argument 'data' is Passed")
+    trigger <- 2  # # Shows the passed dataframe directly in the Viewer
+    dataset_name <- data_name
+  }
+
+  app <- shiny::shinyApp(
     ui = shiny::fluidPage(
 
       shinyjs::useShinyjs(),
@@ -307,4 +390,124 @@ dataviewer <- function(data = NULL) {
 
     }
   )
+
+  # Run the app with optional port specification
+  if (!is.null(port)) {
+    shiny::runApp(app, port = port, launch.browser = TRUE)
+  } else {
+    shiny::runApp(app, launch.browser = TRUE)
+  }
+}
+
+#' Stop a Background Dataviewer Process
+#'
+#' @param id Character string specifying the process ID to stop. If NULL, stops the most recent background dataviewer.
+#'
+#' @export
+stop_dataviewer <- function(id = NULL) {
+  # If no ID specified and no processes running, just message and return
+  if (is.null(id) && length(.dataviewer_env$processes) == 0) {
+    message("No background dataviewer processes are running.")
+    return(invisible(NULL))
+  }
+
+  # If no ID specified, use the most recent process
+  if (is.null(id)) {
+    id <- names(.dataviewer_env$processes)[length(.dataviewer_env$processes)]
+    message("Stopping most recent dataviewer: ", id)
+  }
+
+  # Check if process exists - throw error if specific ID not found
+  if (!id %in% names(.dataviewer_env$processes)) {
+    if (length(.dataviewer_env$processes) == 0) {
+      stop("Process '", id, "' not found. No background dataviewer processes are running.")
+    } else {
+      available <- paste(names(.dataviewer_env$processes), collapse = ", ")
+      stop("Process '", id, "' not found. Available processes: ", available)
+    }
+  }
+
+  # Get the process
+  proc_info <- .dataviewer_env$processes[[id]]
+  proc <- proc_info$process
+
+  # Kill the process
+  if (proc$is_alive()) {
+    proc$kill()
+    message("Stopped dataviewer process: ", id)
+  } else {
+    message("Process ", id, " was already stopped.")
+  }
+
+  # Remove from list
+  .dataviewer_env$processes[[id]] <- NULL
+
+  invisible(NULL)
+}
+
+#' List Active Background Dataviewer Processes
+#'
+#' @export
+list_dataviewers <- function() {
+  if (length(.dataviewer_env$processes) == 0) {
+    message("No background dataviewer processes are running.")
+    return(invisible(NULL))
+  }
+
+  cat("Active background dataviewer processes:\n")
+  cat("=======================================\n\n")
+
+  for (id in names(.dataviewer_env$processes)) {
+    proc_info <- .dataviewer_env$processes[[id]]
+    proc <- proc_info$process
+
+    status <- if (proc$is_alive()) "RUNNING" else "STOPPED"
+    data_info <- if (!is.null(proc_info$data_name)) {
+      paste0("Data: ", proc_info$data_name)
+    } else {
+      "Data: <import mode>"
+    }
+    port_info <- if (!is.null(proc_info$port)) {
+      paste0("Port: ", proc_info$port)
+    } else {
+      "Port: auto"
+    }
+    started_info <- paste0("Started: ", format(proc_info$started, "%Y-%m-%d %H:%M:%S"))
+
+    cat("ID: ", id, "\n", sep = "")
+    cat("  Status: ", status, "\n", sep = "")
+    cat("  ", data_info, "\n", sep = "")
+    cat("  ", port_info, "\n", sep = "")
+    cat("  ", started_info, "\n", sep = "")
+    cat("\n")
+  }
+
+  invisible(NULL)
+}
+
+#' Stop All Background Dataviewer Processes
+#'
+#' @export
+stop_all_dataviewers <- function() {
+  if (length(.dataviewer_env$processes) == 0) {
+    message("No background dataviewer processes are running.")
+    return(invisible(NULL))
+  }
+
+  count <- 0
+  for (id in names(.dataviewer_env$processes)) {
+    proc_info <- .dataviewer_env$processes[[id]]
+    proc <- proc_info$process
+
+    if (proc$is_alive()) {
+      proc$kill()
+      count <- count + 1
+    }
+  }
+
+  # Clear all processes
+  .dataviewer_env$processes <- list()
+
+  message("Stopped ", count, " dataviewer process", if (count != 1) "es" else "")
+  invisible(NULL)
 }
