@@ -29,3 +29,8 @@ articles:
     navbar: Get started
     contents:
       - Introduction-to-dataviewR
+  - title: Exploring Data
+    navbar: Exploring Data
+    contents:
+      - Filtering-Expressions
+      - Multiple-Datasets
