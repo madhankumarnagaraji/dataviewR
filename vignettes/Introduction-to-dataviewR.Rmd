@@ -71,7 +71,7 @@ This is useful for:
 
 - comparing outputs across pipelines
 
-<p align="center"> <img src="figures/dataviewer_multi.png" width="85%" alt="dataviewR comparing iris and mtcars"> </p>
+<!-- <p align="center"> <img src="figures/dataviewer_multi.png" width="85%" alt="dataviewR comparing iris and mtcars"> </p> -->
 
 Each dataset gets its own tab, allowing you to switch seamlessly.
 
@@ -142,12 +142,9 @@ The combination of interactive exploration + reproducible code makes dataviewR a
 To dive deeper into individual features, see:
 
 - Using Filters and Expressions
-
-- Importing External Data
-
+- Exploring Multiple Datasets
 - Working with ADaM/Clinical Datasets
-
-- Exporting & Reproducibility
+- Importing External Data
 
 All available under the Articles section of the package documentation.
 
