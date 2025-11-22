@@ -1,0 +1,120 @@
+---
+title: "Using Filter and Expressions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using Filter and Expressions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Filtering & Expressions in dataviewR
+
+Filtering in `dataviewR` is done using a single powerful method:  
+writing a **dplyr-compatible expression** in the filter box.
+
+This gives you complete flexibility while keeping the logic clean and reproducible.
+
+---
+
+## 1. Launch dataviewR with a dataset
+
+```r
+library(dataviewR)
+dataviewer(iris)
+```
+
+Once the app opens, you’ll see a Filter text box where you can type any expression that is valid inside dplyr::filter().
+
+## 2. Filtering with Expressions
+
+You can write any logical condition that you would normally pass to:
+
+```r
+dplyr::filter(...)
+```
+
+Basic comparisons
+```mathematica
+Sepal.Length > 5
+```
+
+Multiple conditions
+```mathematica
+Sepal.Length > 5 & Species == "virginica"
+```
+
+Using %in%
+```nginx
+Species %in% c("setosa", "virginica")
+```
+
+Handling missing values
+```csharp
+is.na(Petal.Width)
+```
+
+String matching
+```scss
+grepl("^s", Species)
+```
+
+When you click Submit, the expression is evaluated and the data updates.
+
+Invalid expressions show a friendly error notification.
+
+## 3. Re-running, clearing, or updating filters
+
+- Submit → runs the filter
+- Clear → resets the filter box
+- Load → loads the data unchanged
+
+The display updates immediately after submitting.
+
+## 4. How filtering affects the generated R code
+
+Whenever you apply a filter, the exported code reflects exactly what you typed:
+
+```r
+iris |>
+  filter(Species == "setosa" & Sepal.Length > 5) |>
+  select(Sepal.Length, Sepal.Width, Species)
+```
+
+Filtering always appears before column selection in the pipeline.
+
+If no filter is applied, the code omits filter() entirely.
+
+## 5. Tips for Writing Expressions
+
+- Use & instead of &&
+- Use %in% for selecting multiple values
+- Write full variable names
+- Treat the filter box like the inside of dplyr::filter()
+- If something fails, try running your expression directly in the R console first
+
+## 6. Note on DT table filters
+
+The table includes built-in per-column filters from DataTables (filter = "top").
+These:
+- do not affect exported code
+- do not combine with expression filters
+- are optional UI helpers for on-screen browsing only
+
+Filtering logic in dataviewR is defined solely by the expression box.
+
+Summary
+
+In this article, you learned:
+- dataviewR uses a single expression-based filtering system
+- Expressions must be valid inside dplyr::filter()
+- The filtered result updates on Submit
+- Exported code reflects your filter exactly
+- DT column filters help browsing but do not contribute to filtering logic
+
+Expression filtering gives users full flexibility and keeps the workflow reproducible.
+
+## Next Article
+
+Continue with: Working with Multiple Datasets
+
+
