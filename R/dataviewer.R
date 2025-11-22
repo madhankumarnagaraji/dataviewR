@@ -21,7 +21,7 @@
 #' The filtering uses `dplyr::filter()` and generates user-friendly code to replicate the steps.
 #' It also provides copyable R code that includes column selection and filtering logic.
 #'
-#' @importFrom shiny fluidPage tabsetPanel tabPanel actionButton textInput updateTextInput checkboxInput checkboxGroupInput updateCheckboxGroupInput sidebarLayout sidebarPanel mainPanel renderTable tableOutput tags showModal modalDialog modalButton observeEvent updateTabsetPanel reactive reactiveVal req br
+#' @importFrom shiny fluidPage tabsetPanel tabPanel actionButton textInput updateTextInput checkboxInput checkboxGroupInput updateCheckboxGroupInput sidebarLayout sidebarPanel mainPanel renderTable tableOutput tags showModal modalDialog modalButton observeEvent updateTabsetPanel reactive reactiveVal req h4 br div
 #' @importFrom DT datatable renderDT dataTableOutput
 #' @importFrom shinyjs useShinyjs runjs
 #' @import dplyr
@@ -32,6 +32,7 @@
 #' @importFrom purrr map
 #' @importFrom tibble enframe
 #' @import htmlwidgets
+#' @import bslib
 #'
 #' @examples
 #' if (interactive()) {
@@ -57,7 +58,14 @@ dataviewer <- function(data = NULL) {
 
   shiny::shinyApp(
     ui = shiny::fluidPage(
-
+      # theme = bs_theme(
+      #   version = 5,
+      #   bootswatch = "flatly",
+      #   primary = "#1B56FD",
+      #   secondary = "#145DA0",
+      #   base_font = font_google("Inter"),
+      #   heading_font = font_google("Inter")
+      # ),
       shinyjs::useShinyjs(),
       shiny::tabsetPanel(
         id = "opt",
@@ -69,13 +77,21 @@ dataviewer <- function(data = NULL) {
         },
         shiny::tabPanel(
           "Viewer",
-          shiny::br(),
-          shiny::actionButton("load", "Load the Data"),
-          shiny::actionButton("generate_code", "Generate R Code"),
-          shiny::h4(shiny::tags$strong("Filter")),
-          shiny::textInput("filter", NULL, value = "", width = "40%"),
-          shiny::actionButton("clear", "Clear"),
-          shiny::actionButton("submit", "Submit"),
+          br(),
+          div(
+            style = "display:flex; gap:10px;",
+            actionButton("load", "Load Data"),
+            actionButton("generate_code", "Generate R Code")
+          ),
+          br(),
+          h4(tags$strong("Filter")),
+          textInput("filter", NULL, width = "60%", placeholder = "mpg > 20 & cyl == 6"),
+          div(
+            style = "display:flex; gap:8px; padding-top:5px;",
+            actionButton("clear", "Clear"),
+            actionButton("submit", "Apply Filter")
+          ),
+          br(),
           shiny::tags$head(shiny::tags$style(shiny::HTML("
                                                           .scrollable-checkbox{
                                                           max-height: 400px;
