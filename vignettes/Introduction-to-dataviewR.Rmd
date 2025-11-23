@@ -77,7 +77,7 @@ Each dataset gets its own tab, allowing you to switch seamlessly.
 
 ### 3️⃣ Launch without data (use the Import Panel)
 
-Calling dataviewer() with no arguments opens the Import Panel, letting you load the datasets 
+Calling `dataviewer()` with no arguments opens the Import Panel, letting you load the datasets 
 either from the global environment or from the loaded packages.
 
 ```r
@@ -141,10 +141,10 @@ The combination of interactive exploration + reproducible code makes dataviewR a
 
 To dive deeper into individual features, see:
 
-- Using Filters and Expressions
-- Exploring Multiple Datasets
-- Working with ADaM/Clinical Datasets
-- Importing External Data
+- [Using Filters and Expressions](Filtering-Expressions.html)
+- [Exploring Multiple Datasets](Multiple-Datasets.html)
+- [Working with ADaM/Clinical Datasets](adam-clinical-dataset.html)
+- [Importing External Data](importing-external-data.html)
 
 All available under the Articles section of the package documentation.
 

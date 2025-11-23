@@ -1,0 +1,8 @@
+---
+title: "Importing External Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Importing External Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---

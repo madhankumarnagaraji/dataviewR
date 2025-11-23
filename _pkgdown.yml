@@ -34,3 +34,5 @@ articles:
     contents:
       - Filtering-Expressions
       - Multiple-Datasets
+      - adam-clinical-dataset
+      - importing-external-data

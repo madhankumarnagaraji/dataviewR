@@ -1,0 +1,33 @@
+---
+title: "Working with ADaM/Clinical Datasets"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working with ADaM/Clinical Datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r app}
+code <- 'library(shiny)
+ui <- fluidPage(sliderInput("n","Bins",1,50,30), plotOutput("p"))
+server <- function(input, output, session) {
+  output$p <- renderPlot(hist(rnorm(1000), breaks=input$n))
+}
+shinyApp(ui, server)'
+url <- roxy.shinylive::create_shinylive_url(code)
+url
+
+```
+
+
+```{r, echo = FALSE, out.width = '150%', out.extra = 'style = "position: relative; z-index:1"', eval = requireNamespace("roxy.shinylive", quietly = TRUE) && knitr::is_html_output()}
+
+code <- paste0(c(
+  "interactive <- function() TRUE",
+  knitr::knit_code$get("app")
+), collapse = "\n")
+
+url <- roxy.shinylive::create_shinylive_url(code)
+knitr::include_url(url, height = "800px")
+url
+```
+
