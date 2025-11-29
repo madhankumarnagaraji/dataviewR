@@ -9,8 +9,8 @@
 #' If no data is provided, it opens an import panel to load a dataset from either the global environment or the packages.
 #'
 #' @param ... One or more `data.frame` or `tibble` objects. If none provided, an import UI is shown to load data interactively.
-#' @param background Logical. If `TRUE`, runs the app in a background R process using callr. Requires the 'callr' package.
-#' @param port Integer. Port number for the Shiny app. If `NULL`, a random available port is used.
+#' @param background Logical. If `TRUE`, runs the app in a background R process using callr. Requires the 'callr' package. Default is TRUE.
+#' @param port Integer. Port number for the Shiny app. If `NULL`, a random available port is used. Default is NULL.
 #'
 #' @return
 #' Launches a Shiny application in the browser. Does not return a value.
@@ -50,8 +50,11 @@
 #'     dataviewer(iris, mtcars) # Multiple datasets
 #'     dataviewer() # Opens the import panel
 #'
-#'     # Run in background
-#'     id <- dataviewer(mtcars, iris, background = TRUE)
+#'     # Run in foreground (blocking mode)
+#'     dataviewer(mtcars, background = FALSE)
+#'
+#'     # Stop background process
+#'     id <- dataviewer(mtcars, iris)
 #'     stop_dataviewer(id)
 #' }
 #'
@@ -61,7 +64,7 @@
 utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value", ".data"))
 
 
-dataviewer <- function(..., background = FALSE, port = NULL) {
+dataviewer <- function(..., background = TRUE, port = NULL) {
 
   # If background mode, launch in separate process
   if (background) {
