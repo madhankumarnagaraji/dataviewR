@@ -16,6 +16,9 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
     # This reactive value is now internal to the module
     last_action <- shiny::reactiveVal("load")
 
+    # FIX: Add initialization flag
+    initialized <- shiny::reactiveVal(FALSE)
+
     # Provide total rows output (full dataset row count)
     output$totalrows <- shiny::renderText({
       n <- 0L
@@ -26,8 +29,13 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
       format(n, big.mark = ",")
     })
 
-    # Update columns checkboxes
+    # FIX: Update columns checkboxes with initialization check
     shiny::observe({
+      # Force initialization on first render
+      if (!initialized()) {
+        initialized(TRUE)
+      }
+
       shiny::req(get_data())
       columns <- names(get_data())
       select_all <- isTRUE(input$cols_all)
@@ -158,7 +166,6 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
       shiny::showModal(shiny::modalDialog(
         title = "Generated R Code",
         shiny::tags$textarea(
-          # *** MODULARIZATION FIX: Use namespaced ID ***
           id = session$ns("code_output"),
           rows = 10,
           style = "width:100%;",
@@ -173,7 +180,6 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
 
     # Copy button
     shiny::observeEvent(input$copy_btn, {
-      # *** MODULARIZATION FIX: Use namespaced ID ***
       js_code <- sprintf(
         "var copyText = document.getElementById('%s'); copyText.select(); document.execCommand('copy');",
         session$ns("code_output")
@@ -183,11 +189,18 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
 
     # Select columns
     cols_df <- shiny::reactive({
+      # FIX: Add req for columns to ensure they're selected
+      shiny::req(length(input$columns) > 0)
       dplyr::select(filter_df(), input$columns)
     })
 
     # Final dataframe
     final_df <- shiny::reactive({
+      # FIX: Fallback to filter_df if no columns selected yet
+      if (length(input$columns) == 0) {
+        return(filter_df())
+      }
+
       dplyr::mutate(
         cols_df(),
         # 1. Handle character/factor NAs (converting to "<NA>")
@@ -200,6 +213,9 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
 
     # --- Metadata Reactives ---
     att_cols <- shiny::reactive({
+      # FIX: Force evaluation when initialized
+      shiny::req(initialized())
+
       att_list <- purrr::map(get_data(), attributes)
       if (all(purrr::map_lgl(att_list, is.null))) {
         return(tibble::tibble(colname = character(), att = character(), value = character()))
@@ -215,6 +231,9 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
     })
 
     class_df <- shiny::reactive({
+      # FIX: Force evaluation when initialized
+      shiny::req(initialized())
+
       dict <- tryCatch(labelled::generate_dictionary(get_data()), error = function(e) NULL)
       if (is.null(dict) || nrow(dict) == 0) {
         return(tibble::tibble(pos = integer(), colname = character(), col_type = character()))
@@ -225,6 +244,9 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
     })
 
     meta_cols <- shiny::reactive({
+      # FIX: Force evaluation when initialized
+      shiny::req(initialized())
+
       dplyr::left_join(class_df(), att_cols(), by = "colname") %>%
         dplyr::mutate(col_name = dplyr::case_when(
           col_type == "int" ~ paste0("\U0001F522", colname),
@@ -241,6 +263,10 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
 
     # Sidebar table renderer
     output$metainfo <- shiny::renderTable({
+      # FIX: Ensure data is available
+      shiny::req(initialized())
+      shiny::req(get_data())
+
       meta_cols() %>%
         dplyr::arrange(pos, att) %>%
         dplyr::group_by(col_name) %>%
@@ -255,7 +281,6 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
       shiny::showModal(shiny::modalDialog(
         title = paste(dataset_name(), "- Attribute Information"),
         shiny::div(style = "max-height: 70vh; overflow-y: auto;",
-                   # *** MODULARIZATION FIX: Use namespaced ID ***
                    shiny::tableOutput(session$ns("metainfo_modal"))
         ),
         easyClose = TRUE,
@@ -283,7 +308,7 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
         class = "cell-border stripe hover nowrap",
         selection = "none",
         options = list(
-          pageLength = 100,
+          pageLength = 10,
           scroller.rowHeight = "auto",
           scrollCollapse = FALSE,
           autoWidth = FALSE,
@@ -292,7 +317,6 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
           dom = 'Bfrtip',
           nullText = "<NA>",
           buttons = list('copy', list(extend = 'collection', buttons = c('csv', 'excel'), text = 'Download')),
-          # *** MODULARIZATION FIX: Use namespaced ID ***
           drawCallback = DT::JS(sprintf("
             function(settings) {
               var tableId = '%s';
@@ -319,15 +343,11 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
     # Safeguard observer
     shiny::observe({
       shiny::req(final_df())
-      # *** MODULARIZATION FIX: Use namespaced ID ***
       shinyjs::runjs(sprintf("if(window && window.ensureDTFooterMovedTop){ window.ensureDTFooterMovedTop('%s'); }", session$ns("tbl")))
     })
 
     # Custom row info output
     output$row_info <- shiny::renderText({
-      # This output was in the UI but never implemented in the server.
-      # You can add logic here if needed, e.g., show filter info.
-      # For now, just return an empty string to avoid errors.
       ""
     })
 
