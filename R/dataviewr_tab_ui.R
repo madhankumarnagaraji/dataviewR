@@ -30,7 +30,7 @@ dataviewr_tab_ui <- function(id) {
         shiny::fluidRow(shiny::column(12,
                                       shiny::div(
                                         style = "display: flex; justify-content: space-between; align-items: center; padding: 5px;",
-                                        shiny::h4(shiny::tags$strong("Attribute Information:"), style = "margin: 0; overflow-wrap: break-word;"),
+                                        shiny::h4(shiny::tags$strong("Attribute Info:"), style = "margin: 0; overflow-wrap: break-word;"),
                                         shiny::actionLink(ns("popout_meta"), label="", icon = shiny::icon("glyphicon glyphicon-new-window",lib = "glyphicon"))
                                       ),
                                       shiny::div(class = "scrollable-checkbox",

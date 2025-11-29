@@ -279,7 +279,7 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
     # Observer for the pop-out modal
     shiny::observeEvent(input$popout_meta, {
       shiny::showModal(shiny::modalDialog(
-        title = paste(dataset_name(), "- Attribute Information"),
+        title = paste(dataset_name(), "- Attribute Info"),
         shiny::div(style = "max-height: 70vh; overflow-y: auto;",
                    shiny::tableOutput(session$ns("metainfo_modal"))
         ),
