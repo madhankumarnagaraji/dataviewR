@@ -9,7 +9,7 @@
 #' If no data is provided, it opens an import panel to load a dataset from either the global environment or the packages.
 #'
 #' @param ... One or more `data.frame` or `tibble` objects. If none provided, an import UI is shown to load data interactively.
-#' @param background Logical. If `TRUE`, runs the app in a background R process using callr. Requires the 'callr' package. Default is TRUE.
+#' @param background Logical. If `TRUE`, runs the app in a background R process using callr. Requires the 'callr' package. Default is TRUE when datasets are provided, FALSE when no datasets are provided.
 #' @param port Integer. Port number for the Shiny app. If `NULL`, a random available port is used. Default is NULL.
 #'
 #' @return
@@ -48,9 +48,9 @@
 #' if (interactive()) {
 #'     dataviewer(mtcars)
 #'     dataviewer(iris, mtcars) # Multiple datasets
-#'     dataviewer() # Opens the import panel
+#'     dataviewer() # Opens the import panel (foreground mode - console will be busy)
 #'
-#'     # Run in foreground (blocking mode)
+#'     # Run in foreground (foreground mode) with import
 #'     dataviewer(mtcars, background = FALSE)
 #'
 #'     # Stop background process
@@ -64,7 +64,29 @@
 utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value", ".data"))
 
 
-dataviewer <- function(..., background = TRUE, port = NULL) {
+dataviewer <- function(..., background = NULL, port = NULL) {
+
+  # Capture datasets
+  datasets <- list(...)
+  dataset_names <- as.character(substitute(list(...)))[-1]
+
+  # RULE: If no datasets provided, force background = FALSE
+  if (length(datasets) == 0) {
+    if (!is.null(background) && background == TRUE) {
+      message("Note: Background mode cannot access Global Environment for import.")
+    }
+    background <- FALSE
+    message("Using foreground mode.")
+  } else {
+    # If datasets provided and background not specified, default to TRUE
+    if (is.null(background)) {
+      background <- TRUE
+    }
+  }
+
+  # Determine if import panel should be shown
+  # Show import panel only when: background=FALSE OR no datasets provided
+  show_import_panel <- !background
 
   # If background mode, launch in separate process
   if (background) {
@@ -76,10 +98,6 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
     .dataviewer_env$counter <- .dataviewer_env$counter + 1L
     proc_id <- paste0("dv_", .dataviewer_env$counter)
 
-    # Capture datasets and names before launching
-    datasets <- list(...)
-    dataset_names <- as.character(substitute(list(...)))[-1]
-
     # Generate a port if not specified
     if (is.null(port)) {
       port <- sample(3000:8000, 1)
@@ -90,7 +108,7 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
     # Launch in background WITHOUT opening browser
     # IMPORTANT: Pass the entire app creation code as a function
     proc <- callr::r_bg(
-      func = function(datasets, dataset_names, port) {
+      func = function(datasets, dataset_names, port, show_import_panel) {
         # Load required packages in background session
         library(shiny)
         library(dataviewR)
@@ -119,11 +137,14 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
             dataviewR:::dataviewr_ui_head(),
             shiny::tabsetPanel(
               id = "opt",
-              shiny::tabPanel(
-                "Import Dataset",
-                value = "import_tab",
-                shiny::fluidRow(datamods::import_globalenv_ui("myid"))
-              )
+              # Conditionally show Import Dataset panel
+              if (show_import_panel) {
+                shiny::tabPanel(
+                  "Import Dataset",
+                  value = "import_tab",
+                  shiny::fluidRow(datamods::import_globalenv_ui("myid"))
+                )
+              }
             )
           ),
           server = function(input, output, session) {
@@ -187,51 +208,63 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
               }, once = TRUE)
             }
 
-            imported <- datamods::import_globalenv_server("myid", btn_show_data = FALSE)
+            # Only set up import handlers if import panel is shown
+            if (show_import_panel) {
+              imported <- datamods::import_globalenv_server("myid", btn_show_data = FALSE)
 
-            shiny::observeEvent(input$`myid-confirm`, {
-              shiny::req(imported$data())
-              dataset_name <- imported$name()
-              dataset <- imported$data()
+              shiny::observeEvent(input$`myid-confirm`, {
+                shiny::req(imported$data())
+                dataset_name <- imported$name()
+                dataset <- imported$data()
 
-              if (length(names(dataset_store)) > 0) {
-                existing_tabs <- sapply(names(dataset_store), function(tid) {
-                  if (is.null(dataset_store[[tid]])) return(FALSE)
-                  dataset_store[[tid]]$name == dataset_name
-                }, USE.NAMES = FALSE)
-                existing_tabs <- as.logical(existing_tabs)
-              } else {
-                existing_tabs <- logical(0)
-              }
-
-              if (length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)) {
-                valid_tab_ids <- names(dataset_store)[!sapply(dataset_store, is.null)]
-                existing_tab_id <- valid_tab_ids[which(existing_tabs)[1]]
-                if(!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
-                  shiny::updateTabsetPanel(session, "opt", selected = existing_tab_id)
-                  shiny::showNotification(paste("Switched to existing tab:", dataset_name), type = "message")
+                if (length(names(dataset_store)) > 0) {
+                  existing_tabs <- sapply(names(dataset_store), function(tid) {
+                    if (is.null(dataset_store[[tid]])) return(FALSE)
+                    dataset_store[[tid]]$name == dataset_name
+                  }, USE.NAMES = FALSE)
+                  existing_tabs <- as.logical(existing_tabs)
+                } else {
+                  existing_tabs <- logical(0)
                 }
-              } else {
-                shiny::isolate({
-                  tab_counter(tab_counter() + 1)
-                  tab_id <- create_tab_id(dataset_name)
-                  create_viewer_tab(tab_id, dataset_name, dataset, show_close_btn = TRUE)
-                })
-              }
-            })
+
+                if (length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)) {
+                  valid_tab_ids <- names(dataset_store)[!sapply(dataset_store, is.null)]
+                  existing_tab_id <- valid_tab_ids[which(existing_tabs)[1]]
+                  if(!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
+                    shiny::updateTabsetPanel(session, "opt", selected = existing_tab_id)
+                    shiny::showNotification(paste("Switched to existing tab:", dataset_name), type = "message")
+                  }
+                } else {
+                  shiny::isolate({
+                    tab_counter(tab_counter() + 1)
+                    tab_id <- create_tab_id(dataset_name)
+                    create_viewer_tab(tab_id, dataset_name, dataset, show_close_btn = TRUE)
+                  })
+                }
+              })
+            }
 
             shiny::observeEvent(input$close_tab, {
               tab_id <- input$close_tab
               shiny::removeTab(inputId = "opt", target = tab_id)
               dataset_store[[tab_id]] <- NULL
-              shiny::updateTabsetPanel(session, "opt", selected = "import_tab")
+
+              # CHANGED: Switch to first tab instead of always import_tab
+              all_tabs <- names(dataset_store)[!sapply(dataset_store, is.null)]
+              if (length(all_tabs) > 0) {
+                # Switch to first dataset tab
+                shiny::updateTabsetPanel(session, "opt", selected = all_tabs[1])
+              } else if (show_import_panel) {
+                # If no dataset tabs left and import panel exists, go there
+                shiny::updateTabsetPanel(session, "opt", selected = "import_tab")
+              }
             })
           }
         )
 
         shiny::runApp(app, port = port, launch.browser = FALSE)
       },
-      args = list(datasets = datasets, dataset_names = dataset_names, port = port),
+      args = list(datasets = datasets, dataset_names = dataset_names, port = port, show_import_panel = show_import_panel),
       supervise = TRUE,
       stdout = "|",
       stderr = "|"
@@ -282,11 +315,7 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
     return(invisible(proc_id))
   }
 
-  # Original blocking mode
-
-  # Capture all datasets passed
-  datasets <- list(...)
-  dataset_names <- as.character(substitute(list(...)))[-1]
+  # Original foreground mode
 
   # Determine trigger mode
   if (length(datasets) == 0) {
@@ -316,12 +345,14 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
       dataviewr_ui_head(), # Call UI head helper
       shiny::tabsetPanel(
         id = "opt",
-        # Always show Import Dataset panel as first tab
-        shiny::tabPanel(
-          "Import Dataset",
-          value = "import_tab",
-          shiny::fluidRow(datamods::import_globalenv_ui("myid"))
-        )
+        # Conditionally show Import Dataset panel
+        if (show_import_panel) {
+          shiny::tabPanel(
+            "Import Dataset",
+            value = "import_tab",
+            shiny::fluidRow(datamods::import_globalenv_ui("myid"))
+          )
+        }
       )
     ),
 
@@ -386,8 +417,6 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
         })
       }
 
-      # create_tab_observers() function is NO LONGER NEEDED
-
       # Initialize tabs with provided datasets (trigger == 2)
       if (trigger == 2) {
         session$onFlushed(function() {
@@ -401,47 +430,49 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
         }, once = TRUE)
       }
 
-      # Handle import dataset (always available now)
-      imported <- datamods::import_globalenv_server("myid", btn_show_data = FALSE)
+      # Only set up import handlers if import panel is shown
+      if (show_import_panel) {
+        imported <- datamods::import_globalenv_server("myid", btn_show_data = FALSE)
 
-      shiny::observeEvent(input$`myid-confirm`, {
-        shiny::req(imported$data())
+        shiny::observeEvent(input$`myid-confirm`, {
+          shiny::req(imported$data())
 
-        dataset_name <- imported$name()
-        dataset <- imported$data()
+          dataset_name <- imported$name()
+          dataset <- imported$data()
 
-        # Check if dataset already exists
-        if (length(names(dataset_store)) > 0) {
-          existing_tabs <- sapply(names(dataset_store), function(tid) {
-            # Check for NULLs which can happen during tab removal
-            if (is.null(dataset_store[[tid]])) return(FALSE)
-            dataset_store[[tid]]$name == dataset_name
-          }, USE.NAMES = FALSE)
+          # Check if dataset already exists
+          if (length(names(dataset_store)) > 0) {
+            existing_tabs <- sapply(names(dataset_store), function(tid) {
+              # Check for NULLs which can happen during tab removal
+              if (is.null(dataset_store[[tid]])) return(FALSE)
+              dataset_store[[tid]]$name == dataset_name
+            }, USE.NAMES = FALSE)
 
-          existing_tabs <- as.logical(existing_tabs)
-        } else {
-          existing_tabs <- logical(0)
-        }
-
-        if (length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)) {
-          # Switch to existing tab
-          valid_tab_ids <- names(dataset_store)[!sapply(dataset_store, is.null)]
-          existing_tab_id <- valid_tab_ids[which(existing_tabs)[1]]
-
-          if(!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
-            shiny::updateTabsetPanel(session, "opt", selected = existing_tab_id)
-            shiny::showNotification(paste("Switched to existing tab:", dataset_name), type = "message")
+            existing_tabs <- as.logical(existing_tabs)
+          } else {
+            existing_tabs <- logical(0)
           }
 
-        } else {
-          # Create new tab (always show close button)
-          shiny::isolate({
-            tab_counter(tab_counter() + 1)
-            tab_id <- create_tab_id(dataset_name)
-            create_viewer_tab(tab_id, dataset_name, dataset, show_close_btn = TRUE)
-          })
-        }
-      })
+          if (length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)) {
+            # Switch to existing tab
+            valid_tab_ids <- names(dataset_store)[!sapply(dataset_store, is.null)]
+            existing_tab_id <- valid_tab_ids[which(existing_tabs)[1]]
+
+            if(!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
+              shiny::updateTabsetPanel(session, "opt", selected = existing_tab_id)
+              shiny::showNotification(paste("Switched to existing tab:", dataset_name), type = "message")
+            }
+
+          } else {
+            # Create new tab (always show close button)
+            shiny::isolate({
+              tab_counter(tab_counter() + 1)
+              tab_id <- create_tab_id(dataset_name)
+              create_viewer_tab(tab_id, dataset_name, dataset, show_close_btn = TRUE)
+            })
+          }
+        })
+      }
 
       # Handle tab closing
       shiny::observeEvent(input$close_tab, {
@@ -453,8 +484,15 @@ dataviewer <- function(..., background = TRUE, port = NULL) {
         # Remove from storage
         dataset_store[[tab_id]] <- NULL
 
-        # Always switch to import tab when closing a dataset tab
-        shiny::updateTabsetPanel(session, "opt", selected = "import_tab")
+        # Switch to first tab when a tab has been closed
+        all_tabs <- names(dataset_store)[!sapply(dataset_store, is.null)]
+        if (length(all_tabs) > 0) {
+          # Switch to first dataset tab
+          shiny::updateTabsetPanel(session, "opt", selected = all_tabs[1])
+        } else if (show_import_panel) {
+          # If no dataset tabs left and import panel exists, go there
+          shiny::updateTabsetPanel(session, "opt", selected = "import_tab")
+        }
       })
     }
   )
