@@ -193,7 +193,7 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
     final_df <- shiny::reactive({
       # FIX: Fallback to filter_df if no columns selected yet
       if (length(input$columns) == 0) {
-        return(filter_df())
+        return(NULL)
       }
 
       dplyr::mutate(
