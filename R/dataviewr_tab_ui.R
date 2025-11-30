@@ -1,8 +1,3 @@
-# ===================================================================
-# NEW HELPER 2: Module UI
-# Creates the UI for a single data viewer tab
-# ===================================================================
-
 #' Internal function for data viewer tab UI
 #' @param id The module's namespace ID.
 #' @noRd

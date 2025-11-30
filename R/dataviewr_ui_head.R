@@ -1,9 +1,4 @@
-# ===================================================================
-# NEW HELPER 1: UI Head
-# Contains all static CSS and JavaScript
-# ===================================================================
-
-#' Internal function to create the UI head
+#' Internal function to create the UI head which contains all static CSS and JavaScript
 #' @noRd
 dataviewr_ui_head <- function() {
   shiny::tags$head(
