@@ -4,7 +4,7 @@
 #' @param get_data A reactive expression returning the dataset.
 #' @param dataset_name A reactive expression returning the dataset's name.
 #' @noRd
-dataviewr_tab_server <- function(id, get_data, dataset_name) {
+dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
   shiny::moduleServer(id, function(input, output, session) {
 
