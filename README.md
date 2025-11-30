@@ -82,6 +82,11 @@ We welcome contributions, ideas, and issue reports!
 Visit the [GitHub repository](https://github.com/madhankumarnagaraji/dataviewR)  
 or open an [issue here](https://github.com/madhankumarnagaraji/dataviewR/issues).
 
+## Acknowlegement
+
+We sincerely thank the authors and maintainers of the `DT`, `shiny`, `dplyr`,
+`datamods`, `testthat`, `forcats`, `purrr`, `stringr`packages, their work made this package possible.
+
 License
 
 This package is licensed under the [MIT License](LICENSE).

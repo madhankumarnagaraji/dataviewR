@@ -60,7 +60,9 @@ grepl("^s", Species)
 
 When you click Submit, the expression is evaluated and the data updates.
 
-Invalid expressions show a friendly error notification.
+Invalid expressions show a friendly error notification. 
+
+Unlike `View()`, `dataviewR` does not dynamically reflect when the dataset is altered in RStudio after being loaded.
 
 ## 3. Re-running, clearing, or updating filters
 
@@ -99,6 +101,7 @@ These:
 - do not affect exported code
 - do not combine with expression filters
 - are optional UI helpers for on-screen browsing only
+- At present, NA values in numeric variables appear as blanks in DT tables, but this shall be fixed in a future enhancement.
 
 Filtering logic in dataviewR is defined solely by the expression box.
 
@@ -115,6 +118,6 @@ Expression filtering gives users full flexibility and keeps the workflow reprodu
 
 ## Next Article
 
-Continue with: Working with Multiple Datasets
+Continue with: [Exploring Multiple Datasets](Multiple-Datasets.html)
 
 

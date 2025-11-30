@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
 ## Introduction
 
 dataviewR provides a clean and intuitive Shiny interface for interactively exploring R data frames and tibbles.
-Instead of using the general View() utils function or writing temporary filter code, you can open a dataset visually, browse its structure, filter rows, inspect values, and export results — all within seconds.
+Instead of using the default View() utils function or writing temporary filter code, you can open a dataset visually, browse its structure, filter rows, inspect values, and export results — all within seconds.
 
 ## Why dataviewR?
 
-Whether you’re a statistical programmer, data scientist, or a student working with tabular data,  
+Whether you’re working in data analysis, research, or learning how to handle datasets
 `dataviewR` helps you:
 
 - Inspect datasets interactively within seconds  
@@ -30,7 +30,7 @@ Whether you’re a statistical programmer, data scientist, or a student working 
 
 While functions like `View()` offer a quick static snapshot of a dataset, they are limited when working with wide tables, inspecting variable values, or applying interactive filters.
 
-`dataviewR` provides a more flexible and dynamic interface that helps you explore data efficiently and intuitively.
+`dataviewR` offers a flexible, dynamic interface that enables efficient and intuitive data exploration, whether within the viewer tab or through a standalone R Shiny application.
  
 This guide walks you through how to launch, navigate, and work with datasets in dataviewR.
 
@@ -44,14 +44,20 @@ There are three ways to start the application, depending on your workflow:
 
 When you pass a data frame, dataviewR opens directly with that dataset loaded.
 
+To open the dataviewR shiny application user is requested to disable background option.
+
+For better user experience it is recommended to open dataviewR in new window from Viewer tab.
+
 ```r
 library(dataviewR)
-dataviewer(iris)
+dataviewer(iris) # Opens in Viewer tab
+
+dataviewer(iris, background = FALSE) # Opens the shiny application
 ```
 
 You’ll see the interactive table immediately, along with variable info and filtering options.
 
-<p align="center"> <img src="figures/dataviewer_iris.png" width="85%" alt="dataviewR viewing the iris dataset"> </p>
+<p align="center"> <img src="figures/look_2.png" width="85%" alt="dataviewR viewing the iris dataset"> </p>
 
 ### 2️⃣ Launch with multiple datasets (side-by-side comparison)
 
@@ -71,13 +77,13 @@ This is useful for:
 
 - comparing outputs across pipelines
 
-<!-- <p align="center"> <img src="figures/dataviewer_multi.png" width="85%" alt="dataviewR comparing iris and mtcars"> </p> -->
+<p align="center"> <img src="figures/multi_data_gif.gif" width="85%" alt="dataviewR comparing iris and mtcars"> </p>
 
 Each dataset gets its own tab, allowing you to switch seamlessly.
 
 ### 3️⃣ Launch without data (use the Import Panel)
 
-Calling `dataviewer()` with no arguments opens the Import Panel, letting you load the datasets 
+Calling `dataviewer()` with no arguments opens the Import Panel in shiny application by default, letting you load the datasets 
 either from the global environment or from the loaded packages.
 
 ```r
@@ -86,7 +92,7 @@ dataviewer()
 
 Once imported, the viewer behaves the same as with built-in datasets.
 
-<p align="center"> <img src="figures/dataviewer_import.png" width="85%" alt="dataviewR import panel"> </p>
+<p align="center"> <img src="figures/import.png" width="85%" alt="dataviewR import panel"> </p>
 
 ## What Happens Inside the App?
 
@@ -116,7 +122,7 @@ dataviewer(iris)
 
 <p align="center">
 <video 
-  src="figures/dataviewer_workflow.mp4"
+  src="figures/generate_R_code.mp4"
   width="85%"
   muted
   playsinline
@@ -131,8 +137,8 @@ dataviewer(iris)
 library(dplyr)
 
 iris |>
-  filter(Species == "setosa" & Petal.Width > 0.1) |>
-  select('Sepal.Width', 'Petal.Width', 'Species')
+  filter(Species == "setosa" & Petal.Width > 0.2) |>
+  select(Petal.Length, Petal.Width, Species)
 ```
 
 The combination of interactive exploration + reproducible code makes dataviewR a strong addition to both analysis and QC workflows.
@@ -144,7 +150,7 @@ To dive deeper into individual features, see:
 - [Using Filters and Expressions](Filtering-Expressions.html)
 - [Exploring Multiple Datasets](Multiple-Datasets.html)
 - [Working with ADaM/Clinical Datasets](adam-clinical-dataset.html)
-- [Importing External Data](importing-external-data.html)
+- [Exporting data and Wrapping Up the Session](Exporting-and-Reproducibility.html)
 
 All available under the Articles section of the package documentation.
 

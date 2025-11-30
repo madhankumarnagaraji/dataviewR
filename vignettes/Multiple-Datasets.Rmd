@@ -156,3 +156,7 @@ In this article, you learned how to:
 - Apply typical comparison workflows
 
 Comparing datasets side-by-side is one of the most powerful features of dataviewR, especially for data review and quality control workflows.
+
+## Next Article
+
+Continue with: [Working with ADaM/Clinical Datasets](adam-clinical-dataset.html)
