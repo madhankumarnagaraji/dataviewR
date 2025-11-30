@@ -3,6 +3,9 @@
 .dataviewer_env$processes <- list()
 .dataviewer_env$counter <- 0L
 
+# Define global variables to satisfy R CMD check
+utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value", ".data"))
+
 #' Interactive Data Viewer with Filter and Code Generation
 #'
 #' Launches a Shiny application to explore and filter a 'data.frame' or `tibble`.
@@ -59,10 +62,6 @@
 #' }
 #'
 #' @export
-
-# Define global variables to satisfy R CMD check
-utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value", ".data"))
-
 
 dataviewer <- function(..., background = NULL, port = NULL) {
 
