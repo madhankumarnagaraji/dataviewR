@@ -24,24 +24,27 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
       format(n, big.mark = ",")
     })
 
-    # FIX: Update columns checkboxes with initialization check
+    # FIX: Update columns checkboxes with priority and proper selection logic
     shiny::observe({
-      # Force initialization on first render
-      if (!initialized()) {
-        initialized(TRUE)
-      }
-
       shiny::req(get_data())
+
+      # Get columns and current selection state
       columns <- names(get_data())
       select_all <- isTRUE(input$cols_all)
 
+      # FIX: Properly respect the checkbox state
       shiny::updateCheckboxGroupInput(
         session, "columns",
         label = NULL,
         choices = columns,
-        selected = if (select_all) columns else NULL
+        selected = if (select_all) columns else NULL  # FIXED: Now respects deselect
       )
-    })
+
+      # Mark as initialized after first update
+      if (!initialized()) {
+        initialized(TRUE)
+      }
+    }, priority = 100)  # High priority to ensure it runs first
 
     # Update filter placeholder
     shiny::observe({
@@ -134,22 +137,34 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
       }
     })
 
-    # Generated code
+    # Generated code - FIX: Don't add pipe when no operations
     generated_code <- shiny::reactive({
+      has_filter <- !is.null(filter_code())
+      has_select <- !is.null(selected_cols_code())
+
+      # If neither filter nor select, just return the dataset name
+      if (!has_filter && !has_select) {
+        return(paste0(
+          "# Generated R Code\n",
+          "library(dplyr)\n",
+          dataset_name()
+        ))
+      }
+
       code_lines <- c(
         "# Generated R Code",
         "library(dplyr)",
         paste0(dataset_name(), " |>")
       )
 
-      if (!is.null(filter_code())) {
+      if (has_filter) {
         code_lines <- c(code_lines, paste0("  ", filter_code()))
-        if (!is.null(selected_cols_code())) {
+        if (has_select) {
           code_lines[length(code_lines)] <- paste0(code_lines[length(code_lines)], " |>")
         }
       }
 
-      if (!is.null(selected_cols_code())) {
+      if (has_select) {
         code_lines <- c(code_lines, paste0("  ", selected_cols_code()))
       }
 
@@ -182,16 +197,14 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
       shinyjs::runjs(js_code)
     })
 
-    # Select columns
+    # Select columns - FIX: Require at least one column
     cols_df <- shiny::reactive({
-      # FIX: Add req for columns to ensure they're selected
       shiny::req(length(input$columns) > 0)
-      dplyr::select(filter_df(), input$columns)
+      dplyr::select(filter_df(), dplyr::all_of(input$columns))
     })
 
-    # Final dataframe
+    # Final dataframe - FIX: Return NULL when no columns selected
     final_df <- shiny::reactive({
-      # FIX: Fallback to filter_df if no columns selected yet
       if (length(input$columns) == 0) {
         return(NULL)
       }
@@ -208,8 +221,7 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
 
     # --- Metadata Reactives ---
     att_cols <- shiny::reactive({
-      # FIX: Force evaluation when initialized
-      shiny::req(initialized())
+      shiny::req(get_data())
 
       att_list <- purrr::map(get_data(), attributes)
       if (all(purrr::map_lgl(att_list, is.null))) {
@@ -226,23 +238,21 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
     })
 
     class_df <- shiny::reactive({
-      # FIX: Force evaluation when initialized
-      shiny::req(initialized())
+      shiny::req(get_data())
 
       dict <- tryCatch(labelled::generate_dictionary(get_data()), error = function(e) NULL)
       if (is.null(dict) || nrow(dict) == 0) {
         return(tibble::tibble(pos = integer(), colname = character(), col_type = character()))
       }
-      dict %>%
-        dplyr::mutate(colname = .data$variable) %>%
+      dict |>
+        dplyr::mutate(colname = .data$variable) |>
         dplyr::select(pos, colname, col_type)
     })
 
     meta_cols <- shiny::reactive({
-      # FIX: Force evaluation when initialized
-      shiny::req(initialized())
+      shiny::req(get_data())
 
-      dplyr::left_join(class_df(), att_cols(), by = "colname") %>%
+      dplyr::left_join(class_df(), att_cols(), by = "colname") |>
         dplyr::mutate(col_name = dplyr::case_when(
           col_type == "int" ~ paste0("\U0001F522", colname),
           col_type == "dbl" ~ paste0("\U0001F522", colname),
@@ -251,23 +261,21 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
           col_type == "dttm" ~ paste0("\U0001F4C5\U0001F552", colname),
           col_type == "Period" ~ paste0("\U0001F552", colname),
           TRUE ~ paste0("\U0001F524", colname)
-        )) %>%
-        dplyr::select(pos, col_name, att, value) %>%
+        )) |>
+        dplyr::select(pos, col_name, att, value) |>
         labelled::set_variable_labels(col_name = "Variable Name", att = "Attribute", value = "Value")
     })
 
     # Sidebar table renderer
     output$metainfo <- shiny::renderTable({
-      # FIX: Ensure data is available
-      shiny::req(initialized())
       shiny::req(get_data())
 
-      meta_cols() %>%
-        dplyr::arrange(pos, att) %>%
-        dplyr::group_by(col_name) %>%
-        dplyr::mutate(col_name = ifelse(dplyr::row_number() == 1, col_name, "")) %>%
-        dplyr::ungroup() %>%
-        dplyr::select(col_name, att, value) %>%
+      meta_cols() |>
+        dplyr::arrange(pos, att) |>
+        dplyr::group_by(col_name) |>
+        dplyr::mutate(col_name = ifelse(dplyr::row_number() == 1, col_name, "")) |>
+        dplyr::ungroup() |>
+        dplyr::select(col_name, att, value) |>
         stats::setNames(c("Variable Name", "Attribute", "Value"))
     }, bordered = TRUE)
 
@@ -285,19 +293,29 @@ dataviewr_tab_server <- function(id, get_data, dataset_name) {
 
     # Renderer for the modal's table
     output$metainfo_modal <- shiny::renderTable({
-      meta_cols() %>%
-        dplyr::arrange(pos, att) %>%
-        dplyr::group_by(col_name) %>%
-        dplyr::mutate(col_name = ifelse(dplyr::row_number() == 1, col_name, "")) %>%
-        dplyr::ungroup() %>%
-        dplyr::select(col_name, att, value) %>%
+      meta_cols() |>
+        dplyr::arrange(pos, att) |>
+        dplyr::group_by(col_name) |>
+        dplyr::mutate(col_name = ifelse(dplyr::row_number() == 1, col_name, "")) |>
+        dplyr::ungroup() |>
+        dplyr::select(col_name, att, value) |>
         stats::setNames(c("Variable Name", "Attribute", "Value"))
     }, bordered = TRUE)
 
-    # Render table
+    # Render table - FIX: Handle empty column selection
     output$tbl <- DT::renderDT({
+      df <- final_df()
+      if (is.null(df)) {
+        # Return empty data frame with message
+        return(DT::datatable(
+          data.frame(Message = "No columns selected. Please select at least one column."),
+          options = list(dom = 't', ordering = FALSE),
+          rownames = FALSE
+        ))
+      }
+
       DT::datatable(
-        final_df(),
+        df,
         extensions = c("Buttons", "KeyTable"),
         filter = "top",
         class = "cell-border stripe hover nowrap",
