@@ -3,20 +3,29 @@
 \name{dataviewer}
 \alias{dataviewer}
 \title{Interactive Data Viewer with Filter and Code Generation}
+\usage{
+dataviewer(..., background = NULL, port = NULL)
+}
 \arguments{
-\item{data}{A \code{data.frame} or \code{tibble}. If \code{NULL} or missing, an import UI is shown to load data interactively.}
+\item{...}{One or more \code{data.frame} or \code{tibble} objects. If none provided, an import UI is shown to load data interactively.}
+
+\item{background}{Logical. If \code{TRUE}, runs the app in a background R process using callr. Requires the 'callr' package. Default is TRUE when datasets are provided, FALSE when no datasets are provided.}
+
+\item{port}{Integer. Port number for the Shiny app. If \code{NULL}, a random available port is used. Default is NULL.}
 }
 \value{
 Launches a Shiny application in the browser. Does not return a value.
+If \code{background = TRUE}, returns the process ID invisibly.
 }
 \description{
-Launches a Shiny application to explore and filter a 'data.frame' or 'tibble'.
+Launches a Shiny application to explore and filter a 'data.frame' or \code{tibble}.
 If no data is provided, it opens an import panel to load a dataset from either the global environment or the packages.
 }
 \details{
 This function provides:
 \itemize{
 \item A tab-based interface with data import and viewer options.
+\item Support for multiple datasets in separate tabs.
 \item A checkbox panel to select/deselect columns.
 \item An input for dplyr-compatible filter expressions.
 \item A dynamically generated \code{dplyr} code preview.
@@ -28,8 +37,16 @@ It also provides copyable R code that includes column selection and filtering lo
 }
 \examples{
 if (interactive()) {
-  dataviewer(mtcars)
-  dataviewer() # Opens the import panel
+    dataviewer(mtcars)
+    dataviewer(iris, mtcars) # Multiple datasets
+    dataviewer() # Opens the import panel (foreground mode - console will be busy)
+
+    # Run in foreground (foreground mode) with import
+    dataviewer(mtcars, background = FALSE)
+
+    # Stop background process
+    id <- dataviewer(mtcars, iris)
+    stop_dataviewer(id)
 }
 
 }
