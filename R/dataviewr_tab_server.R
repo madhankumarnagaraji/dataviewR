@@ -1,8 +1,3 @@
-# ===================================================================
-# NEW HELPER 3: Module Server
-# Creates the server logic for a single data viewer tab
-# ===================================================================
-
 #' Internal function for data viewer tab server logic
 #'
 #' @param id The module's namespace ID.
