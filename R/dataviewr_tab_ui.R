@@ -1,7 +1,7 @@
 #' Internal function for data viewer tab UI
 #' @param id The module's namespace ID.
 #' @noRd
-dataviewr_tab_ui <- function(id) {
+dataviewer_tab_ui <- function(id) {
   ns <- shiny::NS(id)
 
   shiny::tagList(

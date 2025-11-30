@@ -1,6 +1,6 @@
 #' Internal function to create the UI head which contains all static CSS and JavaScript
 #' @noRd
-dataviewr_ui_head <- function() {
+dataviewer_ui_head <- function() {
   shiny::tags$head(
     shiny::tags$style(shiny::HTML("
 
