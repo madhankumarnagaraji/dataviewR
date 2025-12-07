@@ -6,7 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-# Exporting & reproducing the data to work further
+## 1. Exporting & reproducing the data to work further
 
 `dataviewR` provides the additional benefit of allowing you to download or copy the data you are working with, making it easy to export for further analysis, model building, or visualization.
 
@@ -21,7 +21,7 @@ To manage and retrieve information about active `dataviewR` sessions, the follow
 - `stop_dataviewer` → To stop the single `dataviewR` session.
 - `stop_all_dataviewers`→ To stop all active `dataviewR` session.
 
-## 1. To know the session information
+## 2. To know the session information
 
 `list_dataviewers` provides information about the active sessions. 
 
@@ -41,7 +41,7 @@ ID: dv_11
 ```
 
 
-## 2. To stop `dataviewR` sessions
+## 3. To stop `dataviewR` sessions
 
 To stop the single dataviewR, user can use `stop_dataviewer` by providing the id of the session. 
 
