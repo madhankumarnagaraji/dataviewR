@@ -2,7 +2,7 @@
 % Please edit documentation in R/stop_dataviewer.R
 \name{stop_dataviewer}
 \alias{stop_dataviewer}
-\title{Stop a Background Dataviewer Process}
+\title{Stop a Specific or Most Recent Dataviewer Process}
 \usage{
 stop_dataviewer(id = NULL)
 }
@@ -10,5 +10,5 @@ stop_dataviewer(id = NULL)
 \item{id}{Character string specifying the process ID to stop. If NULL, stops the most recent background dataviewer.}
 }
 \description{
-Stop a Background Dataviewer Process
+Stop a Specific or Most Recent Dataviewer Process
 }

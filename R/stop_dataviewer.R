@@ -1,4 +1,4 @@
-#' Stop a Background Dataviewer Process
+#' Stop a Specific or Most Recent Dataviewer Process
 #'
 #' @param id Character string specifying the process ID to stop. If NULL, stops the most recent background dataviewer.
 #'

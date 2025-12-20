@@ -8,16 +8,16 @@ utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value
 
 #' Interactive Data Viewer with Filter and Code Generation
 #'
-#' Launches a Shiny application to explore and filter a 'data.frame' or `tibble`.
+#' Launches a Shiny application to explore and filter a `data.frame` or `tibble`.
 #' If no data is provided, it opens an import panel to load a dataset from either the global environment or the packages.
 #'
 #' @param ... One or more `data.frame` or `tibble` objects. If none provided, an import UI is shown to load data interactively.
-#' @param background Logical. If `TRUE`, runs the app in a background R process using callr. Requires the 'callr' package. Default is TRUE when datasets are provided, FALSE when no datasets are provided.
+#' @param background Logical. If `TRUE`, runs the app in a background R process using `callr`. Requires the `callr` package. Default is TRUE when dataset(s) are provided, FALSE when no dataset(s) are provided.
 #' @param port Integer. Port number for the Shiny app. If `NULL`, a random available port is used. Default is NULL.
 #'
 #' @return
-#' Launches a Shiny application in the browser. Does not return a value.
-#' If `background = TRUE`, returns the process ID invisibly.
+#' If `background = TRUE`, returns the process ID (character) invisibly.
+#' If `background = FALSE`, returns a Shiny application object.
 #'
 #' @details
 #' This function provides:
@@ -25,7 +25,7 @@ utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value
 #'     \item A tab-based interface with data import and viewer options.
 #'     \item Support for multiple datasets in separate tabs.
 #'     \item A checkbox panel to select/deselect columns.
-#'     \item An input for dplyr-compatible filter expressions.
+#'     \item An input for `dplyr`-compatible filter expressions.
 #'     \item A dynamically generated `dplyr` code preview.
 #'     \item Metadata display for the variables.
 #' }
@@ -49,11 +49,11 @@ utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value
 #'
 #' @examples
 #' if (interactive()) {
-#'     dataviewer(mtcars)
-#'     dataviewer(iris, mtcars) # Multiple datasets
-#'     dataviewer() # Opens the import panel (foreground mode - console will be busy)
+#'     dataviewer(mtcars) # Opens in RStudio Viewer pane or default web browser
+#'     dataviewer(iris, mtcars) # Opens multiple datasets in separate tabs
+#'     dataviewer() # Opens the "Import Dataset" tab (foreground mode - console will be busy)
 #'
-#'     # Run in foreground (foreground mode) with import
+#'     # Run in foreground to enable the "Import Dataset" tab alongside 'mtcars'
 #'     dataviewer(mtcars, background = FALSE)
 #'
 #'     # Stop background process
