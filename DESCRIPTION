@@ -1,9 +1,12 @@
 Package: dataviewR
 Title: An Interactive and Feature-Rich Data Viewer
-Version: 0.1.1
+Version: 1.0.0
 Depends: R (>= 4.2.0)
 Authors@R: 
-    person("Madhan", "Kumar N", , "madhanmanoj1999@gmail.com", role = c("aut", "cre"))
+    c(person("Madhan", "Kumar N", , "madhanmanoj1999@gmail.com", role = c("aut", "cre")),
+      person("Siddhesh", "Pujari", , "siddheshpujari25@gmail.com", role = "aut"),
+      person("Gomathi", "S", , "gomathisudhakar1998@gmail.com", role = "aut"),
+      person("Mackenzie", "Haight", , "mackenzie.haight@gmail.com", role = "aut"))
 Description: Provides an interactive viewer for 'data.frame' and 'tibble' objects using 'shiny' <https://shiny.posit.co/> and 'DT' <https://rstudio.github.io/DT/>. It supports complex filtering, column selection, and automatic generation of reproducible 'dplyr' <https://dplyr.tidyverse.org/> code for data manipulation. The package is designed for ease of use in data exploration and reporting workflows.
 URL: https://github.com/madhankumarnagaraji/dataviewR, https://madhankumarnagaraji.github.io/dataviewR/
 BugReports: https://github.com/madhankumarnagaraji/dataviewR/issues
@@ -23,7 +26,9 @@ Imports:
 	purrr,
 	tibble,
 	datamods,
-	htmlwidgets
+	htmlwidgets,
+	callr,
+	rstudioapi
 Suggests: 
     knitr,
     rmarkdown,
