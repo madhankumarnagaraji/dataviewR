@@ -100,7 +100,7 @@ When a dataset is loaded, you can:
 
 ✔ Apply flexible row filters (with dplyr-style expressions) <br>
 ✔ Select or deselect variables and sort columns <br>
-✔ See distinct values for character/factor columns (including NA) <br>
+✔ See distinct values for character/factor columns *(including NA)* <br>
 ✔ View metadata such as variable classes and attributes <br>
 ✔ Export filtered data <br>
 ✔ Copy auto-generated dplyr code for reproducibility <br>

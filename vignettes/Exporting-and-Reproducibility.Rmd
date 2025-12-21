@@ -15,11 +15,11 @@ vignette: >
 
 The copy/download feature only applies to the rows currently visible on the page you are viewing. 
 
-To manage and retrieve information about active `dataviewR` sessions, the following helper functions are available.
+`dataviewR` uses the `callr` package to run the shiny application in a background process. To manage and retrieve information about active `dataviewR` sessions, the following helper functions are available.
 
 - `list_dataviewers` → Lists all active `dataviewR` sessions.
-- `stop_dataviewer` → To stop the single `dataviewR` session.
-- `stop_all_dataviewers`→ To stop all active `dataviewR` session.
+- `stop_dataviewer` → To stop a specifc or single `dataviewR` session.
+- `stop_all_dataviewers`→ To stop all active `dataviewR` sessions.
 
 ## 2. To know the session information
 
@@ -41,9 +41,16 @@ ID: dv_11
 ```
 
 
-## 3. To stop `dataviewR` sessions
+## 3. To stop `dataviewR` session(s)
 
-To stop the single dataviewR, user can use `stop_dataviewer` by providing the id of the session. 
+To stop a recent dataviewR session user can simply use `stop_dataviewer` function as by default it stops the recent active session.
+
+```{r}
+stop_dataviewer()
+```
+
+
+To stop a single or specific dataviewR session, user can use `stop_dataviewer` by providing the id of the session. 
 
 ```r
 id <- dataviewer(mtcars, iris)

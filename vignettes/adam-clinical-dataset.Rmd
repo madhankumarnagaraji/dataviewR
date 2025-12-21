@@ -1,20 +1,20 @@
 ---
-title: "Working with ADaM/Clinical Datasets"
+title: "Working with Clinical Datasets"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Working with ADaM/Clinical Datasets}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-## 1. Loading ADaM/Clinical data
+## 1. Loading Clinical data
 
 `dataviewR` enables efficient exploration of large datasets. It allows users to load ADaM data such as ADSL, ADAE, and ADLB along with their corresponding SDTM datasets simultaneously, making it easier to investigate issues in detail and ensure traceability.
 
-User can load ADaM data like explained in the previous sections. In this section we will be looking at how we can use `dataviewR` to explore clinical data.
+User can load ADaM data like explained in the previous sections. In this section we will be looking at how we can use `dataviewR` to explore clinical data. For documentation purpose, we used data from the `Pharmaverse`.
 
 ## 2. Loading data and filtering data of our interest
 
-For this section, adsl and adlb is loaded
+For this section, adsl and adlb are loaded
 
 ```r
 id <- dataviewer(mtcars, iris)
@@ -56,14 +56,14 @@ Users can simultaneously explore a specific subject across both ADLB and ADSL. F
 
 ## 3. Investigating missing values
 
-Suppose user wants to explore whether the variable has missing values, for character variables user can easily filter missing values from quick filters which will be visible as *<NA>*. For numerical variables it is displayed as blank cell, which cannot be filtered from quick filters in the current version.That shall be resolved in the next version.
+Suppose user wants to explore whether the variable has missing values, for character variables user can easily filter missing values from quick filters which will be visible as `<NA>`. For numerical variables it is displayed as blank cell, which cannot be filtered from quick filters in the current version.
 <p align="center" style="font-style: italic;">
   In the below picture we can see how NA values are visible in the quick filter
 </p>
 <p align="center"> <img src="figures/na1.PNG" width="85%" alt="dataviewR import panel"> </p>
 
 <p align="center" style="font-style: italic;">
- In the below picture we can see how missible values are displayed in the data.
+ In the below picture we can see how missing values are displayed in the data.
 </p>
 <p align="center"> <img src="figures/na.PNG" width="85%" alt="dataviewR import panel"> </p>
 
