@@ -109,8 +109,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
     proc <- callr::r_bg(
       func = function(datasets, dataset_names, port, show_import_panel) {
         # Load required packages in background session
-        library(shiny)
         library(dataviewR)
+
+        # Calling the internal functions so the background process can see them
+        dataviewer_ui_head    <- utils::getFromNamespace("dataviewer_ui_head", "dataviewR")
+        dataviewer_tab_ui     <- utils::getFromNamespace("dataviewer_tab_ui", "dataviewR")
+        dataviewer_tab_server <- utils::getFromNamespace("dataviewer_tab_server", "dataviewR")
 
         # Determine trigger mode
         if (length(datasets) == 0) {
@@ -133,7 +137,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
           ui = shiny::fluidPage(
             class = "full-width",
             shinyjs::useShinyjs(),
-            dataviewR:::dataviewer_ui_head(),
+            dataviewer_ui_head(),
             shiny::tabsetPanel(
               id = "opt",
               # Conditionally show Import Dataset panel
@@ -174,7 +178,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
                 shiny::tabPanel(
                   title = tab_title,
                   value = tab_id,
-                  dataviewR:::dataviewer_tab_ui(tab_id)
+                  dataviewer_tab_ui(tab_id)
                 ),
                 select = TRUE
               )
@@ -187,7 +191,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
               # FIX: Use local() to capture tab_id correctly
               local({
                 current_tab_id <- tab_id
-                dataviewR:::dataviewer_tab_server(
+                dataviewer_tab_server(
                   id = current_tab_id,
                   get_data = shiny::reactive(dataset_store[[current_tab_id]]$data),
                   dataset_name = shiny::reactive(dataset_store[[current_tab_id]]$name)
@@ -341,7 +345,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
     ui = shiny::fluidPage(
       class = "full-width",
       shinyjs::useShinyjs(),
-      dataviewR:::dataviewer_ui_head(), # Call UI head helper
+      dataviewer_ui_head(), # Call UI head helper
       shiny::tabsetPanel(
         id = "opt",
         # Conditionally show Import Dataset panel
@@ -391,7 +395,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
           shiny::tabPanel(
             title = tab_title,
             value = tab_id,
-            dataviewR:::dataviewer_tab_ui(tab_id) # Call Module UI
+            dataviewer_tab_ui(tab_id) # Call Module UI
           ),
           select = TRUE
         )
@@ -408,7 +412,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
           current_tab_id <- tab_id
 
           # Call the Module Server with properly scoped reactives
-          dataviewR:::dataviewer_tab_server(
+          dataviewer_tab_server(
             id = current_tab_id,
             get_data = shiny::reactive(dataset_store[[current_tab_id]]$data),
             dataset_name = shiny::reactive(dataset_store[[current_tab_id]]$name)
