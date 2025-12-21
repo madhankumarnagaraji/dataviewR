@@ -1,6 +1,6 @@
 Package: dataviewR
 Title: An Interactive and Feature-Rich Data Viewer
-Version: 0.1.1
+Version: 1.0.0
 Depends: R (>= 4.2.0)
 Authors@R: 
     c(person("Madhan", "Kumar N", , "madhanmanoj1999@gmail.com", role = c("aut", "cre")),
