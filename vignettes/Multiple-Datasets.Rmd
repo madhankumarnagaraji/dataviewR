@@ -12,10 +12,10 @@ vignette: >
 `dataviewR` allows you to explore **two or more datasets in the same session**, making it easy to compare structures, values, and attributes across data sources.
 
 This capability is especially useful when reviewing:
-- raw vs. derived datasets  
-- ADaM vs. SDTM datasets  
-- training vs. test sets  
-- simulation outputs vs. expected results  
+- raw vs derived datasets  
+- ADaM vs SDTM datasets  
+- training vs test sets  
+- simulation outputs vs expected results  
 
 This article walks through how to launch and work with multiple datasets.
 
@@ -23,7 +23,7 @@ This article walks through how to launch and work with multiple datasets.
 
 ## 1. Launching dataviewR with multiple datasets
 
-You can pass any number of data frames to `dataviewer()`:
+You can pass any number of datasets to `dataviewer()`:
 
 ```r
 library(dataviewR)
@@ -31,7 +31,7 @@ library(dataviewR)
 dataviewer(iris, mtcars)
 ```
 
-Each dataset will appear in its own tab inside the application.
+Each dataset will appear in its own tab inside the application in the RStudio Viewer pane or the default web browser.
 
 You can pass more than two datasets as well:
 
@@ -41,7 +41,7 @@ dataviewer(iris, mtcars, ToothGrowth, airquality)
 
 ## 2. Navigating between dataset tabs
 
-Inside the Viewer tab:
+Inside the Viewer pane:
 
 - Each dataset is presented under its own labeled tab
 - Switching between tabs does not reset filters or selections
@@ -53,6 +53,7 @@ This makes it easy to compare side-by-side:
 - units and labels
 - missing data patterns
 - derived vs. raw values
+- Attributes (labels and classes)
 
 ## 3. Applying filters and selections independently
 
@@ -76,12 +77,14 @@ Tab: iris
 ```ini
 Species == "setosa"
 ```
+<p align="center"> <img src="figures/iris_setosa.png" width="85%" alt="dataviewR viewing the iris dataset"> </p>
 
 Tab: mtcars
 
 ```nginx
 mpg > 20 & cyl == 4
 ```
+<p align="center"> <img src="figures/mtcars_cyl.png" width="85%" alt="dataviewR viewing the iris dataset"> </p>
 
 Each dataset's output, table, and code are kept separate.
 
@@ -107,15 +110,28 @@ Switch tabs → generate code for the other dataset.
 #### ✓ Raw vs Derived Data
 Load both raw and derived datasets:
 
+The dm_raw, dm, and adsl datasets are loaded from the `pharmaverseraw`, `pharmaversesdtm`, and `pharmaverseadam` packages, respectively.
+
 ```r
-dataviewer(adsl_raw, adsl)
+library(pharmaverseraw)
+library(pharmaversesdtm)
+library(pharmaverseadam)
+dataviewer(dm_raw, dm)
+dataviewer(dm, adsl)
 ```
 
 Then:
 
-- Compare variable labels
+- Compare variable labels and other attributes
 - Confirm derived variables
 - Check row/column mismatches
+
+#### ✓ ADaM Dataset Review
+
+```r
+dataviewer(dm, suppdm, ae, suppae)
+```
+
 
 #### ✓ ADaM Dataset Review
 ```r
@@ -135,16 +151,7 @@ Inspect variable distributions and missingness.
 ```r
 dataviewer(sim1, sim2, sim3)
 ```
-
 Check how different simulation runs behave.
-
-## 6. Best Practices
-
-- Keep dataset objects small enough for fast rendering
-- Use clear variable names to help compare datasets
-- Apply filters independently to explore specific slices
-- Use code generation to build reproducible scripts
-- Use the metadata panel to validate variable formats and labels
 
 ## Summary
 In this article, you learned how to:
@@ -153,9 +160,9 @@ In this article, you learned how to:
 - Navigate dataset tabs
 - Filter and select columns independently
 - Generate code for each dataset
-- Apply typical comparison workflows
+- Parallel viewing of datasets in each tab
 
-Comparing datasets side-by-side is one of the most powerful features of dataviewR, especially for data review and quality control workflows.
+**Viewing datasets side-by-side** is one of the most powerful features of dataviewR, especially for data review and quality control workflows.
 
 ## Next Article
 

@@ -45,7 +45,7 @@ ID: dv_11
 
 To stop a recent dataviewR session user can simply use `stop_dataviewer` function as by default it stops the recent active session.
 
-```{r}
+```r
 stop_dataviewer()
 ```
 
@@ -54,7 +54,7 @@ To stop a single or specific dataviewR session, user can use `stop_dataviewer` b
 
 ```r
 id <- dataviewer(mtcars, iris)
-stop_dataviewer(id = id)
+dataviewer(id = id)
 ```
 the above code stops the session mentioned in id argument.
 

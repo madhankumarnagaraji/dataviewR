@@ -6,7 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-<p align="center"> <img src="../man/figures/dataviewR_logo.png" width="220" alt="dataviewR logo"> </p>
+<p align="right"> <img src="../man/figures/dataviewR_logo.png" width="180" alt="dataviewR logo"> </p>
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -16,21 +16,20 @@ knitr::opts_chunk$set(
 ```
 ## Introduction
 
-dataviewR provides a clean and intuitive Shiny interface for interactively exploring R data frames and tibbles.
-Instead of using the default View() utils function or writing temporary filter code, you can open a dataset visually, browse its structure, filter rows, inspect values, and export results — all within seconds.
+`dataviewR` provides a clean and intuitive Shiny interface for interactively exploring R data frames and tibbles.
+Instead of using the default View() from the `utils` package or writing temporary filter code, you can open a dataset visually, browse its structure, filter rows, inspect values, and export results — all within seconds. Unlike View(), `dataviewR` does not dynamically reflect when the dataset is altered in RStudio after being loaded.
 
 ## Why dataviewR?
 
-Whether you’re working in data analysis, research, or learning how to handle datasets
-`dataviewR` helps you:
+Whether you work in clinical research, data analysis, or academia, a strong understanding of datasets is important. `dataviewR` helps you:
 
 - Inspect datasets interactively within seconds  
-- Compare two or more datasets side-by-side  
+- View two or more datasets side-by-side  
 - Review data quality and structure before analysis  
 
-While functions like `View()` offer a quick static snapshot of a dataset, they are limited when working with wide tables, inspecting variable values, or applying interactive filters.
+While functions like `View()` offer a quick static snapshot of a dataset, they are limited when working with large datasets, inspecting variable values, or applying interactive filters.
 
-`dataviewR` offers a flexible, dynamic interface that enables efficient and intuitive data exploration, whether within the viewer tab or through a standalone R Shiny application.
+`dataviewR` offers a flexible, dynamic interface that enables efficient and intuitive data exploration, whether within the viewer pane or through a standalone R Shiny application. `dataviewR` does not modify any values/attributes of the dataset(s) passed
  
 This guide walks you through how to launch, navigate, and work with datasets in dataviewR.
 
@@ -42,44 +41,48 @@ There are three ways to start the application, depending on your workflow:
 
 ### 1️⃣ Launch with a dataset
 
-When you pass a data frame, dataviewR opens directly with that dataset loaded.
+When you pass a dataset(s), dataviewR opens directly with that dataset(s) loaded.
 
 To open the dataviewR shiny application user is requested to disable background option.
 
-For better user experience it is recommended to open dataviewR in new window from Viewer tab.
+For better user experience, it is recommended to open dataviewR in new window from Viewer pane.
+
+To open the dataset in a shiny application, user is requested to disable the background option using background = FALSE argument but it keeps the console busy.
 
 ```r
 library(dataviewR)
-dataviewer(iris) # Opens in Viewer tab
+dataviewer(iris) # Opens in RStudio Viewer pane or default web browser
 
-dataviewer(iris, background = FALSE) # Opens the shiny application
+dataviewer(iris, background = FALSE) # Opens the Shiny application and run in foreground to enable the "Import Dataset" tab alongside 'iris'
 ```
 
 You’ll see the interactive table immediately, along with variable info and filtering options.
 
 <p align="center"> <img src="figures/look_2.png" width="85%" alt="dataviewR viewing the iris dataset"> </p>
 
-### 2️⃣ Launch with multiple datasets (side-by-side comparison)
+### 2️⃣ Launch with multiple datasets (side-by-side viewing)
 
-You can now pass two or more datasets to compare them within the same session.
+You can now pass two or more datasets to view them within the same session.
 
 ```r
-dataviewer(iris, mtcars)
+dataviewer(iris, mtcars) # Opens multiple datasets in separate tabs
 ```
 
 This is useful for:
 
-- comparing raw vs derived datasets
+- Comparing raw vs derived datasets
 
-- inspecting multiple ADaM datasets
+- Inspecting multiple SDTM/ADaM datasets
 
-- reviewing train vs test splits
+- Reviewing train vs test splits
 
-- comparing outputs across pipelines
+- Comparing outputs across pipelines
 
 <p align="center"> <img src="figures/multi_data_gif.gif" width="85%" alt="dataviewR comparing iris and mtcars"> </p>
 
 Each dataset gets its own tab, allowing you to switch seamlessly.
+
+Please check the [Exploring Multiple Datasets](Multiple-Datasets.html) article for more examples.
 
 ### 3️⃣ Launch without data (use the Import Panel)
 
@@ -90,7 +93,7 @@ either from the global environment or from the loaded packages.
 dataviewer()
 ```
 
-Once imported, the viewer behaves the same as with built-in datasets.
+Once imported, the viewer opens the selected dataset(s) in separate tab(s).
 
 <p align="center"> <img src="figures/import.png" width="85%" alt="dataviewR import panel"> </p>
 
@@ -98,9 +101,9 @@ Once imported, the viewer behaves the same as with built-in datasets.
 
 When a dataset is loaded, you can:
 
-✔ Apply flexible row filters (with dplyr-style expressions) <br>
+✔ Apply flexible row filters (with `dplyr` style expressions) <br>
 ✔ Select or deselect variables and sort columns <br>
-✔ See distinct values for character/factor columns *(including NA)* <br>
+✔ See distinct values for character/factor columns *(including NA)* in the quick filter box.<br>
 ✔ View metadata such as variable classes and attributes <br>
 ✔ Export filtered data <br>
 ✔ Copy auto-generated dplyr code for reproducibility <br>
@@ -149,7 +152,7 @@ To dive deeper into individual features, see:
 
 - [Using Filters and Expressions](Filtering-Expressions.html)
 - [Exploring Multiple Datasets](Multiple-Datasets.html)
-- [Working with ADaM/Clinical Datasets](adam-clinical-dataset.html)
+- [Working with Clinical Datasets](adam-clinical-dataset.html)
 - [Exporting data and Wrapping Up the Session](Exporting-and-Reproducibility.html)
 
 All available under the Articles section of the package documentation.

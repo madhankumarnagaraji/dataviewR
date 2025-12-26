@@ -16,12 +16,12 @@
 
 ## ✨ Key Features
 
-- **Interactive Data Exploration**: View any R data frame or tibble in an elegant Shiny interface
-- **Multi-Dataset Support** — Compare / View multiple datasets at once, e.g. `dataviewer(iris, mtcars)`  
-- **Advanced Filtering**: Apply complex dplyr-compatible filter expressions with live preview
+- **Interactive Data Exploration**: View any R `data.frame` or `tibble` in an elegant Shiny interface
+- **Multi-Dataset Support** — Compare / View multiple datasets at once, e.g., `dataviewer(iris, mtcars)`  
+- **Advanced Filtering**: Apply complex `dplyr` compatible filter expressions
 - **Dynamic Column Selection**: Easily select and deselect columns with checkbox interface
 - **Automatic Code Generation**: Generate reproducible `dplyr` code for all your data manipulations
-- **Metadata Display**: Access detailed variable information and data attributes
+- **Metadata Display**: Access detailed variable information and attributes
 - **Import Panel**: Built-in data import functionality when no data is provided
 - **Responsive Design**: Clean, modern interface that works across different screen sizes
 - **Export Capabilities**: Save your filtered and selected data for further analysis
@@ -61,19 +61,19 @@ install.packages("dataviewR",
 library(dataviewR)
 
 # Launch with a dataset
-dataviewer(iris)
+dataviewer(iris) # Opens the dataset in RStudio Viewer pane or default web browser
 
 # View multiple datasets at once
 dataviewer(iris, mtcars)
 
 # or launch without data to use the import panel
-dataviewer()
+dataviewer() # or launch without data to use the import panel (foreground mode - console will be busy)
 ```
 
 ## Learn More
 
-- [Get Started Guide](articles/Introduction-to-dataviewR.html) — overview and visuals  
-- [User Articles](articles/) — feature demos and tutorials  
+- [Get Started Guide](articles/Introduction-to-dataviewR.html) — Introduction and Overview  
+- [User Articles](articles/) — feature demos and Tutorials  
 - [Reference Documentation](reference/)  
 
 ## Contributing & Support
@@ -85,7 +85,7 @@ or open an [issue here](https://github.com/madhankumarnagaraji/dataviewR/issues)
 ## Acknowlegement
 
 We sincerely thank the authors and maintainers of the `DT`, `shiny`, `dplyr`,
-`datamods`, `testthat`, `forcats`, `purrr`, `stringr`packages, their work made this package possible.
+`datamods`, `testthat`, `forcats`, `purrr`, `stringr`, `callr`, `rstudioapi` packages, their work made this package possible.
 
 License
 

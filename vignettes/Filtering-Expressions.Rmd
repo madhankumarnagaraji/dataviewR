@@ -10,7 +10,7 @@ vignette: >
 # Filtering & Expressions in dataviewR
 
 Filtering in `dataviewR` is done using a single powerful method:  
-writing a **dplyr-compatible expression** in the filter box.
+writing a **`dplyr` compatible expression** in the filter box.
 
 This gives you complete flexibility while keeping the logic clean and reproducible.
 
@@ -23,11 +23,11 @@ library(dataviewR)
 dataviewer(iris)
 ```
 
-Once the app opens, you’ll see a Filter text box where you can type any expression that is valid inside dplyr::filter().
+Once the app opens, you’ll see a Filter text box where you can type any expression similar to `dplyr::filter()`.
 
 ## 2. Filtering with Expressions
 
-You can write any logical condition that you would normally pass to:
+You can write any filtering condition that you would normally pass to:
 
 ```r
 dplyr::filter(...)
@@ -58,7 +58,7 @@ String matching
 grepl("^s", Species)
 ```
 
-When you click Submit, the expression is evaluated and the data updates.
+When you click Submit, the expression is evaluated and the dataset updates.
 
 Invalid expressions show a friendly error notification. 
 
@@ -68,7 +68,7 @@ Unlike `View()`, `dataviewR` does not dynamically reflect when the dataset is al
 
 - Submit → runs the filter
 - Clear → resets the filter box
-- Load → loads the data unchanged
+- Load → Reloads the data with all selections reset
 
 The display updates immediately after submitting.
 
@@ -82,37 +82,40 @@ iris |>
   select(Sepal.Length, Sepal.Width, Species)
 ```
 
-Filtering always appears before column selection in the pipeline.
-
-If no filter is applied, the code omits filter() entirely.
+Filtering always appears before column selection in the generated R code.
 
 ## 5. Tips for Writing Expressions
 
 - Use & instead of &&
 - Use %in% for selecting multiple values
-- Write full variable names
-- Treat the filter box like the inside of dplyr::filter()
+- Variable names are case-sensitive
+- Treat the filter box like the inside of `dplyr::filter()` function
 - If something fails, try running your expression directly in the R console first
 
-## 6. Note on DT table filters
+## 6. Note on Quick Filter and Quick Search
 
 The table includes built-in per-column filters from DataTables (filter = "top").
 These:
-- do not affect exported code
-- do not combine with expression filters
-- are optional UI helpers for on-screen browsing only
-- At present, NA values in numeric variables appear as blanks in DT tables, but this shall be fixed in a future enhancement.
+- do not affect exported code <br>
+- do not combine with expression filters <br>
+- are optional UI helpers for on-screen browsing only <br>
+- At present, NA values in numeric variables appear as blanks in DT tables, but this shall be fixed in a future enhancement<br>
+
+The quick filter box (placed below the variable name) will helps to quickly search for a value in the variable. For character/factor variable(s) - it shows the distinct values of the variable(s) including the **NA** values. For numeric variable(s) - it shows an interactive draggable slider with minimum and maximum values of the variable(s). These do not reflect in the generated R code as filtering logic is solely depends on the Filter expression box. At present, NA values in numeric variables appear as blanks as per DT package formatting but this shall be fixed in a future enhancement.
+
+The quick search box allows you to quickly check whether a value exists in the dataset. It searches only within variable values, not variable names/attributes.
+
 
 Filtering logic in dataviewR is defined solely by the expression box.
 
-Summary
+## Summary
 
 In this article, you learned:
-- dataviewR uses a single expression-based filtering system
-- Expressions must be valid inside dplyr::filter()
-- The filtered result updates on Submit
-- Exported code reflects your filter exactly
-- DT column filters help browsing but do not contribute to filtering logic
+- `dataviewR` uses expression-based filtering system <br>
+- Expressions must be valid similar to `dplyr::filter()` function <br>
+- The filtered result updates on Submit <br>
+- Exported code reflects your filter exactly <br>
+- Quick filters help browsing but do not contribute to filtering logic <br>
 
 Expression filtering gives users full flexibility and keeps the workflow reproducible.
 
