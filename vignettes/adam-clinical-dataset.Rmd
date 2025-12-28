@@ -2,7 +2,7 @@
 title: "Working with Clinical Datasets"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Working with ADaM/Clinical Datasets}
+  %\VignetteIndexEntry{Working with Clinical Datasets}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,10 +14,11 @@ User can load ADaM data like explained in the previous sections. In this section
 
 ## 2. Loading data and filtering data of our interest
 
-For this section, adsl and adlb are loaded from the pharmaverseadam package.
+For this section, adsl and adlb are loaded from the `pharmaverseadam` package.
 
 ```r
 library (pharmaverseadam) 
+
 dataviewer(adsl, adlb)
 ```
 Suppose we want to examine safety population subjects with high hemoglobin and review how their hemoglobin values were recorded. With `dataviewR`, this can be done within seconds.
@@ -56,6 +57,7 @@ Users can simultaneously explore a specific subject across both ADLB and ADSL. F
 
 ## 3. Investigating missing values
 In R, missing values will be represented as NA for all datatypes (character, numeric, date, posixct). Suppose user wants to explore whether the variable (column) has missing values, for character variables user can easily filter missing values from the quick filter box (placed below the variable name) which will be visible as **\<NA>**. For numerical variables it is displayed as blank cell (as per DT package formatting), which cannot be filtered from quick filters in the current version.
+
 <p align="center" style="font-style: italic;">
   In the below picture we can see how missing values are displayed for the character variables in the quick filter box
 </p>

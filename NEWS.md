@@ -6,8 +6,6 @@
 
 # dataviewR 0.1.1
 
-  * Initial release
-  
 ## 🔧 Updates
 - Updated the GitHub repository link in the DESCRIPTION file.
 - Updated the README file with more details.
@@ -19,3 +17,7 @@
 
 ## 📝 Documentation
 - Added a `NEWS.md` file to track package changes.
+
+# dataviewR 0.1.0
+
+  * Initial release

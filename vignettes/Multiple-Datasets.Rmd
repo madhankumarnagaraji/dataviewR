@@ -11,7 +11,7 @@ vignette: >
 
 `dataviewR` allows you to explore **two or more datasets in the same session**, making it easy to compare structures, values, and attributes across data sources.
 
-This capability is especially useful when reviewing:
+This capability is especially useful when reviewing: <br>
 - raw vs derived datasets  
 - ADaM vs SDTM datasets  
 - training vs test sets  
@@ -50,10 +50,9 @@ Inside the Viewer pane:
 This makes it easy to compare side-by-side:
 
 - variable names
-- units and labels
 - missing data patterns
-- derived vs. raw values
-- Attributes (labels and classes)
+- derived vs raw values
+- attributes (labels and classes)
 
 ## 3. Applying filters and selections independently
 
@@ -116,6 +115,7 @@ The dm_raw, dm, and adsl datasets are loaded from the `pharmaverseraw`, `pharmav
 library(pharmaverseraw)
 library(pharmaversesdtm)
 library(pharmaverseadam)
+
 dataviewer(dm_raw, dm)
 dataviewer(dm, adsl)
 ```
@@ -126,15 +126,19 @@ Then:
 - Confirm derived variables
 - Check row/column mismatches
 
-#### ✓ ADaM Dataset Review
+#### ✓ SDTM Dataset Review
 
 ```r
+library(pharmaversesdtm)
+
 dataviewer(dm, suppdm, ae, suppae)
 ```
 
 
 #### ✓ ADaM Dataset Review
 ```r
+library(pharmaverseadam)
+
 dataviewer(adsl, adae, adlb)
 ```
 
@@ -166,4 +170,4 @@ In this article, you learned how to:
 
 ## Next Article
 
-Continue with: [Working with ADaM/Clinical Datasets](adam-clinical-dataset.html)
+Continue with: [Working with Clinical Datasets](adam-clinical-dataset.html)

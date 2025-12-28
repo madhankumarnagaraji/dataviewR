@@ -1,4 +1,5 @@
-# dataviewR <a href="https://madhankumarnagaraji.r-universe.dev/dataviewR"><img src="man/figures/dataviewR_logo.png" align="right" width="180" alt="dataviewR logo" /></a>
+# dataviewR <img src="man/figures/logo.png" align="right" width="200" style="margin-left:50px;"/>
+**An Interactive and Feature-Rich Data Viewer for R**
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/dataviewR)](https://CRAN.R-project.org/package=dataviewR)
@@ -7,17 +8,14 @@
 [![DOI](https://img.shields.io/badge/DOI-10.32614/CRAN.package.dataviewR-blue.svg)](https://doi.org/10.32614/CRAN.package.dataviewR)
 [![R-universe](https://madhankumarnagaraji.r-universe.dev/badges/dataviewR)](https://madhankumarnagaraji.r-universe.dev/dataviewR)
 <!-- badges: end -->
-
-**An Interactive and Feature-Rich Data Viewer for R**
+---
 
 `dataviewR` is a powerful Shiny-based interactive data viewer that transforms the way you explore R data frames and tibbles. With its intuitive interface and advanced features, it provides comprehensive data exploration capabilities with automatic code generation for reproducible workflows.
-
----
 
 ## ✨ Key Features
 
 - **Interactive Data Exploration**: View any R `data.frame` or `tibble` in an elegant Shiny interface
-- **Multi-Dataset Support** — Compare / View multiple datasets at once, e.g., `dataviewer(iris, mtcars)`  
+- **Multi-Dataset Support** — View multiple datasets at once, e.g., `dataviewer(iris, mtcars)`  
 - **Advanced Filtering**: Apply complex `dplyr` compatible filter expressions
 - **Dynamic Column Selection**: Easily select and deselect columns with checkbox interface
 - **Automatic Code Generation**: Generate reproducible `dplyr` code for all your data manipulations
@@ -66,14 +64,14 @@ dataviewer(iris) # Opens the dataset in RStudio Viewer pane or default web brows
 # View multiple datasets at once
 dataviewer(iris, mtcars)
 
-# or launch without data to use the import panel
-dataviewer() # or launch without data to use the import panel (foreground mode - console will be busy)
+# or launch without data to use the import panel (foreground mode - console will be busy)
+dataviewer() 
 ```
 
 ## Learn More
 
 - [Get Started Guide](articles/Introduction-to-dataviewR.html) — Introduction and Overview  
-- [User Articles](articles/) — feature demos and Tutorials  
+- [User Articles](articles/) — Feature demos and Tutorials  
 - [Reference Documentation](reference/)  
 
 ## Contributing & Support
@@ -85,10 +83,10 @@ or open an [issue here](https://github.com/madhankumarnagaraji/dataviewR/issues)
 ## Acknowlegement
 
 We sincerely thank the authors and maintainers of the `DT`, `shiny`, `dplyr`,
-`datamods`, `testthat`, `forcats`, `purrr`, `stringr`, `callr`, `rstudioapi` packages, their work made this package possible.
+`datamods`, `testthat`, `forcats`, `purrr`, `stringr`, `callr`, `rstudioapi` packages and DataTables JavaScript library, their work made this package possible.
 
 License
 
-This package is licensed under the [MIT License](LICENSE).
+This package is licensed under the [MIT License](LICENSE-text.html).
 
 *Making R data exploration more interactive and intuitive.* ✨
