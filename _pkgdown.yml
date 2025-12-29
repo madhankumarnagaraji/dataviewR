@@ -1,4 +1,42 @@
 url: https://madhankumarnagaraji.github.io/dataviewR/
 template:
   bootstrap: 5
+  math-rendering: mathjax
+  params:
+    bootswatch: sandstone
+news:
+  cran_dates: true
+search:
+  exclude: ['news/index.html']
+development:
+  mode: auto
 
+navbar:
+  structure:
+    left: [home, getstarted, reference, articles, news]
+    right: [search,  newissue, github]
+  components:
+    getstarted:
+      text: Get Started
+      href: articles/Introduction-to-dataviewR.html
+    reference:
+      text: Reference
+      href: reference/index.html
+    newissue:
+      icon: fa-bug
+      href: https://github.com/madhankumarnagaraji/dataviewR/issues/new/choose
+      aria-label: New Issue
+
+
+articles:
+  - title: Get Started
+    navbar: Get started
+    contents:
+      - Introduction-to-dataviewR
+  - title: Exploring Data
+    navbar: Exploring Data
+    contents:
+      - Filtering-Expressions
+      - Multiple-Datasets
+      - adam-clinical-dataset
+      - Exporting-and-Reproducibility
