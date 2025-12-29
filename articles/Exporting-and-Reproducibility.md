@@ -1,0 +1,66 @@
+# Exporting data and Wrapping Up the Session
+
+## 1. Exporting & reproducing the data to work further
+
+`dataviewR` provides the additional benefit of allowing you to download
+or copy the data you are working with, making it easy to export for
+further analysis, model building, or visualization.
+
+- To download the data, user can use download option provided in .csv or
+  .xlsx formats.
+- To copy the data, user is requested to use copy option provided.
+
+The copy/download feature only applies to the rows currently visible on
+the page you are viewing.
+
+`dataviewR` uses the `callr` package to run the shiny application in a
+background process. To manage and retrieve information about active
+`dataviewR` sessions, the following helper functions are available.
+
+- `list_dataviewers` → Lists all active `dataviewR` sessions.
+- `stop_dataviewer` → To stop a specific or recent `dataviewR` session.
+- `stop_all_dataviewers`→ To stop all active `dataviewR` sessions.
+
+## 2. To know the session information
+
+`list_dataviewers` provides information about the active sessions.
+
+``` r
+list_dataviewers()
+```
+
+``` console
+Active background dataviewer processes:
+=======================================
+
+ID: dv_11
+  Status: RUNNING
+  Data: iris, mtcars
+  Port: 5281
+  Started: 2025-11-30 18:51:49
+```
+
+## 3. To stop `dataviewR` session(s)
+
+To stop a recent dataviewR session user can simply use `stop_dataviewer`
+function as by default it stops the recent active session.
+
+``` r
+stop_dataviewer()
+```
+
+To stop a specific or recent dataviewR session, user can use
+`stop_dataviewer` by providing the id of the session.
+
+``` r
+id <- dataviewer(mtcars, iris)
+dataviewer(id = id)
+```
+
+the above code stops the session mentioned in id argument.
+
+To stop all active sessions user needs to use `stop_all_dataviewers`
+
+``` r
+stop_all_dataviewers()
+```

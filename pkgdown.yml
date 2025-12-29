@@ -2,8 +2,12 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  dataviewR-intro: dataviewR-intro.html
-last_built: 2025-12-21T14:46Z
+  adam-clinical-dataset: adam-clinical-dataset.html
+  Exporting-and-Reproducibility: Exporting-and-Reproducibility.html
+  Filtering-Expressions: Filtering-Expressions.html
+  Introduction-to-dataviewR: Introduction-to-dataviewR.html
+  Multiple-Datasets: Multiple-Datasets.html
+last_built: 2025-12-29T17:45Z
 urls:
   reference: https://madhankumarnagaraji.github.io/dataviewR/reference
   article: https://madhankumarnagaraji.github.io/dataviewR/articles

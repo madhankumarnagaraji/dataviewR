@@ -6,23 +6,35 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>An Interactive and Feature-Rich Data Viewer • dataviewR</title>
-<script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="An Interactive and Feature-Rich Data Viewer">
 <meta name="description" content="Provides an interactive viewer for data.frame and tibble objects using shiny &lt;https://shiny.posit.co/&gt; and DT &lt;https://rstudio.github.io/DT/&gt;. It supports complex filtering, column selection, and automatic generation of reproducible dplyr &lt;https://dplyr.tidyverse.org/&gt; code for data manipulation. The package is designed for ease of use in data exploration and reporting workflows.">
 <meta property="og:description" content="Provides an interactive viewer for data.frame and tibble objects using shiny &lt;https://shiny.posit.co/&gt; and DT &lt;https://rstudio.github.io/DT/&gt;. It supports complex filtering, column selection, and automatic generation of reproducible dplyr &lt;https://dplyr.tidyverse.org/&gt; code for data manipulation. The package is designed for ease of use in data exploration and reporting workflows.">
+<meta property="og:image" content="https://madhankumarnagaraji.github.io/dataviewR/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">dataviewR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,11 +43,20 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/Introduction-to-dataviewR.html">Get Started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/dataviewR-intro.html">dataviewR-intro</a></li>
+<li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Get started</h6></li>
+    <li><a class="dropdown-item" href="articles/Introduction-to-dataviewR.html">Introduction to dataviewR</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Exploring Data</h6></li>
+    <li><a class="dropdown-item" href="articles/Filtering-Expressions.html">Using Filter and Expressions</a></li>
+    <li><a class="dropdown-item" href="articles/Multiple-Datasets.html">Exploring Multiple Datasets</a></li>
+    <li><a class="dropdown-item" href="articles/adam-clinical-dataset.html">Working with Clinical Datasets</a></li>
+    <li><a class="dropdown-item" href="articles/Exporting-and-Reproducibility.html">Exporting data and Wrapping Up the Session</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -44,6 +65,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/madhankumarnagaraji/dataviewR/issues/new/choose" aria-label="New Issue"><span class="fa fa-bug"></span></a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/madhankumarnagaraji/dataviewR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
@@ -53,292 +75,100 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="dataviewr-">dataviewR <a href="https://madhankumarnagaraji.r-universe.dev/dataviewR" class="external-link"><img src="reference/figures/dataviewR_logo.png" align="right" height="139" alt="dataviewR website"></a>
-<a class="anchor" aria-label="anchor" href="#dataviewr-"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="dataviewr-">dataviewR <a class="anchor" aria-label="anchor" href="#dataviewr-"></a>
+</h1>
+</div>
+<p><strong>An Interactive and Feature-Rich Data Viewer for R</strong></p>
 <!-- badges: start -->
 
-<p><strong>An Interactive and Feature-Rich Data Viewer for R</strong></p>
 <p><code>dataviewR</code> is a powerful Shiny-based interactive data viewer that transforms the way you explore R data frames and tibbles. With its intuitive interface and advanced features, it provides comprehensive data exploration capabilities with automatic code generation for reproducible workflows.</p>
-<hr>
 <div class="section level2">
 <h2 id="id_-key-features">✨ Key Features<a class="anchor" aria-label="anchor" href="#id_-key-features"></a>
 </h2>
 <ul>
 <li>
-<strong>Interactive Data Exploration</strong>: View any R data frame or tibble in an elegant Shiny interface</li>
+<strong>Interactive Data Exploration</strong>: View any R <code>data.frame</code> or <code>tibble</code> in an elegant Shiny interface</li>
 <li>
-<strong>Advanced Filtering</strong>: Apply complex dplyr-compatible filter expressions with live preview</li>
+<strong>Multi-Dataset Support</strong> — View multiple datasets at once, e.g., <code>dataviewer(iris, mtcars)</code><br>
+</li>
+<li>
+<strong>Advanced Filtering</strong>: Apply complex <code>dplyr</code> compatible filter expressions</li>
 <li>
 <strong>Dynamic Column Selection</strong>: Easily select and deselect columns with checkbox interface</li>
 <li>
 <strong>Automatic Code Generation</strong>: Generate reproducible <code>dplyr</code> code for all your data manipulations</li>
 <li>
-<strong>Metadata Display</strong>: Access detailed variable information and data attributes</li>
+<strong>Metadata Display</strong>: Access detailed variable information and attributes</li>
 <li>
-<strong>Data Import Panel</strong>: Built-in data import functionality when no data is provided</li>
+<strong>Import Panel</strong>: Built-in data import functionality when no data is provided</li>
 <li>
 <strong>Responsive Design</strong>: Clean, modern interface that works across different screen sizes</li>
 <li>
 <strong>Export Capabilities</strong>: Save your filtered and selected data for further analysis</li>
 </ul>
 <hr>
+<p>Below is a complete tutorial about the package and its key features as explained above</p>
 </div>
 <div class="section level2">
 <h2 id="id_-installation">📦 Installation<a class="anchor" aria-label="anchor" href="#id_-installation"></a>
 </h2>
-<div class="section level3">
-<h3 id="stable-release-cran">Stable Release (CRAN)<a class="anchor" aria-label="anchor" href="#stable-release-cran"></a>
-</h3>
+<p>Install the stable release from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install from CRAN (recommended for most users)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dataviewR"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="for-older-r-versions--430">For Older R Versions (&lt; 4.3.0)<a class="anchor" aria-label="anchor" href="#for-older-r-versions--430"></a>
-</h3>
-<p>If you’re using R versions prior to 4.3.0, you may need to install from source:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dataviewR"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the latest development version from GitHub:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># For R 4.2.x and earlier</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dataviewR"</span>, type <span class="op">=</span> <span class="st">"source"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Alternative method using devtools</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_version</span><span class="op">(</span><span class="st">"dataviewR"</span>, version <span class="op">=</span> <span class="st">"0.1.0"</span>, </span>
-<span>                         repos <span class="op">=</span> <span class="st">"http://cran.r-project.org"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="development-version">Development Version<a class="anchor" aria-label="anchor" href="#development-version"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install the latest development version from GitHub</span></span>
-<span><span class="co"># install.packages("devtools")</span></span>
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"madhankumarnagaraji/dataviewR"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="alternative-installation-methods">Alternative Installation Methods<a class="anchor" aria-label="anchor" href="#alternative-installation-methods"></a>
-</h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install from R-universe (often has additional binary support)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dataviewR"</span>, </span>
+<p>Or from R-universe (binary builds available):</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dataviewR"</span>, </span>
 <span>                 repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://madhankumarnagaraji.r-universe.dev"</span>, </span>
 <span>                          <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
-</div>
 <div class="section level2">
 <h2 id="id_-quick-start">🚀 Quick Start<a class="anchor" aria-label="anchor" href="#id_-quick-start"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/madhankumarnagaraji/dataviewR" class="external-link">dataviewR</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Launch with built-in datasets</span></span>
-<span><span class="fu"><a href="reference/dataviewer.html">dataviewer</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/dataviewer.html">dataviewer</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
+<span><span class="co"># Launch with a dataset</span></span>
+<span><span class="fu"><a href="reference/dataviewer.html">dataviewer</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span> <span class="co"># Opens the dataset in RStudio Viewer pane or default web browser</span></span>
 <span></span>
-<span><span class="co"># Launch with your own data</span></span>
-<span><span class="fu"><a href="reference/dataviewer.html">dataviewer</a></span><span class="op">(</span><span class="va">your_data_frame</span><span class="op">)</span></span>
+<span><span class="co"># View multiple datasets at once</span></span>
+<span><span class="fu"><a href="reference/dataviewer.html">dataviewer</a></span><span class="op">(</span><span class="va">iris</span>, <span class="va">mtcars</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Launch without data to use the import panel</span></span>
-<span><span class="fu"><a href="reference/dataviewer.html">dataviewer</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Example with pharmaverseadam data (if package available)</span></span>
-<span><span class="co"># install.packages("pharmaverseadam")</span></span>
-<span><span class="fu"><a href="reference/dataviewer.html">dataviewer</a></span><span class="op">(</span><span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va">adae</span><span class="op">)</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="what-you-can-do">What You Can Do<a class="anchor" aria-label="anchor" href="#what-you-can-do"></a>
-</h3>
-<p>The interactive interface provides: - <strong>Complex Filtering</strong>: Use dplyr expressions like <code>mpg &gt; 20 &amp; cyl == 4</code> - <strong>Column Management</strong>: Select/deselect columns with intuitive checkboxes - <strong>Data Sorting</strong>: Click column headers to sort data - <strong>Code Export</strong>: Copy generated dplyr code for reproducible analysis - <strong>Attribute Inspection</strong>: View variable labels, types, and metadata - <strong>Search Functionality</strong>: Find specific values across all columns - <strong>Variable Levels with NA Visibility</strong>: Displays all distinct values of character and factor variables, including <code>NA</code>, within the quick filter box.</p>
-<hr>
-</div>
+<span><span class="co"># or launch without data to use the import panel (foreground mode - console will be busy)</span></span>
+<span><span class="fu"><a href="reference/dataviewer.html">dataviewer</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="id_-use-cases">🎯 Use Cases<a class="anchor" aria-label="anchor" href="#id_-use-cases"></a>
-</h2>
-<div class="section level3">
-<h3 id="data-exploration">
-<strong>Data Exploration</strong>:<a class="anchor" aria-label="anchor" href="#data-exploration"></a>
-</h3>
-<p>Perfect for initial data investigation and understanding</p>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="id_-package-structure">📁 Package Structure<a class="anchor" aria-label="anchor" href="#id_-package-structure"></a>
-</h2>
-<pre><code>dataviewR/
-├── R/
-│   └── dataviewer.R
-├── man/
-│   └── dataviewer.Rd
-│   └── figures/
-│       └── dataviewR_logo.png
-├── tests/
-│   └── testthat/
-│       └── test-dataviewer.R
-├── vignettes/
-│   └── dataviewR-intro.Rmd
-├── inst/
-│   └── app/
-├── data/
-├── DESCRIPTION
-├── NAMESPACE
-├── README.md
-├── NEWS.md
-├── LICENSE
-</code></pre>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="id_-system-requirements">📊 System Requirements<a class="anchor" aria-label="anchor" href="#id_-system-requirements"></a>
+<h2 id="learn-more">Learn More<a class="anchor" aria-label="anchor" href="#learn-more"></a>
 </h2>
 <ul>
 <li>
-<strong>R Version</strong>: ≥ 4.2.0 (tested on R 4.2.0 through R 4.4.x)</li>
-<li>
-<strong>Dependencies</strong>: All dependencies are automatically installed
-<ul>
-<li>
-<code>shiny</code>, <code>shinyjs</code>, <code>DT</code>, <code>dplyr</code>, <code>labelled</code>, <code>forcats</code>
+<a href="articles/Introduction-to-dataviewR.html">Get Started Guide</a> — Introduction and Overview<br>
 </li>
 <li>
-<code>stringr</code>, <code>purrr</code>, <code>tibble</code>, <code>datamods</code>, <code>htmlwidgets</code>
+<a href="articles/index.html">User Articles</a> — Feature demos and Tutorials<br>
 </li>
+<li><a href="reference/index.html">Reference Documentation</a></li>
 </ul>
-</li>
-</ul>
-<hr>
-<div class="section level3">
-<h3 id="integration-with-analysis-workflows">Integration with Analysis Workflows<a class="anchor" aria-label="anchor" href="#integration-with-analysis-workflows"></a>
-</h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Use dataviewR to explore, then copy the generated code</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># After using dataviewer(mtcars), you might get code like:</span></span>
-<span><span class="va">filtered_data</span> <span class="op">&lt;-</span> <span class="va">mtcars</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">&gt;</span> <span class="fl">20</span> <span class="op">&amp;</span> <span class="va">cyl</span> <span class="op">==</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="va">cyl</span>, <span class="va">hp</span>, <span class="va">wt</span><span class="op">)</span></span></code></pre></div>
-<hr>
-</div>
 </div>
 <div class="section level2">
-<h2 id="id_-documentation">📖 Documentation<a class="anchor" aria-label="anchor" href="#id_-documentation"></a>
+<h2 id="contributing--support">Contributing &amp; Support<a class="anchor" aria-label="anchor" href="#contributing--support"></a>
 </h2>
-<ul>
-<li>
-<strong>Function Reference</strong>: <code><a href="reference/dataviewer.html">?dataviewer</a></code> or <code><a href="reference/dataviewer.html">help(dataviewer)</a></code>
-</li>
-<li>
-<strong>Package Vignette</strong>: <code><a href="articles/dataviewR-intro.html">vignette("dataviewR-intro", package = "dataviewR")</a></code>
-</li>
-<li>
-<strong>CRAN Page</strong>: <a href="https://cran.r-project.org/package=dataviewR" class="external-link">https://cran.r-project.org/package=dataviewR</a>
-</li>
-<li>
-<strong>R-universe Page</strong>: <a href="https://madhankumarnagaraji.r-universe.dev/dataviewR" class="external-link">https://madhankumarnagaraji.r-universe.dev/dataviewR</a>
-</li>
-</ul>
-<hr>
+<p>We welcome contributions, ideas, and issue reports!<br>
+Visit the <a href="https://github.com/madhankumarnagaraji/dataviewR" class="external-link">GitHub repository</a><br>
+or open an <a href="https://github.com/madhankumarnagaraji/dataviewR/issues" class="external-link">issue here</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="id_-issue-reporting--support">🐛 Issue Reporting &amp; Support<a class="anchor" aria-label="anchor" href="#id_-issue-reporting--support"></a>
+<h2 id="acknowlegement">Acknowlegement<a class="anchor" aria-label="anchor" href="#acknowlegement"></a>
 </h2>
-<p>Found a bug or have a feature request?</p>
-<ul>
-<li>
-<strong>GitHub Issues</strong>: <a href="https://github.com/madhankumarnagaraji/dataviewR/issues" class="external-link">Open an issue</a>
-</li>
-<li>
-<strong>Email</strong>: <a href="mailto:madhanmanoj1999@gmail.com" class="email">madhanmanoj1999@gmail.com</a>
-</li>
-<li>
-<strong>Bug Reports</strong>: Please include your R version, operating system, and reproducible example</li>
-</ul>
-<p>When reporting issues, please include: 1. Your R version (<code>R.version</code>) 2. Package version (<code>packageVersion("dataviewR")</code>) 3. Operating system 4. Reproducible example demonstrating the issue</p>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="id_-contributing">🤝 Contributing<a class="anchor" aria-label="anchor" href="#id_-contributing"></a>
-</h2>
-<p>Contributions are welcome! Please feel free to: - Report bugs and request features via GitHub Issues - Submit pull requests for bug fixes or enhancements - Improve documentation and examples - Share use cases and feedback</p>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="id_-citation">📝 Citation<a class="anchor" aria-label="anchor" href="#id_-citation"></a>
-</h2>
-<p>If you use dataviewR in your research or publications, please cite:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"dataviewR"</span><span class="op">)</span></span></code></pre></div>
-<pre><code>To cite dataviewR in publications use:
-
-  Madhan Kumar N (2025). dataviewR: An Interactive and Feature-Rich Data Viewer.
-  R package version 0.1.0. https://CRAN.R-project.org/package=dataviewR
-
-A BibTeX entry for LaTeX users is:
-
-  @Manual{,
-    title = {dataviewR: An Interactive and Feature-Rich Data Viewer},
-    author = {Madhan Kumar N},
-    year = {2025},
-    note = {R package version 0.1.0},
-    url = {https://CRAN.R-project.org/package=dataviewR},
-  }</code></pre>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="id_-license">📄 License<a class="anchor" aria-label="anchor" href="#id_-license"></a>
-</h2>
-<p>This package is licensed under the <a href="LICENSE">MIT License</a>.</p>
-<pre><code>MIT License
-
-Copyright (c) 2025 Madhan Kumar N
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.</code></pre>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="id_-acknowledgments">🌟 Acknowledgments<a class="anchor" aria-label="anchor" href="#id_-acknowledgments"></a>
-</h2>
-<ul>
-<li>Built with <a href="https://shiny.posit.co/" class="external-link">Shiny</a> for the interactive interface</li>
-<li>Powered by <a href="https://rstudio.github.io/DT/" class="external-link">DT</a> for advanced data tables</li>
-<li>Utilizes <a href="https://dplyr.tidyverse.org/" class="external-link">dplyr</a> for data manipulation</li>
-<li>Special thanks to the R community for feedback and suggestions</li>
-</ul>
-<hr>
-</div>
-<div class="section level2">
-<h2 id="id_-development-status">📈 Development Status<a class="anchor" aria-label="anchor" href="#id_-development-status"></a>
-</h2>
-<div class="section level3">
-<h3 id="roadmap">Roadmap<a class="anchor" aria-label="anchor" href="#roadmap"></a>
-</h3>
-<p>Future enhancements may include:</p>
-<ul>
-<li>Multi-dataset tabs for viewing multiple datasets side by side within the same session.</li>
-<li>Bug fixes, if any</li>
-<li>Additional customization options</li>
-</ul>
-<hr>
-<p><strong>Created and maintained by <a href="mailto:madhanmanoj1999@gmail.com">N Madhan Kumar</a></strong></p>
+<p>We sincerely thank the authors and maintainers of the <code>DT</code>, <code>shiny</code>, <code>dplyr</code>, <code>datamods</code>, <code>testthat</code>, <code>forcats</code>, <code>purrr</code>, <code>stringr</code>, <code>callr</code>, <code>rstudioapi</code> packages and DataTables JavaScript library, their work made this package possible.</p>
+<p>License</p>
+<p>This package is licensed under the <a href="LICENSE-text.html">MIT License</a>.</p>
 <p><em>Making R data exploration more interactive and intuitive.</em> ✨</p>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -376,16 +206,7 @@ SOFTWARE.</code></pre>
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=dataviewR" class="external-link"><img src="https://www.r-pkg.org/badges/version/dataviewR" alt="CRAN status"></a></li>
-<li><a href="https://r-pkg.org/pkg/dataviewR" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/dataviewR?color=blue" alt="CRAN RStudio mirror downloads"></a></li>
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
-<li><a href="https://doi.org/10.32614/CRAN.package.dataviewR" class="external-link"><img src="https://img.shields.io/badge/DOI-10.32614/CRAN.package.dataviewR-blue.svg" alt="DOI"></a></li>
-<li><a href="https://madhankumarnagaraji.r-universe.dev/dataviewR" class="external-link"><img src="https://madhankumarnagaraji.r-universe.dev/badges/dataviewR" alt="R-universe"></a></li>
-</ul>
-</div>
+
 
   </aside>
 </div>
