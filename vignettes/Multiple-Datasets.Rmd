@@ -50,9 +50,9 @@ Inside the Viewer pane:
 This makes it easy to compare side-by-side:
 
 - variable names
+- attributes (labels and classes)
 - missing data patterns
 - derived vs raw values
-- attributes (labels and classes)
 
 ## 3. Applying filters and selections independently
 

@@ -46,7 +46,7 @@ When you pass a dataset(s), dataviewR opens directly with that dataset(s) loaded
 
 For better user experience, it is recommended to open dataviewR in new window from Viewer pane.
 
-To open the dataset in a shiny application, user is requested to disable the background option using background = FALSE argument but it keeps the console busy.
+To open the dataset in a shiny application, user is requested to disable the background option using `background = FALSE` argument but it keeps the console busy.
 
 ```r
 library(dataviewR)
@@ -136,7 +136,6 @@ dataviewer(iris)
 
 ```r
 # After exploring, use the exported code:
-
 library(dplyr)
 
 iris |>
