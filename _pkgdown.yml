@@ -6,6 +6,10 @@ template:
     bootswatch: sandstone
 news:
   cran_dates: true
+search:
+  exclude: ['news/index.html']
+development:
+  mode: auto
 
 navbar:
   structure:

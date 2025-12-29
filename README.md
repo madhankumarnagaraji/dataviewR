@@ -71,7 +71,7 @@ dataviewer()
 ## Learn More
 
 - [Get Started Guide](articles/Introduction-to-dataviewR.html) — Introduction and Overview  
-- [User Articles](articles/Introduction-to-dataviewR.html#next-steps) — Feature demos and Tutorials  
+- [User Articles](articles/index.html) — Feature demos and Tutorials  
 - [Reference Documentation](reference/index.html)  
 
 ## Contributing & Support
