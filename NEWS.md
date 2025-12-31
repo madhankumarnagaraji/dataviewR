@@ -1,8 +1,20 @@
-# dataviewR (development version)
+# dataviewR 1.0.0
 
-## Bug fixes
-- Clear filter field once Import click is observed (#12)
-- Created Github page (#17)
+## 🔧 Updates
+- Added **Multi-dataset support** to the `dataviewer()` function: users can now pass a list of datasets (#22).
+- Implemented **background processing** using the `callr` package. The viewer now opens without blocking the R console (#22).
+- Added new helper functions for managing viewers: `list_dataviewers()`, `stop_dataviewer()`, and `stop_all_dataviewers()` (#26).
+- Improved the viewing layout for a better user experience (#22).
+- Added a pop-up option to the Attribute Information table (#22).
+- Updated the `README.md` and added new vignettes ("Introduction to dataviewR", "Using Filter and Expressions", "Exploring Multiple Datasets","Working with Clinical Datasets", "Exporting data and Wrapping Up the Session") (#10).
+- Created the package website via GitHub Pages (#17).
+
+## 🐛 Bug Fixes
+- Fixed variable name handling in generated R code to support both conventional and non-conventional (e.g., with spaces) names (#22).
+- Minor bug fixes to improve stability and performance.
+
+## 📝 Documentation
+- Added new authors and the GitHub Pages URL to the `DESCRIPTION` file.
 
 # dataviewR 0.1.1
 
@@ -20,4 +32,4 @@
 
 # dataviewR 0.1.0
 
-  * Initial release
+- Initial release
