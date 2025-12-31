@@ -2,7 +2,7 @@
 
 ## 🔧 Updates
 - Added **Multi-dataset support** to the `dataviewer()` function: users can now pass a list of datasets (#22).
-- Implemented **background processing** using the `callr` package. The viewer now opens without blocking the R console (#22).
+- Implemented **background processing** using the `callr` package. The `dataviewer()` application now opens without blocking the R console (#22).
 - Added new helper functions for managing viewers: `list_dataviewers()`, `stop_dataviewer()`, and `stop_all_dataviewers()` (#26).
 - Improved the viewing layout for a better user experience (#22).
 - Added a pop-up option to the Attribute Information table (#22).
