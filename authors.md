@@ -13,7 +13,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/madhankumarnagaraji/dataviewR/blob/asset-v1.0.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/madhankumarnagaraji/dataviewR/blob/main/DESCRIPTION)
 
 Kumar N M, Pujari S, S G, Haight M (2025). *dataviewR: An Interactive
 and Feature-Rich Data Viewer*. R package version 1.0.0,

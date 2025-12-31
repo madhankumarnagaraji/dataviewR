@@ -65,7 +65,7 @@ dataviewer(iris, background = FALSE) # Opens the Shiny application and run in fo
 You’ll see the interactive table immediately, along with variable info
 and filtering options.
 
-![dataviewR viewing the iris dataset](figures/look_2.png)
+![dataviewR viewing the iris dataset](figures/look_2_c.png)
 
 ### 2️⃣ Launch with multiple datasets (side-by-side viewing)
 
@@ -86,7 +86,7 @@ This is useful for:
 
 - Comparing outputs across pipelines
 
-![dataviewR comparing iris and mtcars](figures/multi_data_gif.gif)
+![dataviewR comparing iris and mtcars](figures/multi_data_gif_c.gif)
 
 Each dataset gets its own tab, allowing you to switch seamlessly.
 
