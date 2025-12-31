@@ -29,7 +29,7 @@ Suppose we want to examine safety population subjects with high hemoglobin and r
 
 <p align="center">
 <video 
-  src="figures/adlb1.mp4"
+  src="figures/adlb1_c.mp4"
   width="85%"
   muted
   playsinline
@@ -46,7 +46,7 @@ Users can simultaneously explore a specific subject across both ADLB and ADSL. F
 
 <p align="center">
 <video 
-  src="figures/adlb2.mp4"
+  src="figures/adlb2_c.mp4"
   width="85%"
   muted
   playsinline
@@ -80,7 +80,7 @@ For the better experience, user is requested to use the available pop-up option 
 
 <p align="center">
 <video 
-  src="figures/adlb3.mp4"
+  src="figures/adlb3_c.mp4"
   width="85%"
   muted
   playsinline
