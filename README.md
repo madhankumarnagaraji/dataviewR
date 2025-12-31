@@ -70,9 +70,9 @@ dataviewer()
 
 ## Learn More
 
-- [Get Started Guide](articles/Introduction-to-dataviewR.html) — Introduction and Overview  
-- [User Articles](articles/index.html) — Feature demos and Tutorials  
-- [Reference Documentation](reference/index.html)  
+- [Get Started Guide](https://madhankumarnagaraji.github.io/dataviewR/articles/Introduction-to-dataviewR.html) — Introduction and Overview  
+- [User Articles](https://madhankumarnagaraji.github.io/dataviewR/articles/index.html) — Feature demos and Tutorials  
+- [Reference Documentation](https://madhankumarnagaraji.github.io/dataviewR/reference/index.html)  
 
 ## Contributing & Support
 
@@ -87,6 +87,6 @@ We sincerely thank the authors and maintainers of the `DT`, `shiny`, `dplyr`,
 
 License
 
-This package is licensed under the [MIT License](LICENSE-text.html).
+This package is licensed under the [MIT License](https://madhankumarnagaraji.github.io/dataviewR/LICENSE-text.html).
 
 *Making R data exploration more interactive and intuitive.* ✨
