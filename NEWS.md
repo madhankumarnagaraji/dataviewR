@@ -6,7 +6,7 @@
 - Added new functions to manage the background processes: `list_dataviewers()`, `stop_dataviewer()`, and `stop_all_dataviewers()` (#26).
 - Optimized the viewing layout with a compact design for a better user experience (#22).
 - Added a pop-up option to the Attribute Info table (#22).
-- Updated the `README.md` and added new vignettes ("Introduction to dataviewR", "Using Filter and Expressions", "Exploring Multiple Datasets","Working with Clinical Datasets", "Exporting data and Wrapping Up the Session") (#10).
+- Updated the `README.md` and added new vignettes ("Introduction to dataviewR", "Using Filter and Expressions", "Exploring Multiple Datasets", "Working with Clinical Datasets", "Exporting data and Wrapping Up the Session") (#10).
 - Created the package website via GitHub Pages (#17).
 
 ## 🐛 Bug Fixes
