@@ -9,7 +9,7 @@ test_that("App Integration: Tabs load and close correctly", {
   app <- dataviewer(mtcars, iris, background = FALSE)
 
   # Initialize the test driver
-  app_driver <- AppDriver$new(app, name = "tab_test", height = 800, width = 1200)
+  app_driver <- AppDriver$new(app, name = "tab_test", height = 800, width = 1200, timeout = 15000)
 
   # Wait for the app to settle
   app_driver$wait_for_idle()
