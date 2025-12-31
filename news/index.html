@@ -52,11 +52,25 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="dataviewr-development-version">dataviewR (development version)<a class="anchor" aria-label="anchor" href="#dataviewr-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.0.0" id="dataviewr-100">dataviewR 1.0.0<a class="anchor" aria-label="anchor" href="#dataviewr-100"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>Clear filter field once Import click is observed (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/12" class="external-link">#12</a>)</li>
-<li>Created Github page (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/17" class="external-link">#17</a>)</li>
+<h3 id="id_-updates-1-0-0">🔧 Updates<a class="anchor" aria-label="anchor" href="#id_-updates-1-0-0"></a></h3>
+<ul><li>Added <strong>Multi-dataset support</strong> to the <code><a href="../reference/dataviewer.html">dataviewer()</a></code> function: users can now pass a list of datasets (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/22" class="external-link">#22</a>).</li>
+<li>Implemented <strong>background processing</strong> using the <code>callr</code> package. The <code><a href="../reference/dataviewer.html">dataviewer()</a></code> application now opens without blocking the R console (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/22" class="external-link">#22</a>).</li>
+<li>Added new functions to manage the background processes: <code><a href="../reference/list_dataviewers.html">list_dataviewers()</a></code>, <code><a href="../reference/stop_dataviewer.html">stop_dataviewer()</a></code>, and <code><a href="../reference/stop_all_dataviewers.html">stop_all_dataviewers()</a></code> (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/26" class="external-link">#26</a>).</li>
+<li>Optimized the viewing layout with a compact design for a better user experience (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/22" class="external-link">#22</a>).</li>
+<li>Added a pop-up option to the Attribute Info table (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/22" class="external-link">#22</a>).</li>
+<li>Updated the <code>README.md</code> and added new vignettes (“Introduction to dataviewR”, “Using Filter and Expressions”, “Exploring Multiple Datasets”, “Working with Clinical Datasets”, “Exporting data and Wrapping Up the Session”) (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/10" class="external-link">#10</a>).</li>
+<li>Created the package website via GitHub Pages (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/17" class="external-link">#17</a>).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="id_-bug-fixes-1-0-0">🐛 Bug Fixes<a class="anchor" aria-label="anchor" href="#id_-bug-fixes-1-0-0"></a></h3>
+<ul><li>Fixed variable name handling in generated R code to support both conventional and non-conventional (e.g., with spaces) names (<a href="https://github.com/madhankumarnagaraji/dataviewR/issues/22" class="external-link">#22</a>).</li>
+<li>Minor bug fixes to improve stability and performance.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="id_-documentation-1-0-0">📝 Documentation<a class="anchor" aria-label="anchor" href="#id_-documentation-1-0-0"></a></h3>
+<ul><li>Added new authors and the GitHub Pages URL to the <code>DESCRIPTION</code> file.</li>
 </ul></div>
 </div>
     <div class="section level2">
