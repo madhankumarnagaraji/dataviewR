@@ -69,7 +69,6 @@ Invalid expressions show a friendly error notification.
 
 - Submit → runs the filter
 - Clear → resets the filter box
-- Load → reloads the data with all selections reset
 
 The display updates immediately after submitting.
 
