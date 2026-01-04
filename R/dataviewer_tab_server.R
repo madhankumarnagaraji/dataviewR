@@ -8,6 +8,22 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
   shiny::moduleServer(id, function(input, output, session) {
 
+    # --- FIX: Robust Enter Key Handler ---
+    # We unbind ("off") previous listeners to prevent duplicates.
+    # We add a 200ms delay (setTimeout) to guarantee the new text
+    # reaches the server BEFORE the submit button is clicked.
+    shinyjs::runjs(sprintf('
+      $("#%s").off("keyup").on("keyup", function(e) {
+        if (e.which == 13) {
+          $(this).trigger("change");           // 1. Send new text to server
+          setTimeout(function() {              // 2. Wait 200ms (imperceptible to human, distinct for computer)
+            $("#%s").click();                  // 3. Click submit
+          }, 200);
+        }
+      });
+    ', session$ns("filter"), session$ns("submit")))
+    # --------------------------------------------------
+
     # This reactive value is now internal to the module
     last_action <- shiny::reactiveVal("load")
 
@@ -94,22 +110,33 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
         # Check the last action.
         if (identical(last_action(), "clear")) {
+          # Good practice: Ensure error is gone if user clicks Clear
+          shiny::removeNotification(id = "filter_error")
           return(get_data())
         }
 
         if (stringr::str_trim(input$filter) != "") {
           tryCatch({
+
+            # --- FIX : Clear any previous error notification on success ---
+            shiny::removeNotification(id = "filter_error")
+            # ---------------------------------------------------------------
+
             validate_filter_expression(input$filter)
             dplyr::filter(get_data(), eval(parse(text = input$filter)))
+
           }, error = function(e) {
             shiny::showNotification(
               paste0("Invalid filter condition: ", e$message),
               type = "error",
-              duration = 5
+              duration = 5,
+              id = "filter_error"  # Giving a name so we can remove the error notification later
             )
             get_data()
           })
         } else {
+          # Also remove error if input is empty
+          shiny::removeNotification(id = "filter_error")
           get_data()
         }
       }
