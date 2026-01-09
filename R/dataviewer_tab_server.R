@@ -8,20 +8,20 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
   shiny::moduleServer(id, function(input, output, session) {
 
-    # --- FIX: Robust Enter Key Handler ---
-    # We unbind ("off") previous listeners to prevent duplicates.
-    # We add a 200ms delay (setTimeout) to guarantee the new text
-    # reaches the server BEFORE the submit button is clicked.
+    # Bind 'Enter' key on the filter input to the 'Submit' button
     shinyjs::runjs(sprintf('
       $("#%s").off("keyup").on("keyup", function(e) {
-        if (e.which == 13) {
-          $(this).trigger("change");           // 1. Send new text to server
-          setTimeout(function() {              // 2. Wait 200ms (imperceptible to human, distinct for computer)
-            $("#%s").click();                  // 3. Click submit
-          }, 200);
+        if (e.which == 13) {  // 13 is the key code for Enter
+
+          // 1. Force-send the current text to R immediately (Bypass debounce)
+          var currentVal = $(this).val();
+          Shiny.setInputValue("%s", currentVal);
+
+          // 2. Click the submit button
+          $("#%s").click();
         }
       });
-    ', session$ns("filter"), session$ns("submit")))
+', session$ns("filter"), session$ns("filter"), session$ns("submit")))
     # --------------------------------------------------
 
     # This reactive value is now internal to the module
