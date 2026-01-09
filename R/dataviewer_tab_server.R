@@ -8,20 +8,32 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
   shiny::moduleServer(id, function(input, output, session) {
 
-    # Bind 'Enter' key on the filter input to the 'Submit' button
+    # --- FIX: "Atomic Batch" Enter Key Handler ---
+    # 1. Uses 'keydown' (faster and more accurate than keypress).
+    # 2. Updates 'filter' and 'enter_trigger' in ONE go.
+    # 3. No button clicking involved (zero latency).
     shinyjs::runjs(sprintf('
-      $("#%s").off("keyup").on("keyup", function(e) {
-        if (e.which == 13) {  // 13 is the key code for Enter
+      (function() {
+        var $el = $("#%s");
+        var filterId = "%s";
+        var triggerId = "%s";
 
-          // 1. Force-send the current text to R immediately (Bypass debounce)
-          var currentVal = $(this).val();
-          Shiny.setInputValue("%s", currentVal);
+        $el.off("keydown.filterEnter").on("keydown.filterEnter", function(e) {
+          if (e.which === 13) {
+            e.preventDefault();
 
-          // 2. Click the submit button
-          $("#%s").click();
-        }
-      });
-', session$ns("filter"), session$ns("filter"), session$ns("submit")))
+            var txt = $(this).val();
+
+            // ATOMIC UPDATE: Send both values to R in the same message.
+            // 1. Force update the filter text (bypass debounce)
+            Shiny.setInputValue(filterId, txt, {priority: "event"});
+
+            // 2. Fire the trigger immediately after
+            Shiny.setInputValue(triggerId, Date.now(), {priority: "event"});
+          }
+        });
+      })();
+    ', session$ns("filter"), session$ns("filter"), session$ns("enter_trigger")))
     # --------------------------------------------------
 
     # This reactive value is now internal to the module
@@ -72,8 +84,13 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       )
     })
 
-    # Track last action
+    # Track last action - Submit Button
     shiny::observeEvent(input$submit, {
+      last_action("submit")
+    })
+
+    # Track last action - Enter Key (NEW)
+    shiny::observeEvent(input$enter_trigger, {
       last_action("submit")
     })
 
@@ -104,7 +121,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     # Filter dataframe
     filter_df <- shiny::eventReactive(
-      c(input$load, input$submit, input$clear),
+      c(input$load, input$submit, input$clear, input$enter_trigger), # Added enter_trigger
       {
         shiny::req(get_data())
 
