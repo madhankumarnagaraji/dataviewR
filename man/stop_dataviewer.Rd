@@ -12,3 +12,6 @@ stop_dataviewer(id = NULL)
 \description{
 Stop a Specific or Most Recent Dataviewer Process
 }
+\seealso{
+For more information, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}.
+}
