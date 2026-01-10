@@ -55,6 +55,12 @@ and generates user-friendly code to replicate the steps. It also
 provides copyable R code that includes column selection and filtering
 logic.
 
+## See also
+
+For more information about the features of dataviewer, please refer to
+the
+[documentation](https://madhankumarnagaraji.github.io/dataviewR/articles/Introduction-to-dataviewR.html).
+
 ## Examples
 
 ``` r
