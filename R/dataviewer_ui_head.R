@@ -206,21 +206,6 @@ dataviewer_ui_head <- function() {
               }, 100); // try for ~3 seconds
             };
 
-            // === START FIX: Corrected jQuery selector for Enter key ===
-            // A more robust way for modules is to find the submit button
-            // relative to the filter input.
-            $(document).on('keydown', \"input[type='text'][id$='-filter']\", function(e) {
-              if (e.key === 'Enter' || e.keyCode === 13) {
-                e.preventDefault();
-                // FIX: Go to the parent DIV (.form-group), then find the sibling button
-                var submitButton = $(this).parent().siblings(\"button[id$='-submit']\");
-                if (submitButton.length > 0) {
-                  submitButton.click();
-                }
-              }
-            });
-            // === END FIX ===
-
           });
         "))
   )

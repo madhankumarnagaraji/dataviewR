@@ -1,5 +1,7 @@
 #' List Active Background Dataviewer Processes
 #'
+#' @seealso For more information, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-know-the-session-information}{documentation}.
+#'
 #' @export
 list_dataviewers <- function() {
   if (length(.dataviewer_env$processes) == 0) {

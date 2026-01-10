@@ -47,6 +47,8 @@ utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value
 #' @importFrom stats setNames
 #' @importFrom utils globalVariables
 #'
+#' @seealso For more information about the features of dataviewer, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Introduction-to-dataviewR.html}{documentation}.
+#'
 #' @examples
 #' if (interactive()) {
 #'     dataviewer(mtcars) # Opens in RStudio Viewer pane or default web browser

@@ -8,20 +8,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
   shiny::moduleServer(id, function(input, output, session) {
 
-    # --- FIX: Robust Enter Key Handler ---
-    # We unbind ("off") previous listeners to prevent duplicates.
-    # We add a 200ms delay (setTimeout) to guarantee the new text
-    # reaches the server BEFORE the submit button is clicked.
-    shinyjs::runjs(sprintf('
-      $("#%s").off("keyup").on("keyup", function(e) {
-        if (e.which == 13) {
-          $(this).trigger("change");           // 1. Send new text to server
-          setTimeout(function() {              // 2. Wait 200ms (imperceptible to human, distinct for computer)
-            $("#%s").click();                  // 3. Click submit
-          }, 200);
-        }
-      });
-    ', session$ns("filter"), session$ns("submit")))
+    # --------------------------------------------------
+    # REMOVED: "Atomic Batch" Enter Key Handler
+    # Filtering is now triggered exclusively by the Submit button.
     # --------------------------------------------------
 
     # This reactive value is now internal to the module
@@ -72,7 +61,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       )
     })
 
-    # Track last action
+    # Track last action - Submit Button
     shiny::observeEvent(input$submit, {
       last_action("submit")
     })
@@ -104,7 +93,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     # Filter dataframe
     filter_df <- shiny::eventReactive(
-      c(input$load, input$submit, input$clear),
+      c(input$load, input$submit, input$clear), # Removed input$enter_trigger
       {
         shiny::req(get_data())
 

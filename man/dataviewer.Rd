@@ -50,3 +50,6 @@ if (interactive()) {
 }
 
 }
+\seealso{
+For more information about the features of dataviewer, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Introduction-to-dataviewR.html}{documentation}.
+}
