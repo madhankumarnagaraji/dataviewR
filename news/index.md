@@ -2,6 +2,8 @@
 
 ## dataviewR 1.0.0
 
+CRAN release: 2026-01-10
+
 ### 🔧 Updates
 
 - Added **Multi-dataset support** to the
