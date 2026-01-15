@@ -69,7 +69,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     shiny::observeEvent(input$clear, {
       shiny::updateTextInput(session, "filter", value = "")
       last_action("clear")
-    })
+    }, priority = 100)
 
     validate_filter_expression <- function(expr) {
       # Basic validation: check for dangerous patterns
