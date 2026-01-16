@@ -283,25 +283,68 @@ dataviewer <- function(..., background = NULL, port = NULL) {
       port = port
     )
 
-    # Wait a moment for app to initialize
-    Sys.sleep(1.5)
+    # Smart Polling & Fallback Logic
+    message("Waiting for dataviewer to initialize...")
 
-    # Check if process is alive
-    if (!proc$is_alive()) {
-      error_msg <- tryCatch(proc$read_all_error_lines(), error = function(e) "Could not read error")
-      output_msg <- tryCatch(proc$read_all_output_lines(), error = function(e) "Could not read output")
-      stop("Failed to start dataviewer in background.\n",
-           "Exit status: ", proc$get_exit_status(), "\n",
-           "Error output:\n", paste(error_msg, collapse = "\n"), "\n",
-           "Standard output:\n", paste(output_msg, collapse = "\n"))
+    app_started <- FALSE
+    max_retries <- 40   # 10 seconds (40 * 0.25s)
+    startup_logs <- character(0) # Keep track of logs in case of error
+
+    for (i in 1:max_retries) {
+      Sys.sleep(0.25)
+
+      # Check if process died immediately
+      if (!proc$is_alive()) {
+        break
+      }
+
+      # Read new output/error lines
+      # We must capture them here because reading clears the callr buffer
+      new_out <- tryCatch(proc$read_output_lines(), error = function(e) character(0))
+      new_err <- tryCatch(proc$read_error_lines(), error = function(e) character(0))
+
+      # Accumulate logs for error reporting if needed
+      startup_logs <- c(startup_logs, new_out, new_err)
+
+      # Check for Shiny's success message
+      if (any(grepl("Listening on", c(new_out, new_err)))) {
+        app_started <- TRUE
+        break
+      }
     }
 
-    # Open in RStudio Viewer pane from MAIN process
+    # 1. CRITICAL ERROR CHECK: Process died
+    if (!proc$is_alive()) {
+      # Read any remaining logs
+      final_err <- tryCatch(proc$read_all_error_lines(), error = function(e) character(0))
+      final_out <- tryCatch(proc$read_all_output_lines(), error = function(e) character(0))
+
+      # Combine accumulated polling logs with final logs
+      all_stderr <- c(startup_logs, final_err)
+      all_stdout <- c(startup_logs, final_out)
+
+      stop("Failed to start dataviewer in background.\n",
+           "Exit status: ", proc$get_exit_status(), "\n",
+           "Error output:\n", paste(unique(all_stderr), collapse = "\n"), "\n",
+           "Standard output:\n", paste(unique(all_stdout), collapse = "\n"))
+    }
+
+    # 2. DETERMINE OPENING METHOD (Viewer vs Browser)
     url <- paste0("http://127.0.0.1:", port)
 
-    if (requireNamespace("rstudioapi", quietly = TRUE) &&
-        rstudioapi::isAvailable() &&
-        rstudioapi::hasFun("viewer")) {
+    # Default: Use RStudio Viewer if available
+    use_rstudio_viewer <- requireNamespace("rstudioapi", quietly = TRUE) &&
+      rstudioapi::isAvailable() &&
+      rstudioapi::hasFun("viewer")
+
+    # Override: If app didn't report ready in time, assume Viewer might fail/timeout
+    if (!app_started) {
+      message("Opening in the browser since the RStudio Viewer pane is taking longer than expected.")
+      use_rstudio_viewer <- FALSE
+    }
+
+    # 3. OPEN APPLICATION
+    if (use_rstudio_viewer) {
       rstudioapi::viewer(url)
       message("Opening in RStudio Viewer pane")
     } else {
