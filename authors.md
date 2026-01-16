@@ -13,16 +13,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/madhankumarnagaraji/dataviewR/blob/version1.0.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/madhankumarnagaraji/dataviewR/blob/main/DESCRIPTION)
 
 Kumar N M, Pujari S, S G, Haight M (2026). *dataviewR: An Interactive
-and Feature-Rich Data Viewer*. R package version 1.0.0,
+and Feature-Rich Data Viewer*. R package version 1.0.1,
 <https://github.com/madhankumarnagaraji/dataviewR>.
 
     @Manual{,
       title = {dataviewR: An Interactive and Feature-Rich Data Viewer},
       author = {Madhan {Kumar N} and Siddhesh Pujari and Gomathi S and Mackenzie Haight},
       year = {2026},
-      note = {R package version 1.0.0},
+      note = {R package version 1.0.1},
       url = {https://github.com/madhankumarnagaraji/dataviewR},
     }

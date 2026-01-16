@@ -1,5 +1,15 @@
 # Changelog
 
+## dataviewR 1.0.1
+
+### 🐛 Bug Fixes
+
+- Fixed “Connection refused” errors on RStudio Server/Cloud by
+  implementing smart background polling.
+- Fixed a race condition where the “Clear” button occasionally failed to
+  reset the data filter.
+- Improved stability of background process management.
+
 ## dataviewR 1.0.0
 
 CRAN release: 2026-01-10
