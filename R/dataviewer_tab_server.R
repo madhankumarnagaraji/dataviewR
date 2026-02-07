@@ -227,7 +227,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       dplyr::mutate(
         cols_df(),
-        # 1. Handle character/factor NAs (converting to "<NA>")
+        # 1. Handle character/factor NAs (converting to "<NA>" to show it in the quick filter box)
         dplyr::across(
           where(is.character) | where(is.factor),
           ~forcats::fct_drop(forcats::fct_na_value_to_level(as.factor(.x), level = "<NA>"))
@@ -330,6 +330,18 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         ))
       }
 
+      # Define the JavaScript callback for NA styling
+      rowCallback_js <- c(
+        "function(row, data){",
+        "  for(var i=0; i<data.length; i++){",
+        "    if(data[i] === null){",
+        "      $('td:eq('+i+')', row).html('NA')",
+        "        .css({'color': 'black', 'font-style': 'normal'});",
+        "    }",
+        "  }",
+        "}"
+      )
+
       DT::datatable(
         df,
         extensions = c("Buttons", "KeyTable"),
@@ -344,7 +356,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           searchHighlight = TRUE,
           keys = TRUE,
           dom = 'Bfrtip',
-          nullText = "<NA>",
+          rowCallback = DT::JS(rowCallback_js), # Handles the missing values as NA
           buttons = list('copy', list(extend = 'collection', buttons = c('csv', 'excel'), text = 'Download')),
           drawCallback = DT::JS(sprintf("
             function(settings) {
