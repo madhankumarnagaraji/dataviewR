@@ -1,3 +1,8 @@
+# dataviewR 1.0.2
+
+## 🔧 Updates
+- Now, the missing values are showing as <NA> for character/factor datatypes and NA for all other datatypes
+
 # dataviewR 1.0.1
 
 ## 🐛 Bug Fixes
