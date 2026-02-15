@@ -319,7 +319,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     }, bordered = TRUE)
 
     # Render table - FIX: Handle empty column selection
-    output$tbl <- DT::renderDT({
+    output$tbl <- DT::renderDT(server = FALSE,{
       df <- final_df()
       if (is.null(df)) {
         # Return empty data frame with message
@@ -379,6 +379,14 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     output$row_info <- shiny::renderText({
       ""
     })
+
+    output$download_filtered <- downloadHandler(
+      filename = "Filtered Data.csv",
+      content = function(file){
+        write.csv(filter_df(), file, row.names = FALSE)
+      }
+    )
+
 
   }) # End moduleServer
 }
