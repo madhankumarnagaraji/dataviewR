@@ -1,4 +1,4 @@
-# dataviewR
+# dataview
 
 **An Interactive and Feature-Rich Data Viewer for R**
 
