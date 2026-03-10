@@ -1,13 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# dataview <img src="man/figures/logo.png" align="right" width="200" style="margin-left:50px;"/>
+# dataviewR <img src="man/figures/logo.png" align="right" width="200" style="margin-left:50px;"/>
 
 **An Interactive and Feature-Rich Data Viewer for R**
 
 <!-- badges: start -->
 
-[<img src="http://pharmaverse.org/shields/dataviewR.svg">](https://pharmaverse.org)
+[![pharmaverse](https://pharmaverse.org/shields/dataviewR.svg)](https://pharmaverse.org)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/dataviewR)](https://CRAN.R-project.org/package=dataviewR)
 [![CRAN RStudio mirror
