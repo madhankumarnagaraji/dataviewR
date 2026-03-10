@@ -48,7 +48,7 @@ Using %in%
 Species %in% c("setosa", "virginica")
 ```
 
-Handling missing values
+Finding missing values
 
 ``` csharp
 is.na(Petal.Width)

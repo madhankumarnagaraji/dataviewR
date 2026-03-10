@@ -39,23 +39,17 @@ specific interests
 ## 3. Investigating missing values
 
 In R, missing values will be represented as NA for all datatypes
-(character, numeric, date, posixct). Suppose user wants to explore
+(character, numeric, Date, POSIXct). Suppose user wants to explore
 whether the variable (column) has missing values, for character
-variables user can easily filter missing values from the quick filter
-box (placed below the variable name) which will be visible as
-**\<NA\>**. For numerical variables it is displayed as blank cell (as
-per DT package formatting), which cannot be filtered from quick filters
-in the current version.
+variables, the user can easily filter missing values from the quick
+filter box (placed below the variable name) which will be visible as
+**\<NA\>**. For numerical variables, the user can filter using
+[`is.na()`](https://rdrr.io/r/base/NA.html) function in the Filter box.
 
 In the below picture we can see how missing values are displayed for the
 character variables in the quick filter box
 
-![dataviewR import panel](figures/na1.PNG)
-
-In the below picture we can see missing values for numeric variables are
-displayed
-
-![dataviewR import panel](figures/na.PNG)
+![dataviewR import panel](figures/na1.png)
 
 ## 4. Exploring metadata - vital step in clinical data
 

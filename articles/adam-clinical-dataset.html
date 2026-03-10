@@ -130,25 +130,18 @@ specific interests
 <h2 id="investigating-missing-values">3. Investigating missing values<a class="anchor" aria-label="anchor" href="#investigating-missing-values"></a>
 </h2>
 <p>In R, missing values will be represented as NA for all datatypes
-(character, numeric, date, posixct). Suppose user wants to explore
+(character, numeric, Date, POSIXct). Suppose user wants to explore
 whether the variable (column) has missing values, for character
-variables user can easily filter missing values from the quick filter
-box (placed below the variable name) which will be visible as
-<strong>&lt;NA&gt;</strong>. For numerical variables it is displayed as
-blank cell (as per DT package formatting), which cannot be filtered from
-quick filters in the current version.</p>
+variables, the user can easily filter missing values from the quick
+filter box (placed below the variable name) which will be visible as
+<strong>&lt;NA&gt;</strong>. For numerical variables, the user can
+filter using <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code> function in the Filter box.</p>
 <p align="center" style="font-style: italic;">
 In the below picture we can see how missing values are displayed for the
 character variables in the quick filter box
 </p>
 <p align="center">
-<img src="figures/na1.PNG" width="85%" alt="dataviewR import panel"></p>
-<p align="center" style="font-style: italic;">
-In the below picture we can see missing values for numeric variables are
-displayed
-</p>
-<p align="center">
-<img src="figures/na.PNG" width="85%" alt="dataviewR import panel"></p>
+<img src="figures/na1.png" width="85%" alt="dataviewR import panel"></p>
 </div>
 <div class="section level2">
 <h2 id="exploring-metadata---vital-step-in-clinical-data">4. Exploring metadata - vital step in clinical data<a class="anchor" aria-label="anchor" href="#exploring-metadata---vital-step-in-clinical-data"></a>
