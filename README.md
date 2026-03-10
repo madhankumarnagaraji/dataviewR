@@ -7,6 +7,7 @@ output: github_document
 
 
 # dataviewR <img src="man/figures/logo.png" align="right" width="200" style="margin-left:50px;"/>
+**An Interactive and Feature-Rich Data Viewer for R**
 
 <!-- badges: start -->
 [![pharmaverse](https://pharmaverse.org/shields/dataviewR.svg)](https://pharmaverse.org)
@@ -16,8 +17,6 @@ output: github_document
 [![DOI](https://img.shields.io/badge/DOI-10.32614/CRAN.package.dataviewR-blue.svg)](https://doi.org/10.32614/CRAN.package.dataviewR)
 [![R-universe](https://madhankumarnagaraji.r-universe.dev/badges/dataviewR)](https://madhankumarnagaraji.r-universe.dev/dataviewR)
 <!-- badges: end -->
-
-**An Interactive and Feature-Rich Data Viewer for R**
 
 `dataviewR` is a powerful Shiny-based interactive data viewer that transforms the way you explore R data frames and tibbles. With its intuitive interface and advanced features, it provides comprehensive data exploration capabilities with automatic code generation for reproducible workflows.
 
