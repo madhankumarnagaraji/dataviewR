@@ -13,11 +13,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-# dataview <img src="man/figures/logo.png" align="right" width="200" style="margin-left:50px;"/>
-**An Interactive and Feature-Rich Data Viewer for R**
+# dataviewR <img src="man/figures/logo.png" align="right" width="200" style="margin-left:50px;"/>
 
 <!-- badges: start -->
-[<img src="http://pharmaverse.org/shields/dataviewR.svg">](https://pharmaverse.org)
+[![pharmaverse](https://pharmaverse.org/shields/dataviewR.svg)](https://pharmaverse.org)
 [![CRAN status](https://www.r-pkg.org/badges/version/dataviewR)](https://CRAN.R-project.org/package=dataviewR)
 [![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/dataviewR?color=blue)](https://r-pkg.org/pkg/dataviewR)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
@@ -25,6 +24,7 @@ knitr::opts_chunk$set(
 [![R-universe](https://madhankumarnagaraji.r-universe.dev/badges/dataviewR)](https://madhankumarnagaraji.r-universe.dev/dataviewR)
 <!-- badges: end -->
 
+**An Interactive and Feature-Rich Data Viewer for R**
 
 `dataviewR` is a powerful Shiny-based interactive data viewer that transforms the way you explore R data frames and tibbles. With its intuitive interface and advanced features, it provides comprehensive data exploration capabilities with automatic code generation for reproducible workflows.
 
