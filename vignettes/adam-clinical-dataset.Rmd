@@ -56,17 +56,12 @@ Users can simultaneously explore a specific subject across both ADLB and ADSL. F
 </p>
 
 ## 3. Investigating missing values
-In R, missing values will be represented as NA for all datatypes (character, numeric, date, posixct). Suppose user wants to explore whether the variable (column) has missing values, for character variables user can easily filter missing values from the quick filter box (placed below the variable name) which will be visible as **\<NA>**. For numerical variables it is displayed as blank cell (as per DT package formatting), which cannot be filtered from quick filters in the current version.
+In R, missing values will be represented as NA for all datatypes (character, numeric, Date, POSIXct). Suppose user wants to explore whether the variable (column) has missing values, for character variables, the user can easily filter missing values from the quick filter box (placed below the variable name) which will be visible as **\<NA>**. For numerical variables, the user can filter using `is.na()` function in the Filter box.
 
 <p align="center" style="font-style: italic;">
   In the below picture we can see how missing values are displayed for the character variables in the quick filter box
 </p>
-<p align="center"> <img src="figures/na1.PNG" width="85%" alt="dataviewR import panel"> </p>
-
-<p align="center" style="font-style: italic;">
- In the below picture we can see missing values for numeric variables are displayed
-</p>
-<p align="center"> <img src="figures/na.PNG" width="85%" alt="dataviewR import panel"> </p>
+<p align="center"> <img src="figures/na1.png" width="85%" alt="dataviewR import panel"> </p>
 
 ## 4. Exploring metadata - vital step in clinical data
 
