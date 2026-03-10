@@ -141,8 +141,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Selected columns code
     selected_cols_code <- shiny::reactive({
       selected_cols <- input$columns
+      all_cols <- names(get_data())
 
-      if (length(selected_cols) > 0) {
+      if (length(selected_cols) > 0 && length(selected_cols) < length(all_cols)) {
         needs_quotes <- !grepl("^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols)
         formatted_cols <- ifelse(needs_quotes,
                                  paste0("`", selected_cols, "`"),
