@@ -271,13 +271,17 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       dplyr::left_join(class_df(), att_cols(), by = "colname") |>
         dplyr::mutate(col_name = dplyr::case_when(
-          col_type == "int" ~ paste0("\U0001F522", colname),
-          col_type == "dbl" ~ paste0("\U0001F522", colname),
-          col_type == "chr" ~ paste0("\U0001F524", colname),
-          col_type == "date" ~ paste0("\U0001F4C5", colname),
-          col_type == "dttm" ~ paste0("\U0001F4C5\U0001F552", colname),
-          col_type == "Period" ~ paste0("\U0001F552", colname),
-          TRUE ~ paste0("\U0001F524", colname)
+          col_type == "int" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname),
+          col_type == "dbl" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname),
+          col_type == "chr" ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
+          col_type == "fct" ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
+          col_type == "lgl" ~ paste0("<span style='font-size:18px'>", "\U0001F501", "</span> ", colname),
+          col_type == "date" ~ paste0("<span style='font-size:18px'>", "\U0001F4C5", "</span> ", colname),
+          col_type == "dttm" ~ paste0("<span style='font-size:18px'>", "\U0001F4C5\U0001F552", "</span> ", colname),
+          col_type == "Period" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
+          col_type == "time" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
+          col_type == "drtn" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
+          TRUE ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname)
         )) |>
         dplyr::select(pos, col_name, att, value) |>
         labelled::set_variable_labels(col_name = "Variable Name", att = "Attribute", value = "Value")
@@ -294,7 +298,10 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         dplyr::ungroup() |>
         dplyr::select(col_name, att, value) |>
         stats::setNames(c("Variable Name", "Attribute", "Value"))
-    }, bordered = TRUE)
+    },
+    bordered = TRUE,
+    # it solves the HTML tag escaping issue
+    sanitize.text.function = identity)
 
     # Observer for the pop-out modal
     shiny::observeEvent(input$popout_meta, {
@@ -317,7 +324,10 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         dplyr::ungroup() |>
         dplyr::select(col_name, att, value) |>
         stats::setNames(c("Variable Name", "Attribute", "Value"))
-    }, bordered = TRUE)
+    },
+    bordered = TRUE,
+    # it solves the HTML tag escaping issue
+    sanitize.text.function = identity)
 
     # Render table - FIX: Handle empty column selection
     output$tbl <- DT::renderDT({
