@@ -196,6 +196,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           id = session$ns("code_output"),
           rows = 10,
           style = "width:100%;",
+          readonly = "readonly", # FIX: Makes the textarea non-editable for the user
           generated_code()
         ),
         shiny::tags$br(),
