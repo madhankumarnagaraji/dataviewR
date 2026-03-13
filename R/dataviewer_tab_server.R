@@ -232,6 +232,11 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         dplyr::across(
           where(is.character) | where(is.factor),
           ~forcats::fct_drop(forcats::fct_na_value_to_level(as.factor(.x), level = "<NA>"))
+        ),
+        # 2. Handling the lowercase issue of logical columns in DT by converting it to uppercase for R consistency (in the quick filter box)
+        dplyr::across(
+          where(is.logical),
+          ~forcats::fct_drop(forcats::fct_na_value_to_level(as.factor(.x)))
         )
       )
     })
@@ -341,10 +346,15 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         ))
       }
 
-      # Define the JavaScript callback for NA styling
+      # Define the JavaScript callback for NA styling and Logical Uppercasing
       rowCallback_js <- c(
         "function(row, data){",
         "  for(var i=0; i<data.length; i++){",
+        "    // Handle Logical values (true/false to TRUE/FALSE)",
+        "    if(typeof data[i] === 'boolean'){",
+        "      $('td:eq('+i+')', row).html(data[i] ? 'TRUE' : 'FALSE');",
+        "    }",
+        "    // Existing logic: Handle the missing values as NA",
         "    if(data[i] === null){",
         "      $('td:eq('+i+')', row).html('NA')",
         "        .css({'color': 'black', 'font-style': 'normal'});",
