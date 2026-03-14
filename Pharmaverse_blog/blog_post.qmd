@@ -1,16 +1,18 @@
 ---
-title: "Interactive Clinical Data Exploration with dataviewR"
+title: "Meet dataviewR: The View() You Always Wanted"
 format: html
 author:
   - name: Madhan Kumar N
-  - name: Siddhesh Pujari
-description: "dataviewR is a Shiny-based interactive data viewer that joins the pharmaverse as a modern, feature-rich alternative to View() — with filtering, multi-dataset support, and automatic dplyr code generation built in."
+  - name: Siddhesh Pujar
+  - name: Gomathi Sudharkar
+  - name: Mackenzie Haight
+
+description: "dataviewR is a Shiny-based interactive data viewer that joins the pharmaverse 
+as a modern, feature-rich alternative to View() — with filtering, multi-dataset support, and automatic dplyr code generation built in."
 # Note that the date below will be auto-updated when the post is merged.
 date: "2026-03-29"
 
 ---
-
-
 
 <!--------------- typical setup ----------------->
 
@@ -35,10 +37,8 @@ day-to-day clinical data work — reviewing your clinical datasets, let's
 say `ADSL`, cross-checking against `ADAE`, doing a QC pass before
 analysis — these gaps add up.
 
-**`dataviewR`** is a Shiny-based interactive data viewer, now part of the
-[pharmaverse](https://pharmaverse.org/), built to extend `View()` with
-the interactivity clinical programmers actually need: column-level
-filtering with `dplyr` expressions, multi-dataset viewing, variable
+**`dataviewR`** is built to extend `View()` with the interactivity clinical programmers 
+actually need: column-level filtering with `dplyr` expressions, multi-dataset viewing, variable
 metadata, and automatic reproducible code generation — all from a single
 function call, without touching your underlying data.
 
@@ -61,7 +61,7 @@ immediately.
 
 ![dataviewR opens ADSL in the RStudio Viewer pane — interactive, with filtering and metadata ready to use.](dataview_adsl.png)
 
-## Feature 1: Filtering with dplyr Expressions
+## Filtering with dplyr Expressions
 
 Where `dataviewR` meaningfully pulls ahead of `View()` is its filter
 interface. The filter box accepts standard `dplyr`-style expressions —
@@ -86,7 +86,7 @@ conditions — anything valid inside a `dplyr::filter()` call.
 
 ![Filtering ADSL with a dplyr expression directly in the app — no script changes required.](dataview_filter.png)
 
-## Feature 2 : Multi-Dataset View
+## Multi-Dataset View
 
 Pass multiple datasets in a single call and each opens in its own tab
 within the same session — no juggling separate `View()` windows.
@@ -102,7 +102,7 @@ SDTM and ADaM versions of the same domain, comparing pre- and
 post-derivation snapshots, or cross-referencing multiple analysis
 datasets during a review.
 
-## Feature 3 : Reproducible Code Generation
+## Reproducible Code Generation
 
 Once you have filtered and selected columns interactively, hit
 **"Generate Code"** — `dataviewR` produces the equivalent `dplyr` code
@@ -117,7 +117,7 @@ adsl |>
 
 Exploration stays exploratory — the output is still code.
 
-## Feature 4 : Variable Metadata
+## Variable Metadata
 
 Clinical datasets often carry variable attributes — labels, formats,
 and classes — that are easy to lose track of during analysis. dataviewR
