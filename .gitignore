@@ -6,4 +6,5 @@ inst/doc
 /Meta/
 docs
 .DS_Store
-/Pharmaverse_blog
+/.quarto/
+**/*.quarto_ipynb
