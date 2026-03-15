@@ -345,7 +345,32 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           keys = TRUE,
           dom = 'Bfrtip',
           nullText = "<NA>",
-          buttons = list('copy', list(extend = 'collection', buttons = c('csv', 'excel'), text = 'Download')),
+          buttons = list(
+            'copy',
+            list(
+              extend = 'collection',
+              text = 'Download',
+              buttons = list(
+                list(
+                  extend = 'csv',
+                  exportOptions = list(
+                    modifier = list(
+                      search = "applied",
+                      page = "all"
+                    )
+                  )
+                ),
+                list(
+                  extend = 'excelHtml5',
+                  title = "",
+                  exportOptions = list(
+                    modifier = list(
+                      search = "applied",
+                      page = "all"
+                    ))
+              )
+            )
+          )),
           drawCallback = DT::JS(sprintf("
             function(settings) {
               var tableId = '%s';
@@ -379,16 +404,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     output$row_info <- shiny::renderText({
       ""
     })
-
-    output$download_filtered <- downloadHandler(
-      filename = "Filtered Data.csv",
-      content = function(file){
-        df <- filter_df()
-        readr::write_csv(df, file, row.names = FALSE)
-      }
-
-    )
-
 
   }) # End moduleServer
 }
