@@ -4,10 +4,10 @@ format: html
 author:
   - name: Madhan Kumar N
   - name: Siddhesh Pujari
-  - name: Gomathi Sudharkar
+  - name: Gomathi S
   - name: Mackenzie Haight
 
-description: "A Shiny-based interactive data viewer to explore your clinical data in R"
+description: "A Shiny-based interactive data viewer that joins the pharmaverse to explore your clinical data in R"
 # Note that the date below will be auto-updated when the post is merged.
 date: "2026-03-29"
 
@@ -62,7 +62,7 @@ install.packages("dataviewR")
 SEX == "F" & AGE > 65 & TRT01P == "Xanomeline High Dose"
 ```
 
-- **Reproducible Code Generation** — hit "Generate Code" and walk away
+- **Reproducible Code Generation** — hit "Generate R Code" and walk away
   with ready-to-use `dplyr` code from your interactions. Your
   exploration session feeds directly into your scripted workflow.
 
@@ -98,13 +98,15 @@ dataviewer(adsl, adlb)
   <source src="dataview_multidata.mov" type="video/mp4">
 </video>
 
-## Learn More
+## Final Thoughts
+
+That is dataviewR in a nutshell. Try it out and share your thoughts on
+[GitHub](https://github.com/madhankumarnagaraji/dataviewR) or
+[pharmaverse Slack](https://pharmaverse.slack.com)!
 
 Full documentation, vignettes, and clinical dataset examples are
 available at
 [madhankumarnagaraji.github.io/dataviewR](https://madhankumarnagaraji.github.io/dataviewR/).
-Contributions and feedback welcome on
-[GitHub](https://github.com/madhankumarnagaraji/dataviewR).
 
 ```{r}
 #| echo: true
