@@ -3,7 +3,7 @@ title: "Meet dataviewR: The View() You Always Wanted"
 format: html
 author:
   - name: Madhan Kumar N
-  - name: Siddhesh Pujar
+  - name: Siddhesh Pujari
   - name: Gomathi Sudharkar
   - name: Mackenzie Haight
 
