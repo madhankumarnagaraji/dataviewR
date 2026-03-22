@@ -379,32 +379,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           keys = TRUE,
           dom = 'Bfrtip',
           rowCallback = DT::JS(rowCallback_js), # Handles the missing values as NA
-          buttons = list(
-            'copy',
-            list(
-              extend = 'collection',
-              text = 'Download',
-              buttons = list(
-                list(
-                  extend = 'csv',
-                  exportOptions = list(
-                    modifier = list(
-                      search = "applied",
-                      page = "all"
-                    )
-                  )
-                ),
-                list(
-                  extend = 'excelHtml5',
-                  title = "",
-                  exportOptions = list(
-                    modifier = list(
-                      search = "applied",
-                      page = "all"
-                    ))
-                )
-              )
-            )),
+          buttons = list('copy', list(extend = 'collection', buttons = c('csv', 'excel'), text = 'Download')),
           drawCallback = DT::JS(sprintf("
             function(settings) {
               var tableId = '%s';
@@ -439,10 +414,39 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       ""
     })
 
-    output$download_filtered <- downloadHandler(
-      filename = "Filtered Data.csv",
-      content = function(file){
-        write.csv(filter_df(), file, row.names = FALSE)
+    output$download_filtered <- shiny::downloadHandler(
+      filename = function() {
+        paste0(dataset_name(), "_filtered_", format(Sys.time(), "%Y%m%d_%H%M"), ".csv")
+      },
+      content = function(file) {
+        # 1. Start with the full original data
+        data_to_save <- shiny::isolate(get_data())
+        shiny::req(data_to_save)
+
+        # 2. Get the current filter string and columns
+        current_filter <- shiny::isolate(input$filter)
+        current_cols <- shiny::isolate(input$columns)
+
+        # 3. Apply the filter exactly like your table does
+        if (nzchar(stringr::str_trim(current_filter))) {
+          tryCatch({
+            # We use the same logic as your filter_df reactive
+            data_to_save <- data_to_save %>%
+              dplyr::filter(eval(parse(text = current_filter)))
+          }, error = function(e) {
+            # If filter fails, we just return the full data or stop
+            warning("Download filter failed: ", e$message)
+          })
+        }
+
+        # 4. Apply column selection
+        if (length(current_cols) > 0) {
+          data_to_save <- data_to_save %>%
+            dplyr::select(dplyr::all_of(current_cols))
+        }
+
+        # 5. Write the file
+        write.csv(data_to_save, file, row.names = FALSE)
       }
     )
 

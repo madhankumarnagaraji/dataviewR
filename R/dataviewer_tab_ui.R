@@ -8,7 +8,7 @@ dataviewer_tab_ui <- function(id) {
     shiny::br(),
     shiny::actionButton(ns("load"), "Refresh the Data"),
     shiny::actionButton(ns("generate_code"), "Generate R Code"),
-    shiny::h4(shiny::tags$strong("Filter")),
+    shiny::downloadButton(ns("download_filtered"), "Download Full CSV", class = "btn-success"),    shiny::h4(shiny::tags$strong("Filter")),
     shiny::textInput(ns("filter"), NULL, value = "", width = "40%"),
     shiny::actionButton(ns("clear"), "Clear"),
     shiny::actionButton(ns("submit"), "Submit"),
