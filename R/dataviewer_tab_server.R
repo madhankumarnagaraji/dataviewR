@@ -29,6 +29,29 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       format(n, big.mark = ",")
     })
 
+    # Provide filtered rows output (current rendered rows in DT)
+    output$filteredrows <- shiny::renderText({
+      # Use the DT-provided indices for rows currently passing all filters
+      n <- length(input$tbl_rows_all)
+      format(n, big.mark = ",")
+    })
+
+    # Provide total columns output
+    output$totalcols <- shiny::renderText({
+      n <- 0L
+      d <- get_data()
+      if (!is.null(d)) {
+        try(n <- NCOL(d), silent = TRUE)
+      }
+      format(n, big.mark = ",")
+    })
+
+    # Provide selected columns output
+    output$selectedcols <- shiny::renderText({
+      n <- length(input$columns)
+      format(n, big.mark = ",")
+    })
+
     # FIX: Update columns checkboxes with priority and proper selection logic
     shiny::observe({
       shiny::req(get_data())

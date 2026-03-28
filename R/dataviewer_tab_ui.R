@@ -43,12 +43,14 @@ dataviewer_tab_ui <- function(id) {
             id = paste0("pagination_", ns("tbl")),
             class = "top-footer",
             shiny::div(
-              style = "display:flex; align-items:center; gap:8px;",
-              shiny::strong("Total rows:"),
-              shiny::textOutput(ns("totalrows"), inline = TRUE)
+              style = "display:flex; align-items:center; gap:15px; padding-right: 20px;",
+              shiny::div(shiny::strong("Total rows:"), shiny::textOutput(ns("totalrows"), inline = TRUE)),
+              shiny::div(shiny::strong("Total columns:"), shiny::textOutput(ns("totalcols"), inline = TRUE)),
+              shiny::div(shiny::strong("Filtered rows:"), shiny::textOutput(ns("filteredrows"), inline = TRUE)),
+              shiny::div(shiny::strong("Selected columns:"), shiny::textOutput(ns("selectedcols"), inline = TRUE))
             ),
             shiny::div(
-              style = "display:flex; align-items:center; gap:12px;",
+              style = "display:flex; align-items:center; gap:12px; margin-left: auto;",
               # Custom download buttons that export the full current rendered dataset
               # (after filter + column selection), replacing the built-in DT download
               # button which only exported visible/paginated rows.
