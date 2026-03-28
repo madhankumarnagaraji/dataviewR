@@ -426,7 +426,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         class = "cell-border stripe hover nowrap",
         selection = "none",
         options = list(
-          pageLength = 10,
+          pageLength = 500,
           scroller.rowHeight = "auto",
           scrollCollapse = FALSE,
           autoWidth = FALSE,
