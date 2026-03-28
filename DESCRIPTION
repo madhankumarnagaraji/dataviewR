@@ -28,7 +28,8 @@ Imports:
 	datamods,
 	htmlwidgets,
 	callr,
-	rstudioapi
+	rstudioapi,
+	writexl
 Suggests: 
     knitr,
     rmarkdown,
