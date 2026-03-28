@@ -49,6 +49,24 @@ dataviewer_tab_ui <- function(id) {
             ),
             shiny::div(
               style = "display:flex; align-items:center; gap:12px;",
+              # Custom download buttons that export the full current rendered dataset
+              # (after filter + column selection), replacing the built-in DT download
+              # button which only exported visible/paginated rows.
+              shiny::div(
+                class = "dt-custom-download-group",
+                shiny::downloadButton(
+                  ns("download_csv"),
+                  label = "CSV",
+                  class = "dt-custom-download-btn",
+                  icon = shiny::icon("file-csv")
+                ),
+                shiny::downloadButton(
+                  ns("download_excel"),
+                  label = "Excel",
+                  class = "dt-custom-download-btn dt-custom-download-btn-excel",
+                  icon = shiny::icon("file-excel")
+                )
+              ),
               shiny::tags$div(style = "min-width: 120px;")
             )
           ),

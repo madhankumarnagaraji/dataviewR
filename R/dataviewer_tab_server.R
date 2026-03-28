@@ -199,7 +199,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           readonly = "readonly", # FIX: Makes the textarea non-editable for the user
           generated_code()
         ),
-        shiny::tags$br(),
+        shiny::br(),
         shiny::actionButton(session$ns("copy_btn"), "Copy"),
         easyClose = TRUE,
         footer = shiny::modalButton("Close")
@@ -241,6 +241,38 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         )
       )
     })
+
+    # --- Custom Download Handlers ---
+    # Downloads the current rendered dataset (after filter + column selection),
+    # not just the visible rows shown in the DT viewer.
+
+    # CSV download handler
+    output$download_csv <- shiny::downloadHandler(
+      filename = function() {
+        paste0(dataset_name(), "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv")
+      },
+      content = function(file) {
+        df <- final_df()
+        if (is.null(df)) {
+          df <- data.frame()
+        }
+        utils::write.csv(df, file, row.names = FALSE)
+      }
+    )
+
+    # Excel download handler
+    output$download_excel <- shiny::downloadHandler(
+      filename = function() {
+        paste0(dataset_name(), "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".xlsx")
+      },
+      content = function(file) {
+        df <- final_df()
+        if (is.null(df)) {
+          df <- data.frame()
+        }
+        writexl::write_xlsx(df, file)
+      }
+    )
 
     # --- Metadata Reactives ---
     att_cols <- shiny::reactive({
@@ -377,9 +409,12 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           autoWidth = FALSE,
           searchHighlight = TRUE,
           keys = TRUE,
+          # Download button removed from DT buttons: it only exported visible/filtered rows.
+          # Custom Shiny downloadHandler buttons (CSV & Excel) are now used instead,
+          # which export the full current rendered dataset (after filter + column selection).
           dom = 'Bfrtip',
           rowCallback = DT::JS(rowCallback_js), # Handles the missing values as NA
-          buttons = list('copy', list(extend = 'collection', buttons = c('csv', 'excel'), text = 'Download')),
+          buttons = list('copy'),
           drawCallback = DT::JS(sprintf("
             function(settings) {
               var tableId = '%s';
