@@ -56,13 +56,13 @@ dataviewer_tab_ui <- function(id) {
                 class = "dt-custom-download-group",
                 shiny::downloadButton(
                   ns("download_csv"),
-                  label = "CSV",
+                  label = "Download CSV",
                   class = "dt-custom-download-btn",
                   icon = shiny::icon("file-csv")
                 ),
                 shiny::downloadButton(
                   ns("download_excel"),
-                  label = "Excel",
+                  label = "Download Excel",
                   class = "dt-custom-download-btn dt-custom-download-btn-excel",
                   icon = shiny::icon("file-excel")
                 )
