@@ -140,6 +140,50 @@ dataviewer_ui_head <- function() {
             background-color: #120101;
           }
 
+          /* --- Custom Download Button Group --- */
+          /* Groups the CSV and Excel download buttons side by side in the top-footer. */
+          .dt-custom-download-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          /* Base style for both custom download buttons */
+          .dt-custom-download-btn {
+            padding: 3px 10px !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+            border-radius: 3px !important;
+            border: 1px solid #ccc !important;
+            background-color: #fff !important;
+            color: #333 !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            box-shadow: none !important;
+          }
+
+          .dt-custom-download-btn:hover {
+            background-color: #e8e8e8 !important;
+            border-color: #adadad !important;
+            color: #333 !important;
+            text-decoration: none !important;
+          }
+
+          /* Excel button accent colour */
+          .dt-custom-download-btn-excel {
+            color: #1d6f42 !important;
+          }
+
+          .dt-custom-download-btn-excel:hover {
+            background-color: #e6f4ec !important;
+            border-color: #1d6f42 !important;
+            color: #1d6f42 !important;
+          }
+          /* --- END Custom Download Button Group --- */
+
         ")),
     shiny::tags$script(shiny::HTML("
           // When Shiny connects, set up listeners and helpers

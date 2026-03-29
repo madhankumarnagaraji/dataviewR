@@ -29,6 +29,29 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       format(n, big.mark = ",")
     })
 
+    # Provide filtered rows output (current rendered rows in DT)
+    output$filteredrows <- shiny::renderText({
+      # Use the DT-provided indices for rows currently passing all filters
+      n <- length(input$tbl_rows_all)
+      format(n, big.mark = ",")
+    })
+
+    # Provide total columns output
+    output$totalcols <- shiny::renderText({
+      n <- 0L
+      d <- get_data()
+      if (!is.null(d)) {
+        try(n <- NCOL(d), silent = TRUE)
+      }
+      format(n, big.mark = ",")
+    })
+
+    # Provide selected columns output
+    output$selectedcols <- shiny::renderText({
+      n <- length(input$columns)
+      format(n, big.mark = ",")
+    })
+
     # FIX: Update columns checkboxes with priority and proper selection logic
     shiny::observe({
       shiny::req(get_data())
@@ -199,7 +222,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           readonly = "readonly", # FIX: Makes the textarea non-editable for the user
           generated_code()
         ),
-        shiny::tags$br(),
+        shiny::br(),
         shiny::actionButton(session$ns("copy_btn"), "Copy"),
         easyClose = TRUE,
         footer = shiny::modalButton("Close")
@@ -241,6 +264,38 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         )
       )
     })
+
+    # --- Custom Download Handlers ---
+    # Downloads the current rendered dataset (after filter + column selection),
+    # not just the visible rows shown in the DT viewer.
+
+    # CSV download handler
+    output$download_csv <- shiny::downloadHandler(
+      filename = function() {
+        paste0(dataset_name(), "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv")
+      },
+      content = function(file) {
+        df <- final_df()
+        if (is.null(df)) {
+          df <- data.frame()
+        }
+        utils::write.csv(df, file, row.names = FALSE)
+      }
+    )
+
+    # Excel download handler
+    output$download_excel <- shiny::downloadHandler(
+      filename = function() {
+        paste0(dataset_name(), "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".xlsx")
+      },
+      content = function(file) {
+        df <- final_df()
+        if (is.null(df)) {
+          df <- data.frame()
+        }
+        writexl::write_xlsx(df, file)
+      }
+    )
 
     # --- Metadata Reactives ---
     att_cols <- shiny::reactive({
@@ -371,15 +426,18 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         class = "cell-border stripe hover nowrap",
         selection = "none",
         options = list(
-          pageLength = 10,
+          pageLength = 500,
           scroller.rowHeight = "auto",
           scrollCollapse = FALSE,
           autoWidth = FALSE,
           searchHighlight = TRUE,
           keys = TRUE,
+          # Download button removed from DT buttons: it only exported visible/filtered rows.
+          # Custom Shiny downloadHandler buttons (CSV & Excel) are now used instead,
+          # which export the full current rendered dataset (after filter + column selection).
           dom = 'Bfrtip',
           rowCallback = DT::JS(rowCallback_js), # Handles the missing values as NA
-          buttons = list('copy', list(extend = 'collection', buttons = c('csv', 'excel'), text = 'Download')),
+          buttons = list('copy'),
           drawCallback = DT::JS(sprintf("
             function(settings) {
               var tableId = '%s';

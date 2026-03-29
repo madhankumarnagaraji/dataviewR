@@ -43,6 +43,7 @@ utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value
 #' @import datamods
 #' @importFrom purrr map imap_dfr map_lgl
 #' @importFrom tibble enframe tibble
+#' @importFrom writexl write_xlsx
 #' @import htmlwidgets
 #' @importFrom stats setNames
 #' @importFrom utils globalVariables
