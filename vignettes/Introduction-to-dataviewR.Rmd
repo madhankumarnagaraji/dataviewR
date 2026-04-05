@@ -125,7 +125,7 @@ dataviewer(iris)
 
 <p align="center">
 <video 
-  src="figures/generate_R_code_c.mp4"
+  src="figures/generate_r_code.mp4"
   width="85%"
   muted
   playsinline

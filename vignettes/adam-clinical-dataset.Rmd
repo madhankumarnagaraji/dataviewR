@@ -21,23 +21,6 @@ library (pharmaverseadam)
 
 dataviewer(adsl, adlb)
 ```
-Suppose we want to examine safety population subjects with high hemoglobin and review how their hemoglobin values were recorded. With `dataviewR`, this can be done within seconds.
-
-<p align="center" style="font-style: italic;">
-  Hover to see how easily we can explore the data according to our specific interests
-</p>
-
-<p align="center">
-<video 
-  src="figures/adlb1_c.mp4"
-  width="85%"
-  muted
-  playsinline
-  onmouseover="this.loop = true; this.play()"
-  onmouseout="this.loop = false; this.pause(); this.currentTime = 0;">
-</video>
-</p>
-
 Users can simultaneously explore a specific subject across both ADLB and ADSL. For example, if we want to review cholesterol values for subjects older than 64, With `dataviewR`  we can quickly explore that.
 
 <p align="center" style="font-style: italic;">
@@ -46,7 +29,7 @@ Users can simultaneously explore a specific subject across both ADLB and ADSL. F
 
 <p align="center">
 <video 
-  src="figures/adlb2_c.mp4"
+  src="figures/adlb_filter.mp4"
   width="85%"
   muted
   playsinline
@@ -61,7 +44,7 @@ In R, missing values will be represented as NA for all datatypes (character, num
 <p align="center" style="font-style: italic;">
   In the below picture we can see how missing values are displayed for the character variables in the quick filter box
 </p>
-<p align="center"> <img src="figures/na1.png" width="85%" alt="dataviewR import panel"> </p>
+<p align="center"> <img src="figures/na_value.png" width="85%" alt="dataviewR import panel"> </p>
 
 ## 4. Exploring metadata - vital step in clinical data
 
@@ -75,7 +58,7 @@ For the better experience, user is requested to use the available pop-up option 
 
 <p align="center">
 <video 
-  src="figures/adlb3_c.mp4"
+  src="figures/attr_info_video.mp4"
   width="85%"
   muted
   playsinline
@@ -83,6 +66,11 @@ For the better experience, user is requested to use the available pop-up option 
   onmouseout="this.loop = false; this.pause(); this.currentTime = 0;">
 </video>
 </p>
+
+<p align="center" style="font-style: italic;">
+  The table below lists the symbols (icons) used in dataviewR along with their corresponding data types.
+</p>
+<p align="center"> <img src="figures/dataviewR_datatypes.png" width="85%" alt="dataviewR datatypes"> </p>
 
 ## Next article
 
