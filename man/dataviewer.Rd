@@ -7,7 +7,7 @@
 dataviewer(..., background = NULL, port = NULL)
 }
 \arguments{
-\item{...}{One or more \code{data.frame} or \code{tibble} objects. If none provided, an import UI is shown to load data interactively.}
+\item{...}{One or more \code{data.frame} or \code{tibble} or \code{data.table} objects. If none provided, an import UI is shown to load data interactively.}
 
 \item{background}{Logical. If \code{TRUE}, runs the app in a background R process using \code{callr}. Requires the \code{callr} package. Default is TRUE when dataset(s) are provided, FALSE when no dataset(s) are provided.}
 
@@ -18,7 +18,7 @@ If \code{background = TRUE}, returns the process ID (character) invisibly.
 If \code{background = FALSE}, returns a Shiny application object.
 }
 \description{
-Launches a Shiny application to explore and filter a \code{data.frame} or \code{tibble}.
+Launches a Shiny application to explore and filter a \code{data.frame} or \code{tibble} or \code{data.table}.
 If no data is provided, it opens an import panel to load a dataset from either the global environment or the packages.
 }
 \details{
