@@ -67,6 +67,11 @@ For the better experience, user is requested to use the available pop-up option 
 </video>
 </p>
 
+<p align="center" style="font-style: italic;">
+  The table below lists the symbols (icons) used in dataviewR along with their corresponding data types.
+</p>
+<p align="center"> <img src="figures/dataviewR_datatypes.png" width="85%" alt="dataviewR datatypes"> </p>
+
 ## Next article
 
 Continue with: [Exporting data and Wrapping Up the Session](Exporting-and-Reproducibility.html)
