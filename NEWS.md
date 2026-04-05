@@ -1,7 +1,38 @@
-# dataviewR 1.0.2
+# dataviewR 1.1.0
 
 ## 🔧 Updates
-- Now, the missing values are showing as <NA> for character/factor datatypes and NA for all other datatypes
+
+- Added pharmaverse badge in the README file as dataviewR is now a part of the pharmaverse set of packages.
+
+- Now, the missing values will be shown as <NA> for character/factor variables and NA for all other datatypes. Also, updated the documentation vignettes for the same.
+
+- select() function with all variables will not appear in the generated R code when all variables (columns) of a dataset are selected.
+
+- Updated the Generated R code non-editable for the user.
+
+- Added writexl package in the DESCRIPTION file.
+
+- Added Total columns, Filtered rows, Selected columns counts next to Total rows for easy accessibility to the users.
+
+- Increased the number of rows of the dataviewer to 500 from 10.
+
+- In the Attribute Info table,
+    - Updated the icons of integer, double and character variables.
+    - Added icons for new datatypes/classes such as factor, logical, time and difftime (duration).
+    - Added a space between the icon and the variable name.
+    - Increased the size of the icons.
+
+## 🐛 Bug Fixes
+
+- Now, the logical values are coming in uppercase in the dataviewer. Earlier, because of the Javascript DT package, it was shown in lowercase.
+
+- Added separate Download buttons for CSV and Excel files as the download button from the {DT} package is not working properly.
+
+## 📝 Documentation
+
+- Added writexl::write_xlsx() in the roxygen2 comments dataviewer.R file
+
+- Updated the images and videos of the updated UI in the vignettes.
 
 # dataviewR 1.0.1
 
