@@ -78,7 +78,7 @@ This is useful for:
 
 - Comparing outputs across pipelines
 
-<p align="center"> <img src="figures/multi_data_gif_c.gif" width="85%" alt="dataviewR comparing iris and mtcars"> </p>
+<p align="center"> <img src="figures/multi_data_video.mp4" width="85%" alt="dataviewR comparing iris and mtcars"> </p>
 
 Each dataset gets its own tab, allowing you to switch seamlessly.
 
