@@ -29,7 +29,7 @@ knitr::opts_chunk$set(
 
 ## ✨ Key Features
 
-- **Interactive Data Exploration**: View any R `data.frame` or `tibble` in an elegant Shiny interface
+- **Interactive Data Exploration**: View any R `data.frame` or `tibble` or `data.table` in an elegant Shiny interface
 - **Multi-Dataset Support** — View multiple datasets at once, e.g., `dataviewer(iris, mtcars)`  
 - **Advanced Filtering**: Apply complex `dplyr` compatible filter expressions
 - **Dynamic Column Selection**: Easily select and deselect columns with checkbox interface
