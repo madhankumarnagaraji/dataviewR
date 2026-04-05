@@ -102,12 +102,10 @@ code.
 The quick filter box (placed below the variable name) will helps to
 quickly search for a value in the variable. For character/factor
 variable(s) - it shows the distinct values of the variable(s) including
-the **NA** values. For numeric variable(s) - it shows an interactive
+the **\<NA\>** values. For numeric variable(s) - it shows an interactive
 draggable slider with minimum and maximum values of the variable(s).
 These do not reflect in the generated R code as filtering logic is
-solely depends on the Filter expression box. At present, NA values in
-numeric variables appear as blanks as per DT package formatting but this
-shall be fixed in a future enhancement.
+solely depends on the Filter expression box.
 
 The quick search box allows you to quickly check whether a value exists
 in the dataset. It searches only within variable values, not variable

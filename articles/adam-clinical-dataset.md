@@ -22,13 +22,6 @@ library (pharmaverseadam)
 dataviewer(adsl, adlb)
 ```
 
-Suppose we want to examine safety population subjects with high
-hemoglobin and review how their hemoglobin values were recorded. With
-`dataviewR`, this can be done within seconds.
-
-Hover to see how easily we can explore the data according to our
-specific interests
-
 Users can simultaneously explore a specific subject across both ADLB and
 ADSL. For example, if we want to review cholesterol values for subjects
 older than 64, With `dataviewR` we can quickly explore that.
@@ -49,7 +42,7 @@ filter box (placed below the variable name) which will be visible as
 In the below picture we can see how missing values are displayed for the
 character variables in the quick filter box
 
-![dataviewR import panel](figures/na1.png)
+![dataviewR import panel](figures/na_value.png)
 
 ## 4. Exploring metadata - vital step in clinical data
 
@@ -61,6 +54,11 @@ option next to **Attribute Info:** text.
 
 Hover to see how easily we can explore the variable attributes in the
 data
+
+The table below lists the symbols (icons) used in dataviewR along with
+their corresponding data types.
+
+![dataviewR datatypes](figures/dataviewR_datatypes.png)
 
 ## Next article
 
