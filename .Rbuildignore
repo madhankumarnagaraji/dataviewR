@@ -9,3 +9,4 @@
 ^pkgdown$
 ^cran-comments\.md$
 ^README\.Rmd$
+/Pharmaverse_blog
