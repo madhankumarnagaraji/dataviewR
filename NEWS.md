@@ -34,6 +34,10 @@
 
 - Updated the images and videos of the updated UI in the vignettes.
 
+- Added "data.table" object in addition to "data.frame" and "tibble" objects.
+
+- In the DESCRIPTION file, updated the minimum {shiny} version to 1.11.1 and added "data.table" in the package description.
+
 # dataviewR 1.0.1
 
 ## 🐛 Bug Fixes
