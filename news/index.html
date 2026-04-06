@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dataviewR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,10 +52,35 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.0.2" id="dataviewr-102">dataviewR 1.0.2<a class="anchor" aria-label="anchor" href="#dataviewr-102"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.1.0" id="dataviewr-110">dataviewR 1.1.0<a class="anchor" aria-label="anchor" href="#dataviewr-110"></a></h2>
 <div class="section level3">
-<h3 id="id_-updates-1-0-2">🔧 Updates<a class="anchor" aria-label="anchor" href="#id_-updates-1-0-2"></a></h3>
-<ul><li>Now, the missing values are showing as <na> for character/factor datatypes and NA for all other datatypes</na></li>
+<h3 id="id_-updates-1-1-0">🔧 Updates<a class="anchor" aria-label="anchor" href="#id_-updates-1-1-0"></a></h3>
+<ul><li><p>Added pharmaverse badge in the README file as dataviewR is now a part of the pharmaverse set of packages.</p></li>
+<li><p>Now, the missing values will be shown as <na> for character/factor variables and NA for all other datatypes. Also, updated the documentation vignettes for the same.</na></p></li>
+<li><p>select() function with all variables will not appear in the generated R code when all variables (columns) of a dataset are selected.</p></li>
+<li><p>Updated the Generated R code non-editable for the user.</p></li>
+<li><p>Added writexl package in the DESCRIPTION file.</p></li>
+<li><p>Added Total columns, Filtered rows, Selected columns counts next to Total rows for easy accessibility to the users.</p></li>
+<li><p>Increased the number of rows of the dataviewer to 500 from 10.</p></li>
+<li>
+<p>In the Attribute Info table,</p>
+<ul><li>Updated the icons of integer, double and character variables.</li>
+<li>Added icons for new datatypes/classes such as factor, logical, time and difftime (duration).</li>
+<li>Added a space between the icon and the variable name.</li>
+<li>Increased the size of the icons.</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
+<h3 id="id_-bug-fixes-1-1-0">🐛 Bug Fixes<a class="anchor" aria-label="anchor" href="#id_-bug-fixes-1-1-0"></a></h3>
+<ul><li><p>Now, the logical values are coming in uppercase in the dataviewer. Earlier, because of the Javascript DT package, it was shown in lowercase.</p></li>
+<li><p>Added separate Download buttons for CSV and Excel files as the download button from the {DT} package is not working properly.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="id_-documentation-1-1-0">📝 Documentation<a class="anchor" aria-label="anchor" href="#id_-documentation-1-1-0"></a></h3>
+<ul><li><p>Added writexl::write_xlsx() in the roxygen2 comments dataviewer.R file</p></li>
+<li><p>Updated the images and videos of the updated UI in the vignettes.</p></li>
+<li><p>Added “data.table” object in addition to “data.frame” and “tibble” objects.</p></li>
+<li><p>In the DESCRIPTION file, updated the minimum {shiny} version to 1.11.1 and added “data.table” in the package description.</p></li>
 </ul></div>
 </div>
     <div class="section level2">

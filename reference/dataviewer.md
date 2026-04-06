@@ -1,8 +1,9 @@
 # Interactive Data Viewer with Filter and Code Generation
 
 Launches a Shiny application to explore and filter a `data.frame` or
-`tibble`. If no data is provided, it opens an import panel to load a
-dataset from either the global environment or the packages.
+`tibble` or `data.table`. If no data is provided, it opens an import
+panel to load a dataset from either the global environment or the
+packages.
 
 ## Usage
 
@@ -14,8 +15,8 @@ dataviewer(..., background = NULL, port = NULL)
 
 - ...:
 
-  One or more `data.frame` or `tibble` objects. If none provided, an
-  import UI is shown to load data interactively.
+  One or more `data.frame` or `tibble` or `data.table` objects. If none
+  provided, an import UI is shown to load data interactively.
 
 - background:
 

@@ -86,7 +86,7 @@ This is useful for:
 
 - Comparing outputs across pipelines
 
-![dataviewR comparing iris and mtcars](figures/multi_data_gif_c.gif)
+![dataviewR comparing iris and mtcars](figures/multi_data_video.mp4)
 
 Each dataset gets its own tab, allowing you to switch seamlessly.
 
