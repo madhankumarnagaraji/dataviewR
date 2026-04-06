@@ -19,6 +19,9 @@ test_that("Module: Data loading and initialization", {
     # Check if total rows are calculated correctly
     expect_equal(output$totalrows, format(nrow(test_data), big.mark = ","))
 
+    # Check if total columns output matches dataset column count
+    expect_equal(output$totalcols, format(ncol(test_data), big.mark = ","))
+
     # Check if columns matches the input we set
     expect_equal(sort(input$columns), sort(names(test_data)))
   })
@@ -108,20 +111,22 @@ test_that("Module: R Code Generation", {
     # Initialize
     session$setInputs(columns = names(mtcars), filter = "", load = 1)
 
-    # Case 1: No changes
+    # Case 1: No changes — neither filter() nor select() should appear in code
     code <- generated_code()
     expect_match(code, "# Generated R Code")
     expect_match(code, "library\\(dplyr\\)")
     expect_match(code, "mtcars")
     expect_false(grepl("filter", code))
+    expect_false(grepl("select", code)) # select() must NOT appear when all columns selected
 
     # Case 2: Filter only
     session$setInputs(filter = "mpg > 20")
     session$setInputs(submit = 1)
     code <- generated_code()
     expect_match(code, "filter\\(mpg > 20\\)")
+    expect_false(grepl("select", code)) # Still all columns, so no select()
 
-    # Case 3: Select only
+    # Case 3: Select only (subset of columns — select() should appear)
     session$setInputs(filter = "")
     session$setInputs(columns = c("mpg", "cyl"))
     code <- generated_code()
@@ -136,6 +141,36 @@ test_that("Module: R Code Generation", {
     expect_match(code, "\\|>")
   })
 })
+
+test_that("Module: Row and Column Count Outputs", {
+  testServer(dataviewer_tab_server, args = list(
+    get_data = reactive(mtcars),
+    dataset_name = reactive("mtcars")
+  ), {
+    # Initialize with all columns selected, no filter
+    session$setInputs(columns = names(mtcars), filter = "", load = 1)
+
+    # Total rows — always the full dataset row count
+    expect_equal(output$totalrows, format(nrow(mtcars), big.mark = ","))
+
+    # Total columns — always the full dataset column count
+    expect_equal(output$totalcols, format(ncol(mtcars), big.mark = ","))
+
+    # Selected columns — all 11 columns currently checked
+    expect_equal(output$selectedcols, format(ncol(mtcars), big.mark = ","))
+
+    # Deselect down to 3 columns — selectedcols output must update
+    session$setInputs(columns = c("mpg", "cyl", "hp"))
+    expect_equal(output$selectedcols, "3")
+
+    # Total columns must remain unchanged (it reflects the raw dataset, not the selection)
+    expect_equal(output$totalcols, format(ncol(mtcars), big.mark = ","))
+  })
+})
+
+# Note: output$filteredrows depends on input$tbl_rows_all which is a DT-specific
+# input populated only in a real browser session. It cannot be reliably unit-tested
+# via testServer() and is better covered by a shinytest2 integration test.
 
 test_that("Module: Metadata Extraction", {
   testServer(dataviewer_tab_server, args = list(
