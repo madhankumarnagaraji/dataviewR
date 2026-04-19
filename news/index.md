@@ -2,6 +2,8 @@
 
 ## dataviewR 1.1.0
 
+CRAN release: 2026-04-06
+
 ### 🔧 Updates
 
 - Added pharmaverse badge in the README file as dataviewR is now a part
