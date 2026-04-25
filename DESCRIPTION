@@ -17,6 +17,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
 	shiny (>= 1.11.1),
+	rstudioapi (>= 0.13),
 	shinyjs,
 	DT,
 	dplyr,
