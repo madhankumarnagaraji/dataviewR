@@ -29,7 +29,6 @@ Imports:
 	datamods,
 	htmlwidgets,
 	callr,
-	rstudioapi,
 	writexl
 Suggests: 
     knitr,
