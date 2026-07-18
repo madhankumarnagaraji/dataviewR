@@ -19,7 +19,7 @@ The copy/download feature only applies to the rows currently visible on the page
 
 - `list_dataviewers` → Lists all active `dataviewR` sessions.
 - `stop_dataviewer` → To stop a specific or recent `dataviewR` session.
-- `stop_all_dataviewers`→ To stop all active `dataviewR` sessions.
+- `stop_all_dataviewers` → To stop all active `dataviewR` sessions.
 
 ## 2. To know the session information
 
@@ -29,7 +29,7 @@ The copy/download feature only applies to the rows currently visible on the page
 list_dataviewers()
 ```
 
-```{console}
+```text
 Active background dataviewer processes:
 =======================================
 
@@ -54,7 +54,7 @@ To stop a specific or recent dataviewR session, user can use `stop_dataviewer` b
 
 ```r
 id <- dataviewer(mtcars, iris)
-dataviewer(id = id)
+stop_dataviewer(id = id)
 ```
 the above code stops the session mentioned in id argument.
 
