@@ -9,7 +9,8 @@ test_that("App Integration: Tabs load and close correctly", {
   app <- dataviewer(mtcars, iris, background = FALSE)
 
   # Initialize the test driver
-  app_driver <- AppDriver$new(app, name = "tab_test", height = 800, width = 1200, timeout = 15000)
+  app_driver <- AppDriver$new(app, name = "tab_test", height = 800,
+                              width = 1200, timeout = 15000)
 
   # Wait for the app to settle
   app_driver$wait_for_idle()
@@ -49,11 +50,17 @@ test_that("App Integration: Tabs load and close correctly", {
   expect_match(current_tab, "tab_mtcars_")
 
   # 5. Verify UI Removal (The Robust Check)
-  # Instead of checking input names (which persist), we check if the DOM element exists.
-  # We use a JavaScript snippet to ask: "Is the element with ID 'iris_tab_id' null?"
-  # Note: The tab content div usually has the ID matching the value of the tabPanel.
+  # Instead of checking input names (which persist),
+  # we check if the DOM element exists.
+  # We use a JavaScript snippet to ask:
+  # "Is the element with ID 'iris_tab_id' null?"
+  # Note: The tab content div usually has the ID
+  # matching the value of the tabPanel.
 
-  is_tab_gone <- app_driver$get_js(sprintf("document.getElementById('%s') === null", iris_tab_id))
+  is_tab_gone <- app_driver$get_js(sprintf(
+                                           paste0("document",
+                                                  ".getElementById('%s')",
+                                                  " === null"), iris_tab_id))
   expect_true(is_tab_gone)
 
   app_driver$stop()

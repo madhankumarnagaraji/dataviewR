@@ -1,7 +1,8 @@
 library(testthat)
 
 test_that("Background Process Lifecycle", {
-  # Skip this test on CRAN servers (they don't allow background processes usually)
+  # Skip this test on CRAN servers
+  # (they don't allow background processes usually)
   skip_on_cran()
 
   # Ensure clean slate
@@ -31,7 +32,7 @@ test_that("Background Process Lifecycle", {
   # 4. Verify it is stopped
   output_after <- capture.output(list_dataviewers())
   # Should either say "No background..." or just not list the PID
-  if(length(output_after) > 0) {
+  if (length(output_after) > 0) {
     expect_false(any(grepl(pid, output_after)))
   } else {
     expect_equal(length(output_after), 0)
@@ -58,5 +59,6 @@ test_that("Stop All Viewers", {
   expect_message(stop_all_dataviewers(), "Stopped 2 dataviewer processes")
 
   # Verify empty
-  expect_message(list_dataviewers(), "No background dataviewer processes are running")
+  expect_message(list_dataviewers(),
+                 "No background dataviewer processes are running")
 })
