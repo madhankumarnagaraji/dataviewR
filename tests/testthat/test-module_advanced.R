@@ -26,7 +26,8 @@ test_that("Module: Handles Column Names with Spaces (Quoting)", {
     # 2. Check Code Generation - must use backticks: select(`Col A`)
     code <- generated_code()
     expect_match(code, "select\\(`Col A`\\)")
-    expect_false(grepl("select\\(Col A\\)", code)) # Should NOT see unquoted version
+    # Should NOT see unquoted version
+    expect_false(grepl("select\\(Col A\\)", code))
   })
 })
 
@@ -86,7 +87,7 @@ test_that("Module: NA display for factor variables shows <NA>", {
   })
 })
 
-test_that("Module: NA display for numeric/integer/logical types stays as true NA", {
+test_that("Module: NA display for numeric/integer/logical stays as true NA", {
   # Numeric and integer NAs must NOT be converted to strings. They remain
   # proper R NAs since final_df() only applies across() to character/factor
   # and logical columns, never to numeric/integer.
@@ -172,7 +173,7 @@ test_that("Module: Generates valid code for complex filters", {
   ), {
     session$setInputs(columns = names(mtcars), filter = "", load = 1)
 
-    # Test %in% operator
+    # Test '%in%' operator
     session$setInputs(filter = "cyl %in% c(4, 6)")
     session$setInputs(submit = 1)
 
@@ -185,7 +186,7 @@ test_that("Module: Generates valid code for complex filters", {
   })
 })
 
-test_that("Module: Metadata contains expected col_type values for new datatypes", {
+test_that("Module: Metadata contains expected col_type for new datatypes", {
   # Verifies that meta_cols() correctly recognises integer, double, character,
   # factor, logical, datetime (POSIXct) and difftime columns, which all received
   # new/updated icons in this release.
@@ -193,7 +194,7 @@ test_that("Module: Metadata contains expected col_type values for new datatypes"
   # Key implementation details that shape how we test:
   #
   # 1. meta_cols() builds col_name as an HTML string:
-  #      "<span style='font-size:18px'>EMOJI</span> colname"
+  #    '<span style='font-size:18px'>EMOJI</span> colname'
   #    Stripping HTML tags with gsub("<[^>]+>", ...) removes <span> but leaves
   #    the emoji character(s) before the space and column name. We therefore
   #    use grepl() to check that each column name appears as a SUBSTRING of
@@ -261,7 +262,9 @@ test_that("Module: Metadata contains expected col_type values for new datatypes"
     # class_df() must produce rows for these columns if generate_dictionary
     # recognises them. If the dictionary returns empty for this machine's
     # labelled version, we skip rather than fail.
-    skip_if(nrow(cd) == 0, "labelled::generate_dictionary() returned no rows for typed_data on this system")
+    skip_if(nrow(cd) == 0,
+            paste0("labelled::generate_dictionary() returned no rows",
+                   " for typed_data on this system"))
 
     recognised_cols <- cd$colname
 

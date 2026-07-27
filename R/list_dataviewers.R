@@ -1,6 +1,7 @@
 #' List Active Background Dataviewer Processes
 #'
-#' @seealso For more information, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-know-the-session-information}{documentation}.
+#' @seealso For more information, please
+#' refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-know-the-session-information}{documentation}. #nolint
 #'
 #' @export
 list_dataviewers <- function() {
@@ -23,7 +24,8 @@ list_dataviewers <- function() {
     } else {
       "Port: auto"
     }
-    started_info <- paste0("Started: ", format(proc_info$started, "%Y-%m-%d %H:%M:%S"))
+    started_info <- paste0("Started: ",
+                           format(proc_info$started, "%Y-%m-%d %H:%M:%S"))
 
     cat("ID: ", id, "\n", sep = "")
     cat("  Status: ", status, "\n", sep = "")

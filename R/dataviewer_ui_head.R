@@ -1,10 +1,11 @@
-#' Internal function to create the UI head which contains all static CSS and JavaScript
+#' Internal function to create the UI head which contains static CSS/JS
 #' @noRd
 dataviewer_ui_head <- function() {
   shiny::tags$head(
     shiny::tags$style(shiny::HTML("
 
-          /* --- NEW: Full Width CSS to override Shiny's default container padding --- */
+          /* --- NEW: Full Width CSS to override default container
+             padding --- */
 
           .full-width .container-fluid,
           .full-width .row {
@@ -42,7 +43,8 @@ dataviewer_ui_head <- function() {
             width: 100%;
           }
 
-          /* Table + footer wrapper: mainPanel will contain a table wrapper; footer is placed above the table now */
+          /* Table + footer wrapper: mainPanel will contain a table wrapper;
+             footer is placed above the table now */
           .table-wrapper {
             display: flex;
             flex-direction: column;
@@ -73,7 +75,8 @@ dataviewer_ui_head <- function() {
             vertical-align: middle;
           }
 
-          /* Scrollable data container - this must be the only scrolling element for the table area */
+          /* Scrollable data container - this must be the only scrolling
+             element for the table area */
           .scrollable-data-container {
             overflow: auto; /* vertical/horizontal scrolls live here */
             width: 125%;
@@ -141,7 +144,8 @@ dataviewer_ui_head <- function() {
           }
 
           /* --- Custom Download Button Group --- */
-          /* Groups the CSV and Excel download buttons side by side in the top-footer. */
+          /* Groups the CSV and Excel download buttons side by side in the
+             top-footer. */
           .dt-custom-download-group {
             display: inline-flex;
             align-items: center;
@@ -190,20 +194,32 @@ dataviewer_ui_head <- function() {
           $(document).on('shiny:connected', function() {
 
             // Prevent scroll propagation from small scrollable checkboxes
-            $(document).on('mousedown wheel touchstart', '.scrollable-checkbox', function(e) {
-              e.stopPropagation();
-            });
+            $(document).on(
+              'mousedown wheel touchstart',
+              '.scrollable-checkbox',
+              function(e) {
+                e.stopPropagation();
+              }
+            );
 
             // Prevent focus events from causing scroll
-            $(document).on('focus', '.scrollable-checkbox input[type=\"checkbox\"]', function(e) {
-              e.stopPropagation();
-            });
+            $(document).on(
+              'focus',
+              '.scrollable-checkbox input[type=\"checkbox\"]',
+              function(e) {
+                e.stopPropagation();
+              }
+            );
 
             // Prevent DataTables filter inputs from calling scrollIntoView
             var originalScrollIntoView = Element.prototype.scrollIntoView;
             Element.prototype.scrollIntoView = function(arg) {
               try {
-                if (this.tagName === 'INPUT' && this.type === 'search' && $(this).closest('.dataTables_wrapper').length > 0) {
+                if (
+                  this.tagName === 'INPUT' &&
+                  this.type === 'search' &&
+                  $(this).closest('.dataTables_wrapper').length > 0
+                ) {
                   return false;
                 }
               } catch (e) {}
@@ -221,7 +237,8 @@ dataviewer_ui_head <- function() {
                 var info = wrapper.find('.dataTables_info').first();
                 var paginate = wrapper.find('.dataTables_paginate').first();
 
-                // *** MODULARIZATION FIX: Find pagination div by its namespaced ID ***
+                // *** MODULARIZATION FIX: Find pagination div by its namespaced
+                // ID ***
                 var topFooter = $('#pagination_' + tableId);
                 if (topFooter.length === 0) {
                   return false;
@@ -233,7 +250,8 @@ dataviewer_ui_head <- function() {
 
                 return true;
               } catch (e) {
-                console && console.warn && console.warn('moveDTFooterToTop error', e);
+                console && console.warn &&
+                  console.warn('moveDTFooterToTop error', e);
                 return false;
               }
             };
@@ -244,7 +262,8 @@ dataviewer_ui_head <- function() {
               var maxAttempts = 30;
               var intv = setInterval(function() {
                 attempts++;
-                if (window.moveDTFooterToTop(tableId) || attempts >= maxAttempts) {
+                if (window.moveDTFooterToTop(tableId) ||
+                    attempts >= maxAttempts) {
                   clearInterval(intv);
                 }
               }, 100); // try for ~3 seconds

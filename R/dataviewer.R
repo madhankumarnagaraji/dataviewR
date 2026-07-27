@@ -4,16 +4,25 @@
 .dataviewer_env$counter <- 0L
 
 # Define global variables to satisfy R CMD check
-utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value", ".data"))
+utils::globalVariables(c(
+  "att", "col_name", "col_type", "colname", "pos", "value", ".data",
+  ".dataviewer_env", "dataviewer_ui_head", "dataviewer_tab_ui",
+  "dataviewer_tab_server"
+))
 
 #' Interactive Data Viewer with Filter and Code Generation
 #'
-#' Launches a Shiny application to explore and filter a `data.frame` or `tibble` or `data.table`.
-#' If no data is provided, it opens an import panel to load a dataset from either the global environment or the packages.
+#' Launches a Shiny application to explore and filter a `data.frame` or
+#' `tibble` or `data.table`. If no data is provided, it opens an
+#' import panel to load a dataset from the global environment or packages.
 #'
-#' @param ... One or more `data.frame` or `tibble` or `data.table` objects. If none provided, an import UI is shown to load data interactively.
-#' @param background Logical. If `TRUE`, runs the app in a background R process using `callr`. Requires the `callr` package. Default is TRUE when dataset(s) are provided, FALSE when no dataset(s) are provided.
-#' @param port Integer. Port number for the Shiny app. If `NULL`, a random available port is used. Default is NULL.
+#' @param ... One or more `data.frame` or `tibble` or
+#'   `data.table` objects. If none provided, an import UI is shown to load data.
+#' @param background Logical. If `TRUE`, runs the app in a background R
+#'   process using `callr`. Requires the `callr` package. Default is
+#'   TRUE when dataset(s) are provided, FALSE when no dataset(s) are provided.
+#' @param port Integer. Port number for the Shiny app. If `NULL`, a random
+#'   available port is used. Default is NULL.
 #'
 #' @return
 #' If `background = TRUE`, returns the process ID (character) invisibly.
@@ -30,10 +39,15 @@ utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value
 #'     \item Metadata display for the variables.
 #' }
 #'
-#' The filtering uses `dplyr::filter()` and generates user-friendly code to replicate the steps.
-#' It also provides copyable R code that includes column selection and filtering logic.
+#' The filtering uses `dplyr::filter()` and generates user-friendly code
+#' to replicate the steps. It also provides copyable R code that includes
+#' column selection and filtering logic.
 #'
-#' @importFrom shiny fluidPage tabsetPanel tabPanel actionButton textInput updateTextInput checkboxInput checkboxGroupInput updateCheckboxGroupInput sidebarLayout sidebarPanel mainPanel renderTable tableOutput tags showModal modalDialog modalButton observeEvent updateTabsetPanel reactive reactiveVal req br removeTab appendTab NS moduleServer reactiveValues
+#' @importFrom shiny fluidPage tabsetPanel tabPanel actionButton textInput
+#'   updateTextInput checkboxInput checkboxGroupInput updateCheckboxGroupInput
+#'   sidebarLayout sidebarPanel mainPanel renderTable tableOutput tags
+#'   showModal modalDialog modalButton observeEvent updateTabsetPanel reactive
+#'   reactiveVal req br removeTab appendTab NS moduleServer reactiveValues
 #' @importFrom DT datatable renderDT dataTableOutput DTOutput
 #' @importFrom shinyjs useShinyjs runjs
 #' @import dplyr
@@ -48,13 +62,17 @@ utils::globalVariables(c("att", "col_name", "col_type", "colname", "pos", "value
 #' @importFrom stats setNames
 #' @importFrom utils globalVariables
 #'
-#' @seealso For more information about the features of dataviewer, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Introduction-to-dataviewR.html}{documentation}.
+#' @seealso For more information about the features of dataviewer, please
+#' refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Introduction-to-dataviewR.html}{documentation}. # nolint
 #'
 #' @examples
 #' if (interactive()) {
-#'     dataviewer(mtcars) # Opens in RStudio Viewer pane or default web browser
-#'     dataviewer(iris, mtcars) # Opens multiple datasets in separate tabs
-#'     dataviewer() # Opens the "Import Dataset" tab (foreground mode - console will be busy)
+#'     # Opens in RStudio Viewer pane or default web browser
+#'     dataviewer(mtcars)
+#'     # Opens multiple datasets in separate tabs
+#'     dataviewer(iris, mtcars)
+#'     # Opens the "Import Dataset" tab (foreground mode - console will be busy)
+#'     dataviewer()
 #'
 #'     # Run in foreground to enable the "Import Dataset" tab alongside 'mtcars'
 #'     dataviewer(mtcars, background = FALSE)
@@ -75,7 +93,9 @@ dataviewer <- function(..., background = NULL, port = NULL) {
   # RULE: If no datasets provided, force background = FALSE
   if (length(datasets) == 0) {
     if (!is.null(background) && background == TRUE) {
-      message("Note: Background mode cannot access Global Environment for import.")
+      message(
+        "Note: Background mode cannot access Global Environment for import."
+      )
     }
     background <- FALSE
     message("Using foreground mode.")
@@ -87,13 +107,17 @@ dataviewer <- function(..., background = NULL, port = NULL) {
   }
 
   # Determine if import panel should be shown
-  # Show import panel only when: background=FALSE OR no datasets provided
+  # Show import panel only when: background=FALSE OR no datasets
+  # provided
   show_import_panel <- !background
 
   # If background mode, launch in separate process
   if (background) {
     if (!requireNamespace("callr", quietly = TRUE)) {
-      stop("Package 'callr' is required for background mode. Install with: install.packages('callr')")
+      stop(
+        "Package 'callr' is required for background mode. ",
+        "Install with: install.packages('callr')"
+      )
     }
 
     # Generate unique ID for this process
@@ -115,18 +139,29 @@ dataviewer <- function(..., background = NULL, port = NULL) {
         library(dataviewR)
 
         # Calling the internal functions so the background process can see them
-        dataviewer_ui_head    <- utils::getFromNamespace("dataviewer_ui_head", "dataviewR")
-        dataviewer_tab_ui     <- utils::getFromNamespace("dataviewer_tab_ui", "dataviewR")
-        dataviewer_tab_server <- utils::getFromNamespace("dataviewer_tab_server", "dataviewR")
+        dataviewer_ui_head <- utils::getFromNamespace(
+          "dataviewer_ui_head", "dataviewR"
+        )
+        dataviewer_tab_ui <- utils::getFromNamespace(
+          "dataviewer_tab_ui", "dataviewR"
+        )
+        dataviewer_tab_server <- utils::getFromNamespace(
+          "dataviewer_tab_server", "dataviewR"
+        )
 
         # Determine trigger mode
         if (length(datasets) == 0) {
-          cat("\033[34mNote: Showing the Import Dataset Panel because no datasets were provided\033[0m\n")
+          cat(
+            "\033[34mNote: Showing the Import Dataset Panel because no ",
+            "datasets were provided\033[0m\n"
+          )
           trigger <- 1
           initial_datasets <- list()
           initial_names <- character()
         } else {
-          valid_data <- sapply(datasets, function(d) any(class(d) %in% c("tbl_df", "tbl", "data.frame")))
+          valid_data <- sapply(datasets, function(d) {
+            any(class(d) %in% c("tbl_df", "tbl", "data.frame"))
+          })
           if (!all(valid_data)) {
             stop("All arguments must be tibbles or data.frames")
           }
@@ -158,17 +193,28 @@ dataviewer <- function(..., background = NULL, port = NULL) {
             tab_counter <- shiny::reactiveVal(0)
 
             create_tab_id <- function(name) {
-              paste0("tab_", tolower(gsub("[^a-zA-Z0-9]", "_", name)), "_", tab_counter())
+              paste0(
+                "tab_",
+                tolower(gsub("[^a-zA-Z0-9]", "_", name)),
+                "_",
+                tab_counter()
+              )
             }
 
             # FIXED: create_viewer_tab with local() to capture tab_id correctly
-            create_viewer_tab <- function(tab_id, dataset_name, dataset, show_close_btn = TRUE) {
+            create_viewer_tab <- function(
+              tab_id, dataset_name, dataset, show_close_btn = TRUE
+            ) {
               tab_title <- if (show_close_btn) {
                 shiny::tagList(
                   tolower(dataset_name),
                   shiny::tags$span(
                     class = "close-tab-btn",
-                    onclick = sprintf("Shiny.setInputValue('close_tab', '%s', {priority: 'event'})", tab_id),
+                    onclick = sprintf(
+                      "Shiny.setInputValue('close_tab', '%s', %s)",
+                      tab_id,
+                      "{priority: 'event'}"
+                    ),
                     "x"
                   )
                 )
@@ -196,8 +242,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
                 current_tab_id <- tab_id
                 dataviewer_tab_server(
                   id = current_tab_id,
-                  get_data = shiny::reactive(dataset_store[[current_tab_id]]$data),
-                  dataset_name = shiny::reactive(dataset_store[[current_tab_id]]$name)
+                  get_data = shiny::reactive({
+                    dataset_store[[current_tab_id]]$data
+                  }),
+                  dataset_name = shiny::reactive({
+                    dataset_store[[current_tab_id]]$name
+                  })
                 )
               })
             }
@@ -208,7 +258,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
                   shiny::isolate({
                     tab_counter(tab_counter() + 1)
                     tab_id <- create_tab_id(initial_names[i])
-                    create_viewer_tab(tab_id, initial_names[i], initial_datasets[[i]], show_close_btn = TRUE)
+                    create_viewer_tab(
+                      tab_id,
+                      initial_names[i],
+                      initial_datasets[[i]],
+                      show_close_btn = TRUE
+                    )
                   })
                 }
               }, once = TRUE)
@@ -216,7 +271,9 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
             # Only set up import handlers if import panel is shown
             if (show_import_panel) {
-              imported <- datamods::import_globalenv_server("myid", btn_show_data = FALSE)
+              imported <- datamods::import_globalenv_server(
+                "myid", btn_show_data = FALSE
+              )
 
               shiny::observeEvent(input$`myid-confirm`, {
                 shiny::req(imported$data())
@@ -233,18 +290,29 @@ dataviewer <- function(..., background = NULL, port = NULL) {
                   existing_tabs <- logical(0)
                 }
 
-                if (length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)) {
-                  valid_tab_ids <- names(dataset_store)[!sapply(dataset_store, is.null)]
-                  existing_tab_id <- valid_tab_ids[which(existing_tabs)[1]]
-                  if(!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
-                    shiny::updateTabsetPanel(session, "opt", selected = existing_tab_id)
-                    shiny::showNotification(paste("Switched to existing tab:", dataset_name), type = "message")
+                if (
+                  length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)
+                ) {
+                  valid_ids <- names(dataset_store)[!sapply(
+                    dataset_store, is.null
+                  )]
+                  existing_tab_id <- valid_ids[which(existing_tabs)[1]]
+                  if (!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
+                    shiny::updateTabsetPanel(
+                      session, "opt", selected = existing_tab_id
+                    )
+                    shiny::showNotification(
+                      paste("Switched to existing tab:", dataset_name),
+                      type = "message"
+                    )
                   }
                 } else {
                   shiny::isolate({
                     tab_counter(tab_counter() + 1)
                     tab_id <- create_tab_id(dataset_name)
-                    create_viewer_tab(tab_id, dataset_name, dataset, show_close_btn = TRUE)
+                    create_viewer_tab(
+                      tab_id, dataset_name, dataset, show_close_btn = TRUE
+                    )
                   })
                 }
               })
@@ -262,7 +330,9 @@ dataviewer <- function(..., background = NULL, port = NULL) {
                 shiny::updateTabsetPanel(session, "opt", selected = all_tabs[1])
               } else if (show_import_panel) {
                 # If no dataset tabs left and import panel exists, go there
-                shiny::updateTabsetPanel(session, "opt", selected = "import_tab")
+                shiny::updateTabsetPanel(
+                  session, "opt", selected = "import_tab"
+                )
               }
             })
           }
@@ -270,7 +340,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
         shiny::runApp(app, port = port, launch.browser = FALSE)
       },
-      args = list(datasets = datasets, dataset_names = dataset_names, port = port, show_import_panel = show_import_panel),
+      args = list(
+        datasets = datasets,
+        dataset_names = dataset_names,
+        port = port,
+        show_import_panel = show_import_panel
+      ),
       supervise = TRUE,
       stdout = "|",
       stderr = "|"
@@ -280,7 +355,11 @@ dataviewer <- function(..., background = NULL, port = NULL) {
     .dataviewer_env$processes[[proc_id]] <- list(
       process = proc,
       started = Sys.time(),
-      data_names = if (length(dataset_names) > 0) paste(dataset_names, collapse = ", ") else "<import mode>",
+      data_names = if (length(dataset_names) > 0) {
+        paste(dataset_names, collapse = ", ")
+      } else {
+        "<import mode>"
+      },
       port = port
     )
 
@@ -301,8 +380,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
       # Read new output/error lines
       # We must capture them here because reading clears the callr buffer
-      new_out <- tryCatch(proc$read_output_lines(), error = function(e) character(0))
-      new_err <- tryCatch(proc$read_error_lines(), error = function(e) character(0))
+      new_out <- tryCatch(
+        proc$read_output_lines(), error = function(e) character(0)
+      )
+      new_err <- tryCatch(
+        proc$read_error_lines(), error = function(e) character(0)
+      )
 
       # Accumulate logs for error reporting if needed
       startup_logs <- c(startup_logs, new_out, new_err)
@@ -317,17 +400,23 @@ dataviewer <- function(..., background = NULL, port = NULL) {
     # 1. CRITICAL ERROR CHECK: Process died
     if (!proc$is_alive()) {
       # Read any remaining logs
-      final_err <- tryCatch(proc$read_all_error_lines(), error = function(e) character(0))
-      final_out <- tryCatch(proc$read_all_output_lines(), error = function(e) character(0))
+      final_err <- tryCatch(
+        proc$read_all_error_lines(), error = function(e) character(0)
+      )
+      final_out <- tryCatch(
+        proc$read_all_output_lines(), error = function(e) character(0)
+      )
 
       # Combine accumulated polling logs with final logs
       all_stderr <- c(startup_logs, final_err)
       all_stdout <- c(startup_logs, final_out)
 
-      stop("Failed to start dataviewer in background.\n",
-           "Exit status: ", proc$get_exit_status(), "\n",
-           "Error output:\n", paste(unique(all_stderr), collapse = "\n"), "\n",
-           "Standard output:\n", paste(unique(all_stdout), collapse = "\n"))
+      stop(
+        "Failed to start dataviewer in background.\n",
+        "Exit status: ", proc$get_exit_status(), "\n",
+        "Error output:\n", paste(unique(all_stderr), collapse = "\n"), "\n",
+        "Standard output:\n", paste(unique(all_stdout), collapse = "\n")
+      )
     }
 
     # 2. DETERMINE OPENING METHOD (Viewer vs Browser)
@@ -338,9 +427,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
       rstudioapi::isAvailable() &&
       rstudioapi::hasFun("viewer")
 
-    # Override: If app didn't report ready in time, assume Viewer might fail/timeout
+    # Override: If app didn't report ready in time, assume Viewer might fail
     if (!app_started) {
-      message("Opening in the browser since the RStudio Viewer pane is taking longer than expected.")
+      message(
+        "Opening in the browser since the RStudio Viewer pane is ",
+        "taking longer than expected."
+      )
       use_rstudio_viewer <- FALSE
     }
 
@@ -368,13 +460,18 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
   # Determine trigger mode
   if (length(datasets) == 0) {
-    cat("\033[34mNote: Showing the Import Dataset Panel because no datasets were provided\033[0m\n")
+    cat(
+      "\033[34mNote: Showing the Import Dataset Panel because no datasets ",
+      "were provided\033[0m\n"
+    )
     trigger <- 1  # triggers the import dataset panel
     initial_datasets <- list()
     initial_names <- character()
   } else {
     # Validate all inputs are data.frame/tibble
-    valid_data <- sapply(datasets, function(d) any(class(d) %in% c("tbl_df", "tbl", "data.frame")))
+    valid_data <- sapply(datasets, function(d) {
+      any(class(d) %in% c("tbl_df", "tbl", "data.frame"))
+    })
 
     if (!all(valid_data)) {
       stop("All arguments must be tibbles or data.frames")
@@ -414,12 +511,19 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
       # Helper function to create unique tab ID
       create_tab_id <- function(name) {
-        paste0("tab_", tolower(gsub("[^a-zA-Z0-9]", "_", name)), "_", tab_counter())
+        paste0(
+          "tab_",
+          tolower(gsub("[^a-zA-Z0-9]", "_", name)),
+          "_",
+          tab_counter()
+        )
       }
 
       # Helper function to create viewer tab
       # FIXED: Uses local() to properly capture tab_id
-      create_viewer_tab <- function(tab_id, dataset_name, dataset, show_close_btn = TRUE) {
+      create_viewer_tab <- function(
+        tab_id, dataset_name, dataset, show_close_btn = TRUE
+      ) {
 
         # Create tab title with or without close button
         tab_title <- if (show_close_btn) {
@@ -427,7 +531,11 @@ dataviewer <- function(..., background = NULL, port = NULL) {
             tolower(dataset_name),
             shiny::tags$span(
               class = "close-tab-btn",
-              onclick = sprintf("Shiny.setInputValue('close_tab', '%s', {priority: 'event'})", tab_id),
+              onclick = sprintf(
+                "Shiny.setInputValue('close_tab', '%s', %s)",
+                tab_id,
+                "{priority: 'event'}"
+              ),
               "x"
             )
           )
@@ -454,14 +562,18 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
         # FIX: Use local() to capture tab_id correctly
         local({
-          # Create a local copy of tab_id that won't be affected by loop iterations
+          # Create a local copy of tab_id that won't be affected by loops
           current_tab_id <- tab_id
 
           # Call the Module Server with properly scoped reactives
           dataviewer_tab_server(
             id = current_tab_id,
-            get_data = shiny::reactive(dataset_store[[current_tab_id]]$data),
-            dataset_name = shiny::reactive(dataset_store[[current_tab_id]]$name)
+            get_data = shiny::reactive({
+              dataset_store[[current_tab_id]]$data
+            }),
+            dataset_name = shiny::reactive({
+              dataset_store[[current_tab_id]]$name
+            })
           )
         })
       }
@@ -473,7 +585,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
             shiny::isolate({
               tab_counter(tab_counter() + 1)
               tab_id <- create_tab_id(initial_names[i])
-              create_viewer_tab(tab_id, initial_names[i], initial_datasets[[i]], show_close_btn = TRUE)
+              create_viewer_tab(
+                tab_id,
+                initial_names[i],
+                initial_datasets[[i]],
+                show_close_btn = TRUE
+              )
             })
           }
         }, once = TRUE)
@@ -481,7 +598,9 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
       # Only set up import handlers if import panel is shown
       if (show_import_panel) {
-        imported <- datamods::import_globalenv_server("myid", btn_show_data = FALSE)
+        imported <- datamods::import_globalenv_server(
+          "myid", btn_show_data = FALSE
+        )
 
         shiny::observeEvent(input$`myid-confirm`, {
           shiny::req(imported$data())
@@ -504,12 +623,17 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
           if (length(existing_tabs) > 0 && any(existing_tabs, na.rm = TRUE)) {
             # Switch to existing tab
-            valid_tab_ids <- names(dataset_store)[!sapply(dataset_store, is.null)]
-            existing_tab_id <- valid_tab_ids[which(existing_tabs)[1]]
+            valid_ids <- names(dataset_store)[!sapply(dataset_store, is.null)]
+            existing_tab_id <- valid_ids[which(existing_tabs)[1]]
 
-            if(!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
-              shiny::updateTabsetPanel(session, "opt", selected = existing_tab_id)
-              shiny::showNotification(paste("Switched to existing tab:", dataset_name), type = "message")
+            if (!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
+              shiny::updateTabsetPanel(
+                session, "opt", selected = existing_tab_id
+              )
+              shiny::showNotification(
+                paste("Switched to existing tab:", dataset_name),
+                type = "message"
+              )
             }
 
           } else {
@@ -517,7 +641,9 @@ dataviewer <- function(..., background = NULL, port = NULL) {
             shiny::isolate({
               tab_counter(tab_counter() + 1)
               tab_id <- create_tab_id(dataset_name)
-              create_viewer_tab(tab_id, dataset_name, dataset, show_close_btn = TRUE)
+              create_viewer_tab(
+                tab_id, dataset_name, dataset, show_close_btn = TRUE
+              )
             })
           }
         })

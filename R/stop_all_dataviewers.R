@@ -1,6 +1,7 @@
 #' Stop All Background Dataviewer Processes
 #'
-#' @seealso For more information, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}.
+#' @seealso For more information, please
+#' refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}. #nolint
 #'
 #' @export
 stop_all_dataviewers <- function() {
@@ -23,6 +24,7 @@ stop_all_dataviewers <- function() {
   # Clear all processes
   .dataviewer_env$processes <- list()
 
-  message("Stopped ", count, " dataviewer process", if (count != 1) "es" else "")
+  message("Stopped ", count, " dataviewer process",
+          if (count != 1) "es" else "")
   invisible(NULL)
 }
