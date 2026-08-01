@@ -24,8 +24,10 @@ list_dataviewers <- function() {
     } else {
       "Port: auto"
     }
-    started_info <- paste0("Started: ",
-                           format(proc_info$started, "%Y-%m-%d %H:%M:%S"))
+    started_info <- paste0(
+      "Started: ",
+      format(proc_info$started, "%Y-%m-%d %H:%M:%S")
+    )
 
     cat("ID: ", id, "\n", sep = "")
     cat("  Status: ", status, "\n", sep = "")

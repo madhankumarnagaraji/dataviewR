@@ -9,8 +9,10 @@ test_that("App Integration: Tabs load and close correctly", {
   app <- dataviewer(mtcars, iris, background = FALSE)
 
   # Initialize the test driver
-  app_driver <- AppDriver$new(app, name = "tab_test", height = 800,
-                              width = 1200, timeout = 15000)
+  app_driver <- AppDriver$new(app,
+    name = "tab_test", height = 800,
+    width = 1200, timeout = 15000
+  )
 
   # Wait for the app to settle
   app_driver$wait_for_idle()
@@ -58,9 +60,12 @@ test_that("App Integration: Tabs load and close correctly", {
   # matching the value of the tabPanel.
 
   is_tab_gone <- app_driver$get_js(sprintf(
-                                           paste0("document",
-                                                  ".getElementById('%s')",
-                                                  " === null"), iris_tab_id))
+    paste0(
+      "document",
+      ".getElementById('%s')",
+      " === null"
+    ), iris_tab_id
+  ))
   expect_true(is_tab_gone)
 
   app_driver$stop()

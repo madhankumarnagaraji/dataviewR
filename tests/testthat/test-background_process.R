@@ -59,6 +59,8 @@ test_that("Stop All Viewers", {
   expect_message(stop_all_dataviewers(), "Stopped 2 dataviewer processes")
 
   # Verify empty
-  expect_message(list_dataviewers(),
-                 "No background dataviewer processes are running")
+  expect_message(
+    list_dataviewers(),
+    "No background dataviewer processes are running"
+  )
 })
