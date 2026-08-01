@@ -24,7 +24,9 @@ stop_all_dataviewers <- function() {
   # Clear all processes
   .dataviewer_env$processes <- list()
 
-  message("Stopped ", count, " dataviewer process",
-          if (count != 1) "es" else "")
+  message(
+    "Stopped ", count, " dataviewer process",
+    if (count != 1) "es" else ""
+  )
   invisible(NULL)
 }

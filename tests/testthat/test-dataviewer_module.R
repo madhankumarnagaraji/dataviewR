@@ -4,7 +4,6 @@ library(dplyr)
 library(labelled) # Ensure this is loaded for the metadata test
 
 test_that("Module: Data loading and initialization", {
-
   # Mock data
   test_data <- mtcars
   test_data$cyl <- as.factor(test_data$cyl)

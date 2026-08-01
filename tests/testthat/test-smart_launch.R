@@ -30,9 +30,12 @@ test_that("dataviewer launches in background and stops correctly", {
   # Capture the ID returned by the function
   # We expect a message about "Starting dataviewer"
   pid <- NULL
-  expect_message({
-    pid <- dataviewer(mtcars, background = TRUE)
-  }, "Starting dataviewer")
+  expect_message(
+    {
+      pid <- dataviewer(mtcars, background = TRUE)
+    },
+    "Starting dataviewer"
+  )
 
   # Assertions
   expect_type(pid, "character")
@@ -47,9 +50,12 @@ test_that("dataviewer launches in background and stops correctly", {
   # --- TEST 2: Stop Logic ---
   message("Testing stop...")
 
-  expect_message({
-    stop_dataviewer(pid)
-  }, "Stopped dataviewer process")
+  expect_message(
+    {
+      stop_dataviewer(pid)
+    },
+    "Stopped dataviewer process"
+  )
 
   # Verify it is gone from the environment
   expect_false(pid %in% names(env$processes))

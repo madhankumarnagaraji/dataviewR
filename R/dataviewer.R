@@ -67,25 +67,24 @@ utils::globalVariables(c(
 #'
 #' @examples
 #' if (interactive()) {
-#'     # Opens in RStudio Viewer pane or default web browser
-#'     dataviewer(mtcars)
-#'     # Opens multiple datasets in separate tabs
-#'     dataviewer(iris, mtcars)
-#'     # Opens the "Import Dataset" tab (foreground mode - console will be busy)
-#'     dataviewer()
+#'   # Opens in RStudio Viewer pane or default web browser
+#'   dataviewer(mtcars)
+#'   # Opens multiple datasets in separate tabs
+#'   dataviewer(iris, mtcars)
+#'   # Opens the "Import Dataset" tab (foreground mode - console will be busy)
+#'   dataviewer()
 #'
-#'     # Run in foreground to enable the "Import Dataset" tab alongside 'mtcars'
-#'     dataviewer(mtcars, background = FALSE)
+#'   # Run in foreground to enable the "Import Dataset" tab alongside 'mtcars'
+#'   dataviewer(mtcars, background = FALSE)
 #'
-#'     # Stop background process
-#'     id <- dataviewer(mtcars, iris)
-#'     stop_dataviewer(id)
+#'   # Stop background process
+#'   id <- dataviewer(mtcars, iris)
+#'   stop_dataviewer(id)
 #' }
 #'
 #' @export
 
 dataviewer <- function(..., background = NULL, port = NULL) {
-
   # Capture datasets
   datasets <- list(...)
   dataset_names <- as.character(substitute(list(...)))[-1]
@@ -202,9 +201,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
             }
 
             # FIXED: create_viewer_tab with local() to capture tab_id correctly
-            create_viewer_tab <- function(
-              tab_id, dataset_name, dataset, show_close_btn = TRUE
-            ) {
+            create_viewer_tab <- function(tab_id, dataset_name, dataset, show_close_btn = TRUE) {
               tab_title <- if (show_close_btn) {
                 shiny::tagList(
                   tolower(dataset_name),
@@ -272,7 +269,8 @@ dataviewer <- function(..., background = NULL, port = NULL) {
             # Only set up import handlers if import panel is shown
             if (show_import_panel) {
               imported <- datamods::import_globalenv_server(
-                "myid", btn_show_data = FALSE
+                "myid",
+                btn_show_data = FALSE
               )
 
               shiny::observeEvent(input$`myid-confirm`, {
@@ -282,7 +280,9 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
                 if (length(names(dataset_store)) > 0) {
                   existing_tabs <- sapply(names(dataset_store), function(tid) {
-                    if (is.null(dataset_store[[tid]])) return(FALSE)
+                    if (is.null(dataset_store[[tid]])) {
+                      return(FALSE)
+                    }
                     dataset_store[[tid]]$name == dataset_name
                   }, USE.NAMES = FALSE)
                   existing_tabs <- as.logical(existing_tabs)
@@ -299,7 +299,8 @@ dataviewer <- function(..., background = NULL, port = NULL) {
                   existing_tab_id <- valid_ids[which(existing_tabs)[1]]
                   if (!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
                     shiny::updateTabsetPanel(
-                      session, "opt", selected = existing_tab_id
+                      session, "opt",
+                      selected = existing_tab_id
                     )
                     shiny::showNotification(
                       paste("Switched to existing tab:", dataset_name),
@@ -311,7 +312,8 @@ dataviewer <- function(..., background = NULL, port = NULL) {
                     tab_counter(tab_counter() + 1)
                     tab_id <- create_tab_id(dataset_name)
                     create_viewer_tab(
-                      tab_id, dataset_name, dataset, show_close_btn = TRUE
+                      tab_id, dataset_name, dataset,
+                      show_close_btn = TRUE
                     )
                   })
                 }
@@ -331,7 +333,8 @@ dataviewer <- function(..., background = NULL, port = NULL) {
               } else if (show_import_panel) {
                 # If no dataset tabs left and import panel exists, go there
                 shiny::updateTabsetPanel(
-                  session, "opt", selected = "import_tab"
+                  session, "opt",
+                  selected = "import_tab"
                 )
               }
             })
@@ -367,7 +370,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
     message("Waiting for dataviewer to initialize...")
 
     app_started <- FALSE
-    max_retries <- 40   # 10 seconds (40 * 0.25s)
+    max_retries <- 40 # 10 seconds (40 * 0.25s)
     startup_logs <- character(0) # Keep track of logs in case of error
 
     for (i in 1:max_retries) {
@@ -381,10 +384,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
       # Read new output/error lines
       # We must capture them here because reading clears the callr buffer
       new_out <- tryCatch(
-        proc$read_output_lines(), error = function(e) character(0)
+        proc$read_output_lines(),
+        error = function(e) character(0)
       )
       new_err <- tryCatch(
-        proc$read_error_lines(), error = function(e) character(0)
+        proc$read_error_lines(),
+        error = function(e) character(0)
       )
 
       # Accumulate logs for error reporting if needed
@@ -401,10 +406,12 @@ dataviewer <- function(..., background = NULL, port = NULL) {
     if (!proc$is_alive()) {
       # Read any remaining logs
       final_err <- tryCatch(
-        proc$read_all_error_lines(), error = function(e) character(0)
+        proc$read_all_error_lines(),
+        error = function(e) character(0)
       )
       final_out <- tryCatch(
-        proc$read_all_output_lines(), error = function(e) character(0)
+        proc$read_all_output_lines(),
+        error = function(e) character(0)
       )
 
       # Combine accumulated polling logs with final logs
@@ -464,7 +471,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
       "\033[34mNote: Showing the Import Dataset Panel because no datasets ",
       "were provided\033[0m\n"
     )
-    trigger <- 1  # triggers the import dataset panel
+    trigger <- 1 # triggers the import dataset panel
     initial_datasets <- list()
     initial_names <- character()
   } else {
@@ -478,7 +485,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
     }
 
     cat("\033[34mNote:", length(datasets), "dataset(s) provided\033[0m\n")
-    trigger <- 2  # Shows passed dataframes
+    trigger <- 2 # Shows passed dataframes
     initial_datasets <- datasets
     initial_names <- dataset_names
   }
@@ -504,7 +511,6 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
     # --- REFACTORED SERVER ---
     server = function(input, output, session) {
-
       # Reactive values to store dataset information
       dataset_store <- shiny::reactiveValues()
       tab_counter <- shiny::reactiveVal(0)
@@ -521,10 +527,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
       # Helper function to create viewer tab
       # FIXED: Uses local() to properly capture tab_id
-      create_viewer_tab <- function(
-        tab_id, dataset_name, dataset, show_close_btn = TRUE
-      ) {
-
+      create_viewer_tab <- function(tab_id, dataset_name, dataset, show_close_btn = TRUE) {
         # Create tab title with or without close button
         tab_title <- if (show_close_btn) {
           shiny::tagList(
@@ -599,7 +602,8 @@ dataviewer <- function(..., background = NULL, port = NULL) {
       # Only set up import handlers if import panel is shown
       if (show_import_panel) {
         imported <- datamods::import_globalenv_server(
-          "myid", btn_show_data = FALSE
+          "myid",
+          btn_show_data = FALSE
         )
 
         shiny::observeEvent(input$`myid-confirm`, {
@@ -612,7 +616,9 @@ dataviewer <- function(..., background = NULL, port = NULL) {
           if (length(names(dataset_store)) > 0) {
             existing_tabs <- sapply(names(dataset_store), function(tid) {
               # Check for NULLs which can happen during tab removal
-              if (is.null(dataset_store[[tid]])) return(FALSE)
+              if (is.null(dataset_store[[tid]])) {
+                return(FALSE)
+              }
               dataset_store[[tid]]$name == dataset_name
             }, USE.NAMES = FALSE)
 
@@ -628,21 +634,22 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
             if (!is.null(existing_tab_id) && !is.na(existing_tab_id)) {
               shiny::updateTabsetPanel(
-                session, "opt", selected = existing_tab_id
+                session, "opt",
+                selected = existing_tab_id
               )
               shiny::showNotification(
                 paste("Switched to existing tab:", dataset_name),
                 type = "message"
               )
             }
-
           } else {
             # Create new tab (always show close button)
             shiny::isolate({
               tab_counter(tab_counter() + 1)
               tab_id <- create_tab_id(dataset_name)
               create_viewer_tab(
-                tab_id, dataset_name, dataset, show_close_btn = TRUE
+                tab_id, dataset_name, dataset,
+                show_close_btn = TRUE
               )
             })
           }

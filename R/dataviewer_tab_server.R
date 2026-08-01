@@ -10,9 +10,7 @@ utils::globalVariables(c(
 #' @param dataset_name A reactive expression returning the dataset's name.
 #' @noRd
 dataviewer_tab_server <- function(id, get_data, dataset_name) {
-
   shiny::moduleServer(id, function(input, output, session) {
-
     # --------------------------------------------------
     # REMOVED: "Atomic Batch" Enter Key Handler
     # Filtering is now triggered exclusively by the Submit button.
@@ -58,26 +56,29 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     })
 
     # FIX: Update columns checkboxes with priority and proper selection logic
-    shiny::observe({
-      shiny::req(get_data())
+    shiny::observe(
+      {
+        shiny::req(get_data())
 
-      # Get columns and current selection state
-      columns <- names(get_data())
-      select_all <- isTRUE(input$cols_all)
+        # Get columns and current selection state
+        columns <- names(get_data())
+        select_all <- isTRUE(input$cols_all)
 
-      # FIX: Properly respect the checkbox state
-      shiny::updateCheckboxGroupInput(
-        session, "columns",
-        label = NULL,
-        choices = columns,
-        selected = if (select_all) columns else NULL
-      )
+        # FIX: Properly respect the checkbox state
+        shiny::updateCheckboxGroupInput(
+          session, "columns",
+          label = NULL,
+          choices = columns,
+          selected = if (select_all) columns else NULL
+        )
 
-      # Mark as initialized after first update
-      if (!initialized()) {
-        initialized(TRUE)
-      }
-    }, priority = 100)  # High priority to ensure it runs first
+        # Mark as initialized after first update
+        if (!initialized()) {
+          initialized(TRUE)
+        }
+      },
+      priority = 100
+    ) # High priority to ensure it runs first
 
     # Update filter placeholder
     shiny::observe({
@@ -94,10 +95,13 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       last_action("submit")
     })
 
-    shiny::observeEvent(input$clear, {
-      shiny::updateTextInput(session, "filter", value = "")
-      last_action("clear")
-    }, priority = 100)
+    shiny::observeEvent(input$clear,
+      {
+        shiny::updateTextInput(session, "filter", value = "")
+        last_action("clear")
+      },
+      priority = 100
+    )
 
     validate_filter_expression <- function(expr) {
       # Basic validation: check for dangerous patterns
@@ -111,12 +115,15 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       }
 
       # Check if it's a valid R expression
-      tryCatch({
-        parse(text = expr)
-        TRUE
-      }, error = function(e) {
-        stop("Invalid R syntax: ", e$message)
-      })
+      tryCatch(
+        {
+          parse(text = expr)
+          TRUE
+        },
+        error = function(e) {
+          stop("Invalid R syntax: ", e$message)
+        }
+      )
     }
 
     # Filter dataframe
@@ -133,28 +140,29 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         }
 
         if (stringr::str_trim(input$filter) != "") {
-          tryCatch({
+          tryCatch(
+            {
+              # --- FIX : Clear any previous error notification on success ---
+              shiny::removeNotification(id = "filter_error")
+              # ---------------------------------------------------------------
 
-            # --- FIX : Clear any previous error notification on success ---
-            shiny::removeNotification(id = "filter_error")
-            # ---------------------------------------------------------------
-
-            validate_filter_expression(input$filter)
-            dplyr::filter(
-              get_data(),
-              eval(parse(text = input$filter))
-            )
-
-          }, error = function(e) {
-            shiny::showNotification(
-              paste0("Invalid filter condition: ", e$message),
-              type = "error",
-              duration = 5,
-              # Giving a name so we can remove the error notification later
-              id = "filter_error"
-            )
-            get_data()
-          })
+              validate_filter_expression(input$filter)
+              dplyr::filter(
+                get_data(),
+                eval(parse(text = input$filter))
+              )
+            },
+            error = function(e) {
+              shiny::showNotification(
+                paste0("Invalid filter condition: ", e$message),
+                type = "error",
+                duration = 5,
+                # Giving a name so we can remove the error notification later
+                id = "filter_error"
+              )
+              get_data()
+            }
+          )
         } else {
           # Also remove error if input is empty
           shiny::removeNotification(id = "filter_error")
@@ -178,7 +186,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       all_cols <- names(get_data())
 
       if (length(selected_cols) > 0 &&
-            length(selected_cols) < length(all_cols)) {
+        length(selected_cols) < length(all_cols)) {
         needs_quotes <- !grepl(
           "^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols
         )
@@ -334,7 +342,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         ))
       }
       purrr::imap_dfr(att_list, function(attr, colname) {
-        if (is.null(attr)) return(NULL)
+        if (is.null(attr)) {
+          return(NULL)
+        }
         tibble::tibble(
           colname = colname,
           att = names(attr),
@@ -347,7 +357,8 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       shiny::req(get_data())
 
       dict <- tryCatch(
-        labelled::generate_dictionary(get_data()), error = function(e) NULL
+        labelled::generate_dictionary(get_data()),
+        error = function(e) NULL
       )
       if (is.null(dict) || nrow(dict) == 0) {
         return(tibble::tibble(
@@ -546,6 +557,5 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     output$row_info <- shiny::renderText({
       ""
     })
-
   }) # End moduleServer
 }
