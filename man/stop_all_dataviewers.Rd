@@ -11,5 +11,5 @@ Stop All Background Dataviewer Processes
 }
 \seealso{
 For more information, please
-refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}. #nolint
+refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}.
 }

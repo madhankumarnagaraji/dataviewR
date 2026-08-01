@@ -1,12 +1,15 @@
+# nolint start: line_length_linter
 #' Stop a Specific or Most Recent Dataviewer Process
 #'
 #' @param id Character string specifying the process ID to stop.
 #' If NULL, stops the most recent background dataviewer.
 #'
 #' @seealso For more information, please
-#' refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}. #nolint
+#' refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}.
 #'
 #' @export
+# nolint end
+
 stop_dataviewer <- function(id = NULL) {
   # If no ID specified and no processes running, just message and return
   if (is.null(id) && length(.dataviewer_env$processes) == 0) {
