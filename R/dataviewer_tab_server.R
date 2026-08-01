@@ -186,7 +186,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       all_cols <- names(get_data())
 
       if (length(selected_cols) > 0 &&
-        length(selected_cols) < length(all_cols)) {
+        length(selected_cols) < length(all_cols)) { # nolint
         needs_quotes <- !grepl(
           "^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols
         )
