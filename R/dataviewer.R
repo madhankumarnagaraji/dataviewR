@@ -45,10 +45,10 @@ utils::globalVariables(c(
 #' column selection and filtering logic.
 #'
 #' @importFrom shiny fluidPage tabsetPanel tabPanel actionButton textInput
-#'   updateTextInput checkboxInput checkboxGroupInput updateCheckboxGroupInput
-#'   sidebarLayout sidebarPanel mainPanel renderTable tableOutput tags
-#'   showModal modalDialog modalButton observeEvent updateTabsetPanel reactive
-#'   reactiveVal req br removeTab appendTab NS moduleServer reactiveValues
+#' @importFrom shiny updateTextInput checkboxInput checkboxGroupInput updateCheckboxGroupInput
+#' @importFrom shiny sidebarLayout sidebarPanel mainPanel renderTable tableOutput tags
+#' @importFrom shiny showModal modalDialog modalButton observeEvent updateTabsetPanel reactive
+#' @importFrom shiny reactiveVal req br removeTab appendTab NS moduleServer reactiveValues
 #' @importFrom DT datatable renderDT dataTableOutput DTOutput
 #' @importFrom shinyjs useShinyjs runjs
 #' @import dplyr
