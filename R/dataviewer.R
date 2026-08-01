@@ -10,6 +10,7 @@ utils::globalVariables(c(
   "dataviewer_tab_server"
 ))
 
+# nolint start: line_length_linter
 #' Interactive Data Viewer with Filter and Code Generation
 #'
 #' Launches a Shiny application to explore and filter a `data.frame` or
@@ -63,7 +64,7 @@ utils::globalVariables(c(
 #' @importFrom utils globalVariables
 #'
 #' @seealso For more information about the features of dataviewer, please
-#' refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Introduction-to-dataviewR.html}{documentation}. # nolint
+#' refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Introduction-to-dataviewR.html}{documentation}.
 #'
 #' @examples
 #' if (interactive()) {
@@ -83,6 +84,7 @@ utils::globalVariables(c(
 #' }
 #'
 #' @export
+# nolint end
 
 dataviewer <- function(..., background = NULL, port = NULL) {
   # Capture datasets
@@ -201,7 +203,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
             }
 
             # FIXED: create_viewer_tab with local() to capture tab_id correctly
-            create_viewer_tab <- function(tab_id, dataset_name, dataset, show_close_btn = TRUE) {
+            create_viewer_tab <- function(tab_id, dataset_name, dataset, show_close_btn = TRUE) { # nolint
               tab_title <- if (show_close_btn) {
                 shiny::tagList(
                   tolower(dataset_name),
@@ -527,7 +529,7 @@ dataviewer <- function(..., background = NULL, port = NULL) {
 
       # Helper function to create viewer tab
       # FIXED: Uses local() to properly capture tab_id
-      create_viewer_tab <- function(tab_id, dataset_name, dataset, show_close_btn = TRUE) {
+      create_viewer_tab <- function(tab_id, dataset_name, dataset, show_close_btn = TRUE) { # nolint
         # Create tab title with or without close button
         tab_title <- if (show_close_btn) {
           shiny::tagList(
