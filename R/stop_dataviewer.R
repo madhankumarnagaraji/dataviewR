@@ -1,10 +1,15 @@
+# nolint start: line_length_linter
 #' Stop a Specific or Most Recent Dataviewer Process
 #'
-#' @param id Character string specifying the process ID to stop. If NULL, stops the most recent background dataviewer.
+#' @param id Character string specifying the process ID to stop.
+#' If NULL, stops the most recent background dataviewer.
 #'
-#' @seealso For more information, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}.
+#' @seealso For more information, please
+#' refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}.
 #'
 #' @export
+# nolint end
+
 stop_dataviewer <- function(id = NULL) {
   # If no ID specified and no processes running, just message and return
   if (is.null(id) && length(.dataviewer_env$processes) == 0) {
@@ -21,7 +26,10 @@ stop_dataviewer <- function(id = NULL) {
   # Check if process exists - throw error if specific ID not found
   if (!id %in% names(.dataviewer_env$processes)) {
     if (length(.dataviewer_env$processes) == 0) {
-      stop("Process '", id, "' not found. No background dataviewer processes are running.")
+      stop(
+        "Process '", id,
+        "' not found. No background dataviewer processes are running."
+      )
     } else {
       available <- paste(names(.dataviewer_env$processes), collapse = ", ")
       stop("Process '", id, "' not found. Available processes: ", available)

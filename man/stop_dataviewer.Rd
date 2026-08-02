@@ -7,11 +7,13 @@
 stop_dataviewer(id = NULL)
 }
 \arguments{
-\item{id}{Character string specifying the process ID to stop. If NULL, stops the most recent background dataviewer.}
+\item{id}{Character string specifying the process ID to stop.
+If NULL, stops the most recent background dataviewer.}
 }
 \description{
 Stop a Specific or Most Recent Dataviewer Process
 }
 \seealso{
-For more information, please refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}.
+For more information, please
+refer to the \href{https://madhankumarnagaraji.github.io/dataviewR/articles/Exporting-and-Reproducibility.html#to-stop-dataviewr-sessions}{documentation}.
 }

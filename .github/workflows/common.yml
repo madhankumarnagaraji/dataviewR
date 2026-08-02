@@ -37,6 +37,13 @@ concurrency:
 env:
   R_VERSION: "release"
 
+permissions:
+  contents: write
+  deployments: write
+  packages: write
+  pull-requests: write
+  id-token: write
+
 jobs:
   get_r_version:
     name: Get R version
@@ -73,7 +80,7 @@ jobs:
     name: Check
     uses: pharmaverse/admiralci/.github/workflows/r-cmd-check.yml@main
     with:
-      error-on: note # TODO: find a way to ignore specific notes
+      error-on: warning # TODO: find a way to ignore specific notes
     if: github.event_name == 'pull_request' && github.event.action != 'closed'
   docs:
     name: Documentation

@@ -26,7 +26,8 @@ test_that("Module: Handles Column Names with Spaces (Quoting)", {
     # 2. Check Code Generation - must use backticks: select(`Col A`)
     code <- generated_code()
     expect_match(code, "select\\(`Col A`\\)")
-    expect_false(grepl("select\\(Col A\\)", code)) # Should NOT see unquoted version
+    # Should NOT see unquoted version
+    expect_false(grepl("select\\(Col A\\)", code))
   })
 })
 
@@ -35,8 +36,8 @@ test_that("Module: NA display for character variables shows <NA>", {
   # so they are visible in the DT quick-filter box.
 
   char_na_data <- data.frame(
-    id      = 1:3,
-    label   = c("apple", NA_character_, "cherry"),
+    id = 1:3,
+    label = c("apple", NA_character_, "cherry"),
     stringsAsFactors = FALSE
   )
 
@@ -61,7 +62,7 @@ test_that("Module: NA display for factor variables shows <NA>", {
   # consistent with the character NA behaviour.
 
   factor_data <- data.frame(
-    id  = 1:3,
+    id = 1:3,
     cat = factor(c("A", "B", NA)),
     stringsAsFactors = TRUE
   )
@@ -86,7 +87,7 @@ test_that("Module: NA display for factor variables shows <NA>", {
   })
 })
 
-test_that("Module: NA display for numeric/integer/logical types stays as true NA", {
+test_that("Module: NA display for numeric/integer/logical stays as true NA", {
   # Numeric and integer NAs must NOT be converted to strings. They remain
   # proper R NAs since final_df() only applies across() to character/factor
   # and logical columns, never to numeric/integer.
@@ -99,8 +100,8 @@ test_that("Module: NA display for numeric/integer/logical types stays as true NA
   # check that "TRUE" and "FALSE" appear as levels, with no lowercase versions.
 
   na_data <- data.frame(
-    int_col  = c(1L, NA_integer_, 3L),
-    dbl_col  = c(1.1, NA_real_,   3.3),
+    int_col = c(1L, NA_integer_, 3L),
+    dbl_col = c(1.1, NA_real_, 3.3),
     logi_col = c(TRUE, NA, FALSE),
     stringsAsFactors = FALSE
   )
@@ -126,9 +127,9 @@ test_that("Module: NA display for numeric/integer/logical types stays as true NA
     # We do NOT assert anything about the NA level name because its label
     # is forcats-version-dependent.
     logi_levels <- levels(res$logi_col)
-    expect_true("TRUE"  %in% logi_levels)
+    expect_true("TRUE" %in% logi_levels)
     expect_true("FALSE" %in% logi_levels)
-    expect_false("true"  %in% logi_levels)
+    expect_false("true" %in% logi_levels)
     expect_false("false" %in% logi_levels)
   })
 })
@@ -172,7 +173,7 @@ test_that("Module: Generates valid code for complex filters", {
   ), {
     session$setInputs(columns = names(mtcars), filter = "", load = 1)
 
-    # Test %in% operator
+    # Test '%in%' operator
     session$setInputs(filter = "cyl %in% c(4, 6)")
     session$setInputs(submit = 1)
 
@@ -185,7 +186,7 @@ test_that("Module: Generates valid code for complex filters", {
   })
 })
 
-test_that("Module: Metadata contains expected col_type values for new datatypes", {
+test_that("Module: Metadata contains expected col_type for new datatypes", {
   # Verifies that meta_cols() correctly recognises integer, double, character,
   # factor, logical, datetime (POSIXct) and difftime columns, which all received
   # new/updated icons in this release.
@@ -193,7 +194,7 @@ test_that("Module: Metadata contains expected col_type values for new datatypes"
   # Key implementation details that shape how we test:
   #
   # 1. meta_cols() builds col_name as an HTML string:
-  #      "<span style='font-size:18px'>EMOJI</span> colname"
+  #    '<span style='font-size:18px'>EMOJI</span> colname'
   #    Stripping HTML tags with gsub("<[^>]+>", ...) removes <span> but leaves
   #    the emoji character(s) before the space and column name. We therefore
   #    use grepl() to check that each column name appears as a SUBSTRING of
@@ -244,11 +245,11 @@ test_that("Module: Metadata contains expected col_type values for new datatypes"
   # directly, which is the reactive that feeds the icon-selection case_when.
   typed_data <- data.frame(
     logi_col = c(TRUE, FALSE),
-    fct_col  = factor(c("x", "y")),
+    fct_col = factor(c("x", "y")),
     stringsAsFactors = FALSE
   )
   typed_data$dttm_col <- as.POSIXct(c("2024-01-01", "2024-01-02"), tz = "UTC")
-  typed_data$dur_col  <- as.difftime(c(10, 20), units = "secs")
+  typed_data$dur_col <- as.difftime(c(10, 20), units = "secs")
 
   testServer(dataviewer_tab_server, args = list(
     get_data = reactive(typed_data),
@@ -261,14 +262,22 @@ test_that("Module: Metadata contains expected col_type values for new datatypes"
     # class_df() must produce rows for these columns if generate_dictionary
     # recognises them. If the dictionary returns empty for this machine's
     # labelled version, we skip rather than fail.
-    skip_if(nrow(cd) == 0, "labelled::generate_dictionary() returned no rows for typed_data on this system")
+    skip_if(
+      nrow(cd) == 0,
+      paste0(
+        "labelled::generate_dictionary() returned no rows",
+        " for typed_data on this system"
+      )
+    )
 
     recognised_cols <- cd$colname
 
     # For each recognised column, verify the col_type is one the server's
     # case_when handles (lgl, fct, dttm, drtn).
-    known_types <- c("int", "dbl", "chr", "fct", "lgl", "date", "dttm",
-                     "Period", "time", "drtn")
+    known_types <- c(
+      "int", "dbl", "chr", "fct", "lgl", "date", "dttm",
+      "Period", "time", "drtn"
+    )
 
     for (col in recognised_cols) {
       ct <- cd$col_type[cd$colname == col]

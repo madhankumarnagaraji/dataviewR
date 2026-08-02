@@ -4,7 +4,6 @@ library(dplyr)
 library(labelled) # Ensure this is loaded for the metadata test
 
 test_that("Module: Data loading and initialization", {
-
   # Mock data
   test_data <- mtcars
   test_data$cyl <- as.factor(test_data$cyl)
@@ -117,7 +116,8 @@ test_that("Module: R Code Generation", {
     expect_match(code, "library\\(dplyr\\)")
     expect_match(code, "mtcars")
     expect_false(grepl("filter", code))
-    expect_false(grepl("select", code)) # select() must NOT appear when all columns selected
+    # select() must NOT appear when all columns selected
+    expect_false(grepl("select", code))
 
     # Case 2: Filter only
     session$setInputs(filter = "mpg > 20")
@@ -163,13 +163,15 @@ test_that("Module: Row and Column Count Outputs", {
     session$setInputs(columns = c("mpg", "cyl", "hp"))
     expect_equal(output$selectedcols, "3")
 
-    # Total columns must remain unchanged (it reflects the raw dataset, not the selection)
+    # Total columns must remain unchanged
+    # (it reflects the raw dataset, not the selection)
     expect_equal(output$totalcols, format(ncol(mtcars), big.mark = ","))
   })
 })
 
 # Note: output$filteredrows depends on input$tbl_rows_all which is a DT-specific
-# input populated only in a real browser session. It cannot be reliably unit-tested
+# input populated only in a real browser session.
+# It cannot be reliably unit-tested
 # via testServer() and is better covered by a shinytest2 integration test.
 
 test_that("Module: Metadata Extraction", {

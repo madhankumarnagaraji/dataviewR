@@ -27,7 +27,7 @@ reproducible workflows.
 ## ✨ Key Features
 
 - **Interactive Data Exploration**: View any R `data.frame` or `tibble`
-  in an elegant Shiny interface
+  or `data.table` in an elegant Shiny interface
 - **Multi-Dataset Support** — View multiple datasets at once, e.g.,
   `dataviewer(iris, mtcars)`  
 - **Advanced Filtering**: Apply complex `dplyr` compatible filter
@@ -109,14 +109,14 @@ repository](https://github.com/madhankumarnagaraji/dataviewR)
 or open an [issue
 here](https://github.com/madhankumarnagaraji/dataviewR/issues).
 
-## Acknowlegement
+## Acknowledgement
 
 We sincerely thank the authors and maintainers of the `DT`, `shiny`,
 `dplyr`, `datamods`, `testthat`, `forcats`, `purrr`, `stringr`, `callr`,
 `rstudioapi` packages and DataTables JavaScript library, their work made
 this package possible.
 
-License
+## License
 
 This package is licensed under the [MIT
 License](https://madhankumarnagaraji.github.io/dataviewR/LICENSE-text.html).

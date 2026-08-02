@@ -1,3 +1,8 @@
+# Define global variables for NSE evaluation in dplyr / tidyselect
+utils::globalVariables(c(
+  ".data", "pos", "colname", "col_type", "col_name", "att", "value"
+))
+
 #' Internal function for data viewer tab server logic
 #'
 #' @param id The module's namespace ID.
@@ -5,9 +10,7 @@
 #' @param dataset_name A reactive expression returning the dataset's name.
 #' @noRd
 dataviewer_tab_server <- function(id, get_data, dataset_name) {
-
   shiny::moduleServer(id, function(input, output, session) {
-
     # --------------------------------------------------
     # REMOVED: "Atomic Batch" Enter Key Handler
     # Filtering is now triggered exclusively by the Submit button.
@@ -53,26 +56,29 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     })
 
     # FIX: Update columns checkboxes with priority and proper selection logic
-    shiny::observe({
-      shiny::req(get_data())
+    shiny::observe(
+      {
+        shiny::req(get_data())
 
-      # Get columns and current selection state
-      columns <- names(get_data())
-      select_all <- isTRUE(input$cols_all)
+        # Get columns and current selection state
+        columns <- names(get_data())
+        select_all <- isTRUE(input$cols_all)
 
-      # FIX: Properly respect the checkbox state
-      shiny::updateCheckboxGroupInput(
-        session, "columns",
-        label = NULL,
-        choices = columns,
-        selected = if (select_all) columns else NULL  # FIXED: Now respects deselect
-      )
+        # FIX: Properly respect the checkbox state
+        shiny::updateCheckboxGroupInput(
+          session, "columns",
+          label = NULL,
+          choices = columns,
+          selected = if (select_all) columns else NULL
+        )
 
-      # Mark as initialized after first update
-      if (!initialized()) {
-        initialized(TRUE)
-      }
-    }, priority = 100)  # High priority to ensure it runs first
+        # Mark as initialized after first update
+        if (!initialized()) {
+          initialized(TRUE)
+        }
+      },
+      priority = 100
+    ) # High priority to ensure it runs first
 
     # Update filter placeholder
     shiny::observe({
@@ -89,10 +95,13 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       last_action("submit")
     })
 
-    shiny::observeEvent(input$clear, {
-      shiny::updateTextInput(session, "filter", value = "")
-      last_action("clear")
-    }, priority = 100)
+    shiny::observeEvent(input$clear,
+      {
+        shiny::updateTextInput(session, "filter", value = "")
+        last_action("clear")
+      },
+      priority = 100
+    )
 
     validate_filter_expression <- function(expr) {
       # Basic validation: check for dangerous patterns
@@ -106,12 +115,15 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       }
 
       # Check if it's a valid R expression
-      tryCatch({
-        parse(text = expr)
-        TRUE
-      }, error = function(e) {
-        stop("Invalid R syntax: ", e$message)
-      })
+      tryCatch(
+        {
+          parse(text = expr)
+          TRUE
+        },
+        error = function(e) {
+          stop("Invalid R syntax: ", e$message)
+        }
+      )
     }
 
     # Filter dataframe
@@ -128,24 +140,29 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         }
 
         if (stringr::str_trim(input$filter) != "") {
-          tryCatch({
+          tryCatch(
+            {
+              # --- FIX : Clear any previous error notification on success ---
+              shiny::removeNotification(id = "filter_error")
+              # ---------------------------------------------------------------
 
-            # --- FIX : Clear any previous error notification on success ---
-            shiny::removeNotification(id = "filter_error")
-            # ---------------------------------------------------------------
-
-            validate_filter_expression(input$filter)
-            dplyr::filter(get_data(), eval(parse(text = input$filter)))
-
-          }, error = function(e) {
-            shiny::showNotification(
-              paste0("Invalid filter condition: ", e$message),
-              type = "error",
-              duration = 5,
-              id = "filter_error"  # Giving a name so we can remove the error notification later
-            )
-            get_data()
-          })
+              validate_filter_expression(input$filter)
+              dplyr::filter(
+                get_data(),
+                eval(parse(text = input$filter))
+              )
+            },
+            error = function(e) {
+              shiny::showNotification(
+                paste0("Invalid filter condition: ", e$message),
+                type = "error",
+                duration = 5,
+                # Giving a name so we can remove the error notification later
+                id = "filter_error"
+              )
+              get_data()
+            }
+          )
         } else {
           # Also remove error if input is empty
           shiny::removeNotification(id = "filter_error")
@@ -158,7 +175,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     filter_code <- shiny::reactive({
       if (stringr::str_trim(input$filter) != "") {
         paste0("filter(", input$filter, ")")
-      } else NULL
+      } else {
+        NULL
+      }
     })
 
     # Selected columns code
@@ -166,11 +185,16 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       selected_cols <- input$columns
       all_cols <- names(get_data())
 
-      if (length(selected_cols) > 0 && length(selected_cols) < length(all_cols)) {
-        needs_quotes <- !grepl("^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols)
-        formatted_cols <- ifelse(needs_quotes,
-                                 paste0("`", selected_cols, "`"),
-                                 selected_cols)
+      if (length(selected_cols) > 0 &&
+        length(selected_cols) < length(all_cols)) { # nolint
+        needs_quotes <- !grepl(
+          "^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols
+        )
+        formatted_cols <- ifelse(
+          needs_quotes,
+          paste0("`", selected_cols, "`"),
+          selected_cols
+        )
         paste0("select(", paste(formatted_cols, collapse = ", "), ")")
       } else {
         NULL
@@ -200,7 +224,8 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       if (has_filter) {
         code_lines <- c(code_lines, paste0("  ", filter_code()))
         if (has_select) {
-          code_lines[length(code_lines)] <- paste0(code_lines[length(code_lines)], " |>")
+          last_line_idx <- length(code_lines)
+          code_lines[last_line_idx] <- paste0(code_lines[last_line_idx], " |>")
         }
       }
 
@@ -219,7 +244,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           id = session$ns("code_output"),
           rows = 10,
           style = "width:100%;",
-          readonly = "readonly", # FIX: Makes the textarea non-editable for the user
+          readonly = "readonly", # FIX: Makes the textarea non-editable
           generated_code()
         ),
         shiny::br(),
@@ -232,8 +257,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Copy button
     shiny::observeEvent(input$copy_btn, {
       js_code <- sprintf(
-        "var copyText = document.getElementById('%s'); copyText.select(); document.execCommand('copy');",
-        session$ns("code_output")
+        "var copyText = document.getElementById('%s'); copyText.select(); %s",
+        session$ns("code_output"),
+        "document.execCommand('copy');"
       )
       shinyjs::runjs(js_code)
     })
@@ -252,15 +278,19 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       dplyr::mutate(
         cols_df(),
-        # 1. Handle character/factor NAs (converting to "<NA>" to show it in the quick filter box)
+        # 1. Handle character/factor NAs (converting to "<NA>")
+        # to show it in the quick filter box
         dplyr::across(
-          where(is.character) | where(is.factor),
-          ~forcats::fct_drop(forcats::fct_na_value_to_level(as.factor(.x), level = "<NA>"))
+          tidyselect::where(is.character) | tidyselect::where(is.factor),
+          ~ forcats::fct_drop(
+            forcats::fct_na_value_to_level(as.factor(.x), level = "<NA>")
+          )
         ),
-        # 2. Handling the lowercase issue of logical columns in DT by converting it to uppercase for R consistency (in the quick filter box)
+        # 2. Handling the lowercase issue of logical columns in DT
+        # by converting to uppercase for R consistency (in the quick filter box)
         dplyr::across(
-          where(is.logical),
-          ~forcats::fct_drop(forcats::fct_na_value_to_level(as.factor(.x)))
+          tidyselect::where(is.logical),
+          ~ forcats::fct_drop(forcats::fct_na_value_to_level(as.factor(.x)))
         )
       )
     })
@@ -272,7 +302,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # CSV download handler
     output$download_csv <- shiny::downloadHandler(
       filename = function() {
-        paste0(dataset_name(), "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv")
+        paste0(
+          dataset_name(), "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".csv"
+        )
       },
       content = function(file) {
         df <- final_df()
@@ -286,7 +318,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Excel download handler
     output$download_excel <- shiny::downloadHandler(
       filename = function() {
-        paste0(dataset_name(), "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".xlsx")
+        paste0(
+          dataset_name(), "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".xlsx"
+        )
       },
       content = function(file) {
         df <- final_df()
@@ -303,10 +337,14 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       att_list <- purrr::map(get_data(), attributes)
       if (all(purrr::map_lgl(att_list, is.null))) {
-        return(tibble::tibble(colname = character(), att = character(), value = character()))
+        return(tibble::tibble(
+          colname = character(), att = character(), value = character()
+        ))
       }
       purrr::imap_dfr(att_list, function(attr, colname) {
-        if (is.null(attr)) return(NULL)
+        if (is.null(attr)) {
+          return(NULL)
+        }
         tibble::tibble(
           colname = colname,
           att = names(attr),
@@ -318,9 +356,14 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     class_df <- shiny::reactive({
       shiny::req(get_data())
 
-      dict <- tryCatch(labelled::generate_dictionary(get_data()), error = function(e) NULL)
+      dict <- tryCatch(
+        labelled::generate_dictionary(get_data()),
+        error = function(e) NULL
+      )
       if (is.null(dict) || nrow(dict) == 0) {
-        return(tibble::tibble(pos = integer(), colname = character(), col_type = character()))
+        return(tibble::tibble(
+          pos = integer(), colname = character(), col_type = character()
+        ))
       }
       dict |>
         dplyr::mutate(colname = .data$variable) |>
@@ -332,44 +375,76 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       dplyr::left_join(class_df(), att_cols(), by = "colname") |>
         dplyr::mutate(col_name = dplyr::case_when(
-          col_type == "int" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname),
-          col_type == "dbl" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname),
-          col_type == "chr" ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
-          col_type == "fct" ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
-          col_type == "lgl" ~ paste0("<span style='font-size:18px'>", "\U0001F501", "</span> ", colname),
-          col_type == "date" ~ paste0("<span style='font-size:18px'>", "\U0001F4C5", "</span> ", colname),
-          col_type == "dttm" ~ paste0("<span style='font-size:18px'>", "\U0001F4C5\U0001F552", "</span> ", colname),
-          col_type == "Period" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
-          col_type == "time" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
-          col_type == "drtn" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
-          TRUE ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname)
+          col_type == "int" ~ paste0(
+            "<span style='font-size:18px'>", "\u0023\uFE0F\u20E3",
+            "</span> ", colname
+          ),
+          col_type == "dbl" ~ paste0(
+            "<span style='font-size:18px'>", "\u0023\uFE0F\u20E3",
+            "</span> ", colname
+          ),
+          col_type == "chr" ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F520", "</span> ", colname
+          ),
+          col_type == "fct" ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F520", "</span> ", colname
+          ),
+          col_type == "lgl" ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F501", "</span> ", colname
+          ),
+          col_type == "date" ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F4C5", "</span> ", colname
+          ),
+          col_type == "dttm" ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F4C5\U0001F552",
+            "</span> ", colname
+          ),
+          col_type == "Period" ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F552", "</span> ", colname
+          ),
+          col_type == "time" ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F552", "</span> ", colname
+          ),
+          col_type == "drtn" ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F552", "</span> ", colname
+          ),
+          TRUE ~ paste0(
+            "<span style='font-size:18px'>", "\U0001F520", "</span> ", colname
+          )
         )) |>
         dplyr::select(pos, col_name, att, value) |>
-        labelled::set_variable_labels(col_name = "Variable Name", att = "Attribute", value = "Value")
+        labelled::set_variable_labels(
+          col_name = "Variable Name", att = "Attribute", value = "Value"
+        )
     })
 
     # Sidebar table renderer
-    output$metainfo <- shiny::renderTable({
-      shiny::req(get_data())
+    output$metainfo <- shiny::renderTable(
+      {
+        shiny::req(get_data())
 
-      meta_cols() |>
-        dplyr::arrange(pos, att) |>
-        dplyr::group_by(col_name) |>
-        dplyr::mutate(col_name = ifelse(dplyr::row_number() == 1, col_name, "")) |>
-        dplyr::ungroup() |>
-        dplyr::select(col_name, att, value) |>
-        stats::setNames(c("Variable Name", "Attribute", "Value"))
-    },
-    bordered = TRUE,
-    # it solves the HTML tag escaping issue
-    sanitize.text.function = identity)
+        meta_cols() |>
+          dplyr::arrange(pos, att) |>
+          dplyr::group_by(col_name) |>
+          dplyr::mutate(
+            col_name = ifelse(dplyr::row_number() == 1, col_name, "")
+          ) |>
+          dplyr::ungroup() |>
+          dplyr::select(col_name, att, value) |>
+          stats::setNames(c("Variable Name", "Attribute", "Value"))
+      },
+      bordered = TRUE,
+      # it solves the HTML tag escaping issue
+      sanitize.text.function = identity
+    )
 
     # Observer for the pop-out modal
     shiny::observeEvent(input$popout_meta, {
       shiny::showModal(shiny::modalDialog(
         title = paste(dataset_name(), "- Attribute Info"),
-        shiny::div(style = "max-height: 70vh; overflow-y: auto;",
-                   shiny::tableOutput(session$ns("metainfo_modal"))
+        shiny::div(
+          style = "max-height: 70vh; overflow-y: auto;",
+          shiny::tableOutput(session$ns("metainfo_modal"))
         ),
         easyClose = TRUE,
         footer = shiny::modalButton("Close")
@@ -377,18 +452,22 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     })
 
     # Renderer for the modal's table
-    output$metainfo_modal <- shiny::renderTable({
-      meta_cols() |>
-        dplyr::arrange(pos, att) |>
-        dplyr::group_by(col_name) |>
-        dplyr::mutate(col_name = ifelse(dplyr::row_number() == 1, col_name, "")) |>
-        dplyr::ungroup() |>
-        dplyr::select(col_name, att, value) |>
-        stats::setNames(c("Variable Name", "Attribute", "Value"))
-    },
-    bordered = TRUE,
-    # it solves the HTML tag escaping issue
-    sanitize.text.function = identity)
+    output$metainfo_modal <- shiny::renderTable(
+      {
+        meta_cols() |>
+          dplyr::arrange(pos, att) |>
+          dplyr::group_by(col_name) |>
+          dplyr::mutate(
+            col_name = ifelse(dplyr::row_number() == 1, col_name, "")
+          ) |>
+          dplyr::ungroup() |>
+          dplyr::select(col_name, att, value) |>
+          stats::setNames(c("Variable Name", "Attribute", "Value"))
+      },
+      bordered = TRUE,
+      # it solves the HTML tag escaping issue
+      sanitize.text.function = identity
+    )
 
     # Render table - FIX: Handle empty column selection
     output$tbl <- DT::renderDT({
@@ -396,14 +475,16 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       if (is.null(df)) {
         # Return empty data frame with message
         return(DT::datatable(
-          data.frame(Message = "No columns selected. Please select at least one column."),
-          options = list(dom = 't', ordering = FALSE),
+          data.frame(
+            Message = "No columns selected. Please select at least one column."
+          ),
+          options = list(dom = "t", ordering = FALSE),
           rownames = FALSE
         ))
       }
 
       # Define the JavaScript callback for NA styling and Logical Uppercasing
-      rowCallback_js <- c(
+      row_callback_js <- c(
         "function(row, data){",
         "  for(var i=0; i<data.length; i++){",
         "    // Handle Logical values (true/false to TRUE/FALSE)",
@@ -432,12 +513,12 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           autoWidth = FALSE,
           searchHighlight = TRUE,
           keys = TRUE,
-          # Download button removed from DT buttons: it only exported visible/filtered rows.
-          # Custom Shiny downloadHandler buttons (CSV & Excel) are now used instead,
-          # which export the full current rendered dataset (after filter + column selection).
-          dom = 'Bfrtip',
-          rowCallback = DT::JS(rowCallback_js), # Handles the missing values as NA
-          buttons = list('copy'),
+          # Download removed from DT: it only exported visible/filtered rows
+          # Custom Shiny downloadHandler (CSV & Excel) are now used instead,
+          # which export the rendered dataset (after filter + column selection).
+          dom = "Bfrtip",
+          rowCallback = DT::JS(row_callback_js), # Handles missing values as NA
+          buttons = list("copy"),
           drawCallback = DT::JS(sprintf("
             function(settings) {
               var tableId = '%s';
@@ -452,9 +533,11 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
               if (window && window.ensureDTFooterMovedTop) {
                 window.ensureDTFooterMovedTop(tableId);
               }
-              $(document).on('focus mousedown', '.dataTables_wrapper input[type=\"search\"]', function(e) {
-                e.stopPropagation();
-              });
+              $(document).on(
+                'focus mousedown',
+                '.dataTables_wrapper input[type=\"search\"]',
+                function(e) { e.stopPropagation(); }
+              );
             }
           ", session$ns("tbl")))
         )
@@ -464,13 +547,15 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Safeguard observer
     shiny::observe({
       shiny::req(final_df())
-      shinyjs::runjs(sprintf("if(window && window.ensureDTFooterMovedTop){ window.ensureDTFooterMovedTop('%s'); }", session$ns("tbl")))
+      shinyjs::runjs(sprintf(
+        "if(window && window.ensureDTFooterMovedTop){ %s }",
+        sprintf("window.ensureDTFooterMovedTop('%s');", session$ns("tbl"))
+      ))
     })
 
     # Custom row info output
     output$row_info <- shiny::renderText({
       ""
     })
-
   }) # End moduleServer
 }

@@ -2,7 +2,8 @@ library(testthat)
 library(dataviewR)
 
 test_that("dataviewer launches in background and stops correctly", {
-  # Skip these tests on CRAN to prevent issues with background processes on build servers
+  # Skip these tests on CRAN to prevent issues
+  # with background processes on build servers
   skip_on_cran()
 
   # MOCKING: prevent the test from actually opening a browser or RStudio viewer
@@ -29,9 +30,12 @@ test_that("dataviewer launches in background and stops correctly", {
   # Capture the ID returned by the function
   # We expect a message about "Starting dataviewer"
   pid <- NULL
-  expect_message({
-    pid <- dataviewer(mtcars, background = TRUE)
-  }, "Starting dataviewer")
+  expect_message(
+    {
+      pid <- dataviewer(mtcars, background = TRUE)
+    },
+    "Starting dataviewer"
+  )
 
   # Assertions
   expect_type(pid, "character")
@@ -46,9 +50,12 @@ test_that("dataviewer launches in background and stops correctly", {
   # --- TEST 2: Stop Logic ---
   message("Testing stop...")
 
-  expect_message({
-    stop_dataviewer(pid)
-  }, "Stopped dataviewer process")
+  expect_message(
+    {
+      stop_dataviewer(pid)
+    },
+    "Stopped dataviewer process"
+  )
 
   # Verify it is gone from the environment
   expect_false(pid %in% names(env$processes))
@@ -61,7 +68,8 @@ test_that("dataviewer handles foreground mode for Import", {
   skip_on_cran()
 
   # When no dataset is provided, it defaults to foreground and import mode.
-  # Testing this fully requires interacting with Shiny, so we just check the return type
+  # Testing this fully requires interacting with Shiny,
+  # so we just check the return type
   # or the specific message it prints before launching app.
 
   # Since foreground mode blocks execution, we can't easily test the running app
@@ -69,7 +77,8 @@ test_that("dataviewer handles foreground mode for Import", {
   # However, we can verify the trigger logic (arguments).
 
   # This part is tricky because running dataviewer() blocks the console.
-  # Usually, we skip blocking tests or run them in a separate process that we kill immediately.
+  # Usually, we skip blocking tests or run them in a separate process
+  # that we kill immediately.
   # For now, we will skip the blocking foreground test in this basic suite.
   succeed("Foreground test skipped (requires interactive session)")
 })
