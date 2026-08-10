@@ -8,6 +8,7 @@ utils::globalVariables(c(
 #' @param id The module's namespace ID.
 #' @param get_data A reactive expression returning the dataset.
 #' @param dataset_name A reactive expression returning the dataset's name.
+#'
 #' @noRd
 dataviewer_tab_server <- function(id, get_data, dataset_name) {
   shiny::moduleServer(id, function(input, output, session) {
@@ -18,7 +19,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     # This reactive value is now internal to the module
     last_action <- shiny::reactiveVal("load")
-
     # FIX: Add initialization flag
     initialized <- shiny::reactiveVal(FALSE)
 
@@ -59,7 +59,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     shiny::observe(
       {
         shiny::req(get_data())
-
         # Get columns and current selection state
         columns <- names(get_data())
         select_all <- isTRUE(input$cols_all)
@@ -71,7 +70,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           choices = columns,
           selected = if (select_all) columns else NULL
         )
-
         # Mark as initialized after first update
         if (!initialized()) {
           initialized(TRUE)
@@ -109,7 +107,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         "system\\(", "shell\\(", "eval\\(",
         "source\\(", ":::", "assign\\("
       )
-
       if (any(sapply(dangerous_patterns, grepl, x = expr))) {
         stop("Potentially unsafe expression detected")
       }
@@ -124,6 +121,58 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           stop("Invalid R syntax: ", e$message)
         }
       )
+    }
+
+    # Helper function to enforce strict type checking in filter expressions
+    create_strict_env <- function(parent_env) {
+      env <- new.env(parent = parent_env)
+
+      get_type_group <- function(x) {
+        if (is.null(x)) return("null")
+        if (is.numeric(x)) return("numeric") # encompasses both integer and double
+        if (is.character(x) || is.factor(x) || is.ordered(x)) return("character")
+        if (is.logical(x)) return("logical")
+        if (inherits(x, c("Date", "POSIXt", "POSIXct"))) return("date")
+        class(x)[1]
+      }
+
+      make_strict_op <- function(op) {
+        function(e1, e2) {
+          # Allow zero-length or NA bypass (since NA adapts to data types inherently)
+          if (length(e1) == 0 || length(e2) == 0 || all(is.na(e1)) || all(is.na(e2))) {
+            return(get(op, envir = baseenv())(e1, e2))
+          }
+          tg1 <- get_type_group(e1)
+          tg2 <- get_type_group(e2)
+          if (tg1 != tg2) {
+            stop(sprintf("Type mismatch in '%s': cannot compare %s with %s",
+                         op, class(e1)[1], class(e2)[1]), call. = FALSE)
+          }
+          get(op, envir = baseenv())(e1, e2)
+        }
+      }
+
+      env$`==` <- make_strict_op("==")
+      env$`!=` <- make_strict_op("!=")
+      env$`<`  <- make_strict_op("<")
+      env$`>`  <- make_strict_op(">")
+      env$`<=` <- make_strict_op("<=")
+      env$`>=` <- make_strict_op(">=")
+
+      env$`%in%` <- function(x, table) {
+        if (length(x) == 0 || length(table) == 0 || all(is.na(x)) || all(is.na(table))) {
+          return(base::`%in%`(x, table))
+        }
+        tg1 <- get_type_group(x)
+        tg2 <- get_type_group(table)
+        if (tg1 != tg2) {
+          stop(sprintf("Type mismatch in '%%in%%': cannot compare %s with %s",
+                       class(x)[1], class(table)[1]), call. = FALSE)
+        }
+        base::`%in%`(x, table)
+      }
+
+      env
     }
 
     # Filter dataframe
@@ -145,11 +194,23 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
               # --- FIX : Clear any previous error notification on success ---
               shiny::removeNotification(id = "filter_error")
               # ---------------------------------------------------------------
-
               validate_filter_expression(input$filter)
+
+              # Parse the expression. Commas allow for multiple expressions
+              parsed_exprs <- parse(text = input$filter)
+
+              # Create an environment that shadows base relational operators for strict checking
+              strict_env <- create_strict_env(environment())
+
+              # Generate quosures linked to the strict environment
+              quo_exprs <- lapply(parsed_exprs, function(e) {
+                rlang::new_quosure(e, env = strict_env)
+              })
+
+              # Evaluate expressions using unquote-splice (!!!)
               dplyr::filter(
                 get_data(),
-                eval(parse(text = input$filter))
+                !!!quo_exprs
               )
             },
             error = function(e) {
@@ -334,7 +395,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # --- Metadata Reactives ---
     att_cols <- shiny::reactive({
       shiny::req(get_data())
-
       att_list <- purrr::map(get_data(), attributes)
       if (all(purrr::map_lgl(att_list, is.null))) {
         return(tibble::tibble(
@@ -355,7 +415,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     class_df <- shiny::reactive({
       shiny::req(get_data())
-
       dict <- tryCatch(
         labelled::generate_dictionary(get_data()),
         error = function(e) NULL
@@ -372,7 +431,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     meta_cols <- shiny::reactive({
       shiny::req(get_data())
-
       dplyr::left_join(class_df(), att_cols(), by = "colname") |>
         dplyr::mutate(col_name = dplyr::case_when(
           col_type == "int" ~ paste0(
@@ -422,7 +480,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     output$metainfo <- shiny::renderTable(
       {
         shiny::req(get_data())
-
         meta_cols() |>
           dplyr::arrange(pos, att) |>
           dplyr::group_by(col_name) |>
@@ -472,6 +529,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Render table - FIX: Handle empty column selection
     output$tbl <- DT::renderDT({
       df <- final_df()
+
       if (is.null(df)) {
         # Return empty data frame with message
         return(DT::datatable(
