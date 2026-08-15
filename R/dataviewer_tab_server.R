@@ -145,22 +145,33 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
               validate_filter_expression(input$filter)
 
               # --- PRE-EVALUATION STRICT TYPE CHECK ---
-              # We evaluate the expression in base R first using custom operators
+              # We evaluate the expression in base R first using custom operator
               # to catch type mismatches before dplyr bypasses them.
               env <- new.env(parent = globalenv())
 
               get_type_group <- function(x) {
-                if (is.null(x)) return("null")
-                if (is.numeric(x)) return("numeric")
-                if (is.character(x) || is.factor(x) || is.ordered(x)) return("character/factor")
-                if (is.logical(x)) return("logical")
-                if (inherits(x, c("Date", "POSIXt", "POSIXct"))) return("Date/POSIXct")
+                if (is.null(x)) {
+                  return("null")
+                }
+                if (is.numeric(x)) {
+                  return("numeric")
+                }
+                if (is.character(x) || is.factor(x) || is.ordered(x)) {
+                  return("character/factor")
+                }
+                if (is.logical(x)) {
+                  return("logical")
+                }
+                if (inherits(x, c("Date", "POSIXt", "POSIXct"))) {
+                  return("Date/POSIXct")
+                }
                 class(x)[1]
               }
 
               make_strict_op <- function(base_op) {
                 function(e1, e2) {
-                  if (length(e1) == 0 || length(e2) == 0 || all(is.na(e1)) || all(is.na(e2))) {
+                  if (length(e1) == 0 || length(e2) == 0 ||
+                        all(is.na(e1)) || all(is.na(e2))) {
                     return(base_op(e1, e2))
                   }
                   tg1 <- get_type_group(e1)
@@ -168,9 +179,13 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
                   if (tg1 != tg2) {
                     if (length(e1) >= length(e2)) {
-                      msg <- sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg2, tg1)
+                      msg <- sprintf(paste0("Type mismatch: you're passing ",
+                                            "a %s value to a %s variable."),
+                                     tg2, tg1)
                     } else {
-                      msg <- sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg1, tg2)
+                      msg <- sprintf(paste0("Type mismatch: you're passing ",
+                                            "a %s value to a %s variable."),
+                                     tg1, tg2)
                     }
                     stop(msg, call. = FALSE)
                   }
@@ -180,36 +195,43 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
               env$`==` <- make_strict_op(base::`==`)
               env$`!=` <- make_strict_op(base::`!=`)
-              env$`<`  <- make_strict_op(base::`<`)
-              env$`>`  <- make_strict_op(base::`>`)
+              env$`<` <- make_strict_op(base::`<`)
+              env$`>` <- make_strict_op(base::`>`)
               env$`<=` <- make_strict_op(base::`<=`)
               env$`>=` <- make_strict_op(base::`>=`)
 
               env$`%in%` <- function(x, table) {
-                if (length(x) == 0 || length(table) == 0 || all(is.na(x)) || all(is.na(table))) {
+                if (length(x) == 0 || length(table) == 0 ||
+                      all(is.na(x)) || all(is.na(table))) {
                   return(base::`%in%`(x, table))
                 }
                 tg1 <- get_type_group(x)
                 tg2 <- get_type_group(table)
 
                 if (tg1 != tg2) {
-                  msg <- sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg2, tg1)
+                  msg <- sprintf(paste0("Type mismatch: you're passing ",
+                                        "a %s value to a %s variable."),
+                                 tg2, tg1)
                   stop(msg, call. = FALSE)
                 }
                 base::`%in%`(x, table)
               }
 
-              # Execute pre-check and ONLY intercept our custom Type mismatch errors
-              tryCatch({
-                parsed <- parse(text = input$filter)
-                for (e in parsed) {
-                  base::eval(e, envir = get_data(), enclos = env)
+              # Execute pre-check and ONLY intercept
+              # our custom Type mismatch errors
+              tryCatch(
+                {
+                  parsed <- parse(text = input$filter)
+                  for (e in parsed) {
+                    base::eval(e, envir = get_data(), enclos = env)
+                  }
+                },
+                error = function(e) {
+                  if (grepl("^Type mismatch:", e$message)) {
+                    stop(e$message, call. = FALSE)
+                  }
                 }
-              }, error = function(e) {
-                if (grepl("^Type mismatch:", e$message)) {
-                  stop(e$message, call. = FALSE)
-                }
-              })
+              )
               # ----------------------------------------
 
               # If pre-check passes, evaluate normally with dplyr
