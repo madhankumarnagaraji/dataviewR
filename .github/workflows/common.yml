@@ -111,13 +111,6 @@ jobs:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[create website]')
     secrets:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-  linter:
-    name: Lint
-    uses: pharmaverse/admiralci/.github/workflows/lintr.yml@main
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
-    needs: get_r_version
-    with:
-      r-version: "${{ needs.get_r_version.outputs.r-version }}"
   links:
     name: Links
     uses: pharmaverse/admiralci/.github/workflows/links.yml@main
