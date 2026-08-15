@@ -1,0 +1,8 @@
+linters: linters_with_defaults(
+    object_usage_linter = object_usage_linter(
+      undefined_global_variable_whitelist = c(
+        ".data", "pos", "colname", "col_type", "col_name", "att", "value",
+        ".dataviewer_env", "dataviewer_ui_head", "dataviewer_tab_ui", "dataviewer_tab_server"
+      )
+    )
+  )
