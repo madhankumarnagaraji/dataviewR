@@ -171,7 +171,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
               make_strict_op <- function(base_op) {
                 function(e1, e2) {
                   if (length(e1) == 0 || length(e2) == 0 ||
-                        all(is.na(e1)) || all(is.na(e2))) {
+                    all(is.na(e1)) || all(is.na(e2))) { # nolint
                     return(base_op(e1, e2))
                   }
                   tg1 <- get_type_group(e1)
@@ -179,13 +179,21 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
                   if (tg1 != tg2) {
                     if (length(e1) >= length(e2)) {
-                      msg <- sprintf(paste0("Type mismatch: you're passing ",
-                                            "a %s value to a %s variable."),
-                                     tg2, tg1)
+                      msg <- sprintf(
+                        paste0(
+                          "Type mismatch: you're passing ",
+                          "a %s value to a %s variable."
+                        ),
+                        tg2, tg1
+                      )
                     } else {
-                      msg <- sprintf(paste0("Type mismatch: you're passing ",
-                                            "a %s value to a %s variable."),
-                                     tg1, tg2)
+                      msg <- sprintf(
+                        paste0(
+                          "Type mismatch: you're passing ",
+                          "a %s value to a %s variable."
+                        ),
+                        tg1, tg2
+                      )
                     }
                     stop(msg, call. = FALSE)
                   }
@@ -202,16 +210,20 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
               env$`%in%` <- function(x, table) {
                 if (length(x) == 0 || length(table) == 0 ||
-                      all(is.na(x)) || all(is.na(table))) {
+                  all(is.na(x)) || all(is.na(table))) { # nolint
                   return(base::`%in%`(x, table))
                 }
                 tg1 <- get_type_group(x)
                 tg2 <- get_type_group(table)
 
                 if (tg1 != tg2) {
-                  msg <- sprintf(paste0("Type mismatch: you're passing ",
-                                        "a %s value to a %s variable."),
-                                 tg2, tg1)
+                  msg <- sprintf(
+                    paste0(
+                      "Type mismatch: you're passing ",
+                      "a %s value to a %s variable."
+                    ),
+                    tg2, tg1
+                  )
                   stop(msg, call. = FALSE)
                 }
                 base::`%in%`(x, table)
