@@ -152,9 +152,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
               get_type_group <- function(x) {
                 if (is.null(x)) return("null")
                 if (is.numeric(x)) return("numeric")
-                if (is.character(x) || is.factor(x) || is.ordered(x)) return("character")
+                if (is.character(x) || is.factor(x) || is.ordered(x)) return("character/factor")
                 if (is.logical(x)) return("logical")
-                if (inherits(x, c("Date", "POSIXt", "POSIXct"))) return("date")
+                if (inherits(x, c("Date", "POSIXt", "POSIXct"))) return("Date/POSIXct")
                 class(x)[1]
               }
 
@@ -168,9 +168,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
                   if (tg1 != tg2) {
                     if (length(e1) >= length(e2)) {
-                      msg <- sprintf("Type mismatch: you're passing a %s argument to a %s variable.", tg2, tg1)
+                      msg <- sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg2, tg1)
                     } else {
-                      msg <- sprintf("Type mismatch: you're passing a %s argument to a %s variable.", tg1, tg2)
+                      msg <- sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg1, tg2)
                     }
                     stop(msg, call. = FALSE)
                   }
@@ -193,7 +193,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                 tg2 <- get_type_group(table)
 
                 if (tg1 != tg2) {
-                  msg <- sprintf("Type mismatch: you're passing a %s argument to a %s variable.", tg2, tg1)
+                  msg <- sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg2, tg1)
                   stop(msg, call. = FALSE)
                 }
                 base::`%in%`(x, table)
