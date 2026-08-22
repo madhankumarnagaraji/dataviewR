@@ -16,7 +16,6 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 Imports:
 	shiny (>= 1.11.1),
-	rstudioapi (>= 0.13.0),
 	shinyjs,
 	DT,
 	dplyr,
@@ -28,7 +27,9 @@ Imports:
 	datamods,
 	htmlwidgets,
 	callr,
-	writexl
+	rstudioapi,
+	writexl,
+	tidyselect
 Suggests: 
     knitr,
     rmarkdown,
