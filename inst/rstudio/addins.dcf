@@ -1,0 +1,4 @@
+Name: Open Data Viewer
+Description: Launch the dataviewer app to explore datasets
+Binding: dataviewer
+Interactive: true
