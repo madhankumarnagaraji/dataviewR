@@ -3,15 +3,73 @@
 #' @noRd
 dataviewer_tab_ui <- function(id) {
   ns <- shiny::NS(id)
-
   shiny::tagList(
     shiny::br(),
     shiny::actionButton(ns("load"), "Refresh the Data"),
     shiny::actionButton(ns("generate_code"), "Generate R Code"),
-    shiny::h4(shiny::tags$strong("Filter")),
-    shiny::textInput(ns("filter"), NULL, value = "", width = "40%"),
-    shiny::actionButton(ns("clear"), "Clear"),
-    shiny::actionButton(ns("submit"), "Submit"),
+
+    shiny::h4(shiny::tags$strong("Filters")),
+
+    # --- Custom CSS for Filter UI Elements ---
+    shiny::tags$style(shiny::HTML("
+      .filter-input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 5px; /* Reduced gap between the two filter boxes */
+        width: 40%;
+        margin-bottom: 15px;
+      }
+      .filter-row {
+        display: flex;
+        align-items: center;
+      }
+      .filter-label {
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: bold;
+        color: black;
+        background-color: transparent; /* Removed background colors */
+        border: 1px solid #ccc;
+        border-right: none; /* Remove right border to attach to text box */
+        border-radius: 4px 0 0 4px; /* Round only the left corners */
+        height: 34px; /* Match standard Shiny input height */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        min-width: 110px;
+      }
+      /* Remove default Shiny wrapper margin and allow it to fill space */
+      .filter-row .form-group {
+        margin-bottom: 0 !important;
+        flex-grow: 1;
+      }
+      /* Make textarea behave like a single line with horizontal scrolling */
+      .filter-row textarea {
+        white-space: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        resize: none !important;
+        height: 34px !important;
+        line-height: 20px;
+        border-radius: 0 4px 4px 0 !important; /* Round only the right corners */
+      }
+    ")),
+
+    shiny::div(class = "filter-input-container",
+      shiny::div(class = "filter-row",
+        shiny::span("Keep Rows", class = "filter-label"),
+        shiny::textAreaInput(ns("filter"), NULL, value = "", width = "100%", rows = 1)
+      ),
+      shiny::div(class = "filter-row",
+        shiny::span("Exclude Rows", class = "filter-label"),
+        shiny::textAreaInput(ns("filter_out"), NULL, value = "", width = "100%", rows = 1)
+      )
+    ),
+
+    shiny::actionButton(ns("clear"), "Clear Filters"),
+    shiny::actionButton(ns("submit"), "Apply Filters"),
+
     shiny::sidebarLayout(
       shiny::sidebarPanel(
         shiny::fluidRow(

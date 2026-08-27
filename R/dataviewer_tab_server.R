@@ -4,11 +4,9 @@ utils::globalVariables(c(
 ))
 
 #' Internal function for data viewer tab server logic
-#'
 #' @param id The module's namespace ID.
 #' @param get_data A reactive expression returning the dataset.
 #' @param dataset_name A reactive expression returning the dataset's name.
-#'
 #' @noRd
 dataviewer_tab_server <- function(id, get_data, dataset_name) {
   shiny::moduleServer(id, function(input, output, session) {
@@ -21,6 +19,10 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     last_action <- shiny::reactiveVal("load")
     # FIX: Add initialization flag
     initialized <- shiny::reactiveVal(FALSE)
+
+    # Store validated filter expressions for code generation
+    valid_filter_str <- shiny::reactiveVal("")
+    valid_filter_out_str <- shiny::reactiveVal("")
 
     # Provide total rows output (full dataset row count)
     output$totalrows <- shiny::renderText({
@@ -80,11 +82,17 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     # Update filter placeholder
     shiny::observe({
-      shiny::updateTextInput(
+      shiny::updateTextAreaInput(
         session, "filter",
         label = NULL,
         value = "",
         placeholder = "Enter a filter condition e.g., mpg > 20 & cyl == 6"
+      )
+      shiny::updateTextAreaInput(
+        session, "filter_out",
+        label = NULL,
+        value = "",
+        placeholder = "Enter a filter_out condition e.g., gear == 3"
       )
     })
 
@@ -95,7 +103,8 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     shiny::observeEvent(input$clear,
       {
-        shiny::updateTextInput(session, "filter", value = "")
+        shiny::updateTextAreaInput(session, "filter", value = "")
+        shiny::updateTextAreaInput(session, "filter_out", value = "")
         last_action("clear")
       },
       priority = 100
@@ -110,7 +119,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       if (any(sapply(dangerous_patterns, grepl, x = expr))) {
         stop("Potentially unsafe expression detected")
       }
-
       # Check if it's a valid R expression
       tryCatch(
         {
@@ -133,22 +141,30 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         if (identical(last_action(), "clear")) {
           # Good practice: Ensure error is gone if user clicks Clear
           shiny::removeNotification(id = "filter_error")
+
+          # Reset valid strings for generated code on clear
+          valid_filter_str("")
+          valid_filter_out_str("")
+
           return(get_data())
         }
 
-        if (stringr::str_trim(input$filter) != "") {
+        has_filter <- stringr::str_trim(input$filter) != ""
+        has_filter_out <- stringr::str_trim(input$filter_out) != ""
+
+        if (has_filter || has_filter_out) {
           tryCatch(
             {
               # --- FIX : Clear any previous error notification on success ---
               shiny::removeNotification(id = "filter_error")
               # ---------------------------------------------------------------
-              validate_filter_expression(input$filter)
+
+              df_res <- get_data()
 
               # --- PRE-EVALUATION STRICT TYPE CHECK ---
               # We evaluate the expression in base R first using custom operator
               # to catch type mismatches before dplyr bypasses them.
               env <- new.env(parent = globalenv())
-
               get_type_group <- function(x) {
                 if (is.null(x)) {
                   return("null")
@@ -176,7 +192,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                   }
                   tg1 <- get_type_group(e1)
                   tg2 <- get_type_group(e2)
-
                   if (tg1 != tg2) {
                     if (length(e1) >= length(e2)) {
                       msg <- sprintf(
@@ -207,7 +222,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
               env$`>` <- make_strict_op(base::`>`)
               env$`<=` <- make_strict_op(base::`<=`)
               env$`>=` <- make_strict_op(base::`>=`)
-
               env$`%in%` <- function(x, table) {
                 if (length(x) == 0 || length(table) == 0 ||
                   all(is.na(x)) || all(is.na(table))) { # nolint
@@ -215,7 +229,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                 }
                 tg1 <- get_type_group(x)
                 tg2 <- get_type_group(table)
-
                 if (tg1 != tg2) {
                   msg <- sprintf(
                     paste0(
@@ -229,43 +242,74 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                 base::`%in%`(x, table)
               }
 
-              # Execute pre-check and ONLY intercept
-              # our custom Type mismatch errors
-              tryCatch(
-                {
-                  parsed <- parse(text = input$filter)
-                  for (e in parsed) {
-                    base::eval(e, envir = get_data(), enclos = env)
+              if (has_filter) {
+                validate_filter_expression(input$filter)
+                # Execute pre-check and ONLY intercept our custom Type mismatch errors
+                tryCatch(
+                  {
+                    parsed <- parse(text = input$filter)
+                    for (e in parsed) {
+                      base::eval(e, envir = df_res, enclos = env)
+                    }
+                  },
+                  error = function(e) {
+                    if (grepl("^Type mismatch:", e$message)) {
+                      stop(e$message, call. = FALSE)
+                    }
                   }
-                },
-                error = function(e) {
-                  if (grepl("^Type mismatch:", e$message)) {
-                    stop(e$message, call. = FALSE)
-                  }
-                }
-              )
-              # ----------------------------------------
+                )
+                df_res <- dplyr::filter(
+                  df_res,
+                  eval(parse(text = input$filter))
+                )
+              }
 
-              # If pre-check passes, evaluate normally with dplyr
-              dplyr::filter(
-                get_data(),
-                eval(parse(text = input$filter))
-              )
+              if (has_filter_out) {
+                validate_filter_expression(input$filter_out)
+                # Execute pre-check and ONLY intercept our custom Type mismatch errors
+                tryCatch(
+                  {
+                    parsed <- parse(text = input$filter_out)
+                    for (e in parsed) {
+                      base::eval(e, envir = df_res, enclos = env)
+                    }
+                  },
+                  error = function(e) {
+                    if (grepl("^Type mismatch:", e$message)) {
+                      stop(e$message, call. = FALSE)
+                    }
+                  }
+                )
+                # Now using the actual filter_out function from dplyr
+                df_res <- dplyr::filter_out(
+                  df_res,
+                  eval(parse(text = input$filter_out))
+                )
+              }
+
+              # If everything evaluated without errors, update valid states for code generation
+              valid_filter_str(input$filter)
+              valid_filter_out_str(input$filter_out)
+
+              df_res
             },
             error = function(e) {
               shiny::showNotification(
-                paste0("Invalid filter condition: ", e$message),
+                paste0("Invalid condition: ", e$message),
                 type = "error",
                 duration = 5,
                 # Giving a name so we can remove the error notification later
                 id = "filter_error"
               )
+              # Do not update valid filter strings here so generated code doesn't break
               get_data()
             }
           )
         } else {
           # Also remove error if input is empty
           shiny::removeNotification(id = "filter_error")
+          valid_filter_str("")
+          valid_filter_out_str("")
           get_data()
         }
       }
@@ -273,8 +317,19 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     # Filter code
     filter_code <- shiny::reactive({
-      if (stringr::str_trim(input$filter) != "") {
-        paste0("filter(", input$filter, ")")
+      if (stringr::str_trim(valid_filter_str()) != "") {
+        cleaned_filter <- stringr::str_squish(valid_filter_str())
+        paste0("filter(", cleaned_filter, ")")
+      } else {
+        NULL
+      }
+    })
+
+    # Filter out code
+    filter_out_code <- shiny::reactive({
+      if (stringr::str_trim(valid_filter_out_str()) != "") {
+        cleaned_filter_out <- stringr::str_squish(valid_filter_out_str())
+        paste0("filter_out(", cleaned_filter_out, ")")
       } else {
         NULL
       }
@@ -304,10 +359,11 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Generated code - FIX: Don't add pipe when no operations
     generated_code <- shiny::reactive({
       has_filter <- !is.null(filter_code())
+      has_filter_out <- !is.null(filter_out_code())
       has_select <- !is.null(selected_cols_code())
 
       # If neither filter nor select, just return the dataset name
-      if (!has_filter && !has_select) {
+      if (!has_filter && !has_filter_out && !has_select) {
         return(paste0(
           "# Generated R Code\n",
           "library(dplyr)\n",
@@ -323,6 +379,14 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       if (has_filter) {
         code_lines <- c(code_lines, paste0("  ", filter_code()))
+        if (has_filter_out || has_select) {
+          last_line_idx <- length(code_lines)
+          code_lines[last_line_idx] <- paste0(code_lines[last_line_idx], " |>")
+        }
+      }
+
+      if (has_filter_out) {
+        code_lines <- c(code_lines, paste0("  ", filter_out_code()))
         if (has_select) {
           last_line_idx <- length(code_lines)
           code_lines[last_line_idx] <- paste0(code_lines[last_line_idx], " |>")
@@ -375,7 +439,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       if (length(input$columns) == 0) {
         return(NULL)
       }
-
       dplyr::mutate(
         cols_df(),
         # 1. Handle character/factor NAs (converting to "<NA>")
@@ -435,11 +498,13 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     att_cols <- shiny::reactive({
       shiny::req(get_data())
       att_list <- purrr::map(get_data(), attributes)
+
       if (all(purrr::map_lgl(att_list, is.null))) {
         return(tibble::tibble(
           colname = character(), att = character(), value = character()
         ))
       }
+
       purrr::imap_dfr(att_list, function(attr, colname) {
         if (is.null(attr)) {
           return(NULL)
