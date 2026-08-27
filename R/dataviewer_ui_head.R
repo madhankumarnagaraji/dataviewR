@@ -80,7 +80,7 @@ dataviewer_ui_head <- function() {
           .scrollable-data-container {
             overflow: auto; /* vertical/horizontal scrolls live here */
             width: 125%;
-            max-height: 650px;
+            max-height: calc(100vh - 350px);
             position: relative;
             flex: 1 1 auto;
             min-width: 0; /* allow shrink in flex layouts */
