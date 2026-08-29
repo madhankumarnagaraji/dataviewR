@@ -3,11 +3,11 @@
 #' @noRd
 dataviewer_tab_ui <- function(id) {
   ns <- shiny::NS(id)
+
   shiny::tagList(
     shiny::br(),
     shiny::actionButton(ns("load"), "Refresh the Data"),
     shiny::actionButton(ns("generate_code"), "Generate R Code"),
-
     shiny::h4(shiny::tags$strong("Filters")),
 
     # --- Custom CSS for Filter UI Elements ---
@@ -39,6 +39,11 @@ dataviewer_tab_ui <- function(id) {
         white-space: nowrap;
         min-width: 110px;
       }
+      .filter-active {
+        background-color: #337ab7 !important;
+        color: white !important;
+        border-color: #337ab7 !important;
+      }
       /* Remove default Shiny wrapper margin and allow it to fill space */
       .filter-row .form-group {
         margin-bottom: 0 !important;
@@ -58,11 +63,11 @@ dataviewer_tab_ui <- function(id) {
 
     shiny::div(class = "filter-input-container",
       shiny::div(class = "filter-row",
-        shiny::span("Keep Rows", class = "filter-label"),
+        shiny::span("Keep Rows", id = ns("label_filter"), class = "filter-label"),
         shiny::textAreaInput(ns("filter"), NULL, value = "", width = "100%", rows = 1)
       ),
       shiny::div(class = "filter-row",
-        shiny::span("Exclude Rows", class = "filter-label"),
+        shiny::span("Exclude Rows", id = ns("label_filter_out"), class = "filter-label"),
         shiny::textAreaInput(ns("filter_out"), NULL, value = "", width = "100%", rows = 1)
       )
     ),
@@ -121,6 +126,7 @@ dataviewer_tab_ui <- function(id) {
         ),
         width = 2
       ),
+
       shiny::mainPanel(
         shiny::tags$div(
           class = "table-wrapper",

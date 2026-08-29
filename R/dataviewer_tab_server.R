@@ -10,6 +10,7 @@ utils::globalVariables(c(
 #' @noRd
 dataviewer_tab_server <- function(id, get_data, dataset_name) {
   shiny::moduleServer(id, function(input, output, session) {
+
     # --------------------------------------------------
     # REMOVED: "Atomic Batch" Enter Key Handler
     # Filtering is now triggered exclusively by the Submit button.
@@ -17,12 +18,29 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     # This reactive value is now internal to the module
     last_action <- shiny::reactiveVal("load")
+
     # FIX: Add initialization flag
     initialized <- shiny::reactiveVal(FALSE)
 
     # Store validated filter expressions for code generation
     valid_filter_str <- shiny::reactiveVal("")
     valid_filter_out_str <- shiny::reactiveVal("")
+
+    # Toggle blue color for filter labels based on active filters
+    shiny::observe({
+      has_filter <- stringr::str_trim(valid_filter_str()) != ""
+      has_filter_out <- stringr::str_trim(valid_filter_out_str()) != ""
+
+      shinyjs::runjs(sprintf(
+        "if (%s) { $('#%s').addClass('filter-active'); } else { $('#%s').removeClass('filter-active'); }",
+        tolower(as.character(has_filter)), session$ns("label_filter"), session$ns("label_filter")
+      ))
+
+      shinyjs::runjs(sprintf(
+        "if (%s) { $('#%s').addClass('filter-active'); } else { $('#%s').removeClass('filter-active'); }",
+        tolower(as.character(has_filter_out)), session$ns("label_filter_out"), session$ns("label_filter_out")
+      ))
+    })
 
     # Provide total rows output (full dataset row count)
     output$totalrows <- shiny::renderText({
@@ -119,6 +137,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       if (any(sapply(dangerous_patterns, grepl, x = expr))) {
         stop("Potentially unsafe expression detected")
       }
+
       # Check if it's a valid R expression
       tryCatch(
         {
@@ -141,11 +160,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         if (identical(last_action(), "clear")) {
           # Good practice: Ensure error is gone if user clicks Clear
           shiny::removeNotification(id = "filter_error")
-
           # Reset valid strings for generated code on clear
           valid_filter_str("")
           valid_filter_out_str("")
-
           return(get_data())
         }
 
@@ -165,6 +182,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
               # We evaluate the expression in base R first using custom operator
               # to catch type mismatches before dplyr bypasses them.
               env <- new.env(parent = globalenv())
+
               get_type_group <- function(x) {
                 if (is.null(x)) {
                   return("null")
@@ -192,6 +210,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                   }
                   tg1 <- get_type_group(e1)
                   tg2 <- get_type_group(e2)
+
                   if (tg1 != tg2) {
                     if (length(e1) >= length(e2)) {
                       msg <- sprintf(
@@ -229,6 +248,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                 }
                 tg1 <- get_type_group(x)
                 tg2 <- get_type_group(table)
+
                 if (tg1 != tg2) {
                   msg <- sprintf(
                     paste0(
@@ -258,6 +278,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                     }
                   }
                 )
+
                 df_res <- dplyr::filter(
                   df_res,
                   eval(parse(text = input$filter))
@@ -280,6 +301,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                     }
                   }
                 )
+
                 # Now using the actual filter_out function from dplyr
                 df_res <- dplyr::filter_out(
                   df_res,
@@ -292,6 +314,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
               valid_filter_out_str(input$filter_out)
 
               df_res
+
             },
             error = function(e) {
               shiny::showNotification(
@@ -301,7 +324,10 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
                 # Giving a name so we can remove the error notification later
                 id = "filter_error"
               )
-              # Do not update valid filter strings here so generated code doesn't break
+              # FIX: Reset valid strings so UI (blue labels) and generated code
+              # accurately reflect that the data has reverted to the unfiltered state.
+              valid_filter_str("")
+              valid_filter_out_str("")
               get_data()
             }
           )
@@ -342,6 +368,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       if (length(selected_cols) > 0 &&
         length(selected_cols) < length(all_cols)) { # nolint
+
         needs_quotes <- !grepl(
           "^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols
         )
@@ -495,6 +522,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     )
 
     # --- Metadata Reactives ---
+
     att_cols <- shiny::reactive({
       shiny::req(get_data())
       att_list <- purrr::map(get_data(), attributes)
@@ -719,5 +747,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     output$row_info <- shiny::renderText({
       ""
     })
+
   }) # End moduleServer
 }
