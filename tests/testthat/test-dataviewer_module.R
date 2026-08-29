@@ -64,6 +64,12 @@ test_that("Module: Invalid Filter Handling", {
     # Initialize
     session$setInputs(columns = names(mtcars), filter = "", load = 1)
 
+    # Submit a VALID filter first to verify the reset logic works
+    session$setInputs(filter = "cyl == 4")
+    session$setInputs(submit = 1)
+    expect_equal(nrow(filter_df()), 11)
+    expect_match(generated_code(), "filter\\(cyl == 4\\)")
+
     # Input invalid R syntax
     session$setInputs(filter = "cyl == ") # Incomplete
     session$setInputs(submit = 1)
@@ -71,10 +77,17 @@ test_that("Module: Invalid Filter Handling", {
     # Should default back to original data safely
     expect_equal(nrow(filter_df()), 32)
 
+    # The valid filter string should be cleared from the generated code
+    expect_false(grepl("filter\\(", generated_code()))
+
     # Input dangerous syntax
     session$setInputs(filter = "system('ls')")
     session$setInputs(submit = 1)
     expect_equal(nrow(filter_df()), 32)
+
+    # The valid filter string should remain cleared
+    expect_false(grepl("filter\\(", generated_code()))
+
   })
 })
 
