@@ -11,3 +11,4 @@
 ^README\.Rmd$
 ^Pharmaverse_blog$
 ^\.lintr$
+^\.posit/assistant$

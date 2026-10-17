@@ -4,6 +4,8 @@
 inst/doc
 /doc/
 /Meta/
+/Todo
 docs
 .DS_Store
 /Pharmaverse_blog
+.posit/assistant
