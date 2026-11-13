@@ -29,7 +29,8 @@ Imports:
 	callr,
 	rstudioapi,
 	writexl,
-	tidyselect
+	tidyselect,
+	later
 Suggests: 
     knitr,
     rmarkdown,
