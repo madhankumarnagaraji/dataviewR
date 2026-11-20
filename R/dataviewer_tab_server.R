@@ -1,3 +1,6 @@
+#' @importFrom shinyWidgets pickerInput pickerOptions updatePickerInput
+NULL
+
 # Define global variables for NSE evaluation in dplyr / tidyselect
 utils::globalVariables(c(
   ".data", "pos", "colname", "col_type", "col_name", "att", "value"
@@ -174,7 +177,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # ------------------------------------------------------------------
     active_text_condition <- shiny::reactiveVal("")
 
-    # Backspace to empty — clear immediately without Submit
+    # Backspace to empty - clear immediately without Submit
     # Use identical() to safely handle NULL input$filter on startup
     shiny::observe({
       if (identical(trimws(input$filter %||% ""), "")) {
@@ -269,7 +272,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           )
           # ----------------------------------------
 
-          # Type check passed — store condition for combined_filter_df
+          # Type check passed - store condition for combined_filter_df
           active_text_condition(trimws(input$filter))
 
         }, error = function(e) {
@@ -285,14 +288,14 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     )
 
     # ==================================================================
-    # NEW BLOCK 1 — Interactive Filtering Modal
+    # NEW BLOCK 1 - Interactive Filtering Modal
     # ==================================================================
 
     # -- Render the modal UI dynamically so pickerInput + filter_data_ui
     #    live inside the module namespace correctly --
     output$inter_modal_ui <- shiny::renderUI({ NULL })  # placeholder only
 
-    # filter_data_ui must be rendered ONCE and persisted — not recreated
+    # filter_data_ui must be rendered ONCE and persisted - not recreated
     # inside showModal every time, as that resets datamods internal state.
     output$dm_filter_ui <- shiny::renderUI({
       datamods::filter_data_ui(
@@ -327,13 +330,13 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       last_inter_vars(new_vars)
 
-      # Picker change triggers a full datamods widget rebuild — mark all vars
+      # Picker change triggers a full datamods widget rebuild - mark all vars
       # so the NA mirror observer discards the resulting rebuild echoes.
       mark_na_pending_echo(new_vars)
     }, ignoreNULL = TRUE)
 
     # ==================================================================
-    # NEW BLOCK 2 — Step 2: datamods interactive filter
+    # NEW BLOCK 2 - Step 2: datamods interactive filter
     # Always receives raw get_data() as its data input.
     # vars is driven by what user selects inside the modal picker.
     # ==================================================================
@@ -341,7 +344,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       id   = "dm_filter",
       data = shiny::reactive(get_data()),
       vars = shiny::reactive({
-        # Use last_inter_vars() — input$inter_vars becomes NULL on modal close.
+        # Use last_inter_vars() - input$inter_vars becomes NULL on modal close.
         # Date/POSIXct excluded: their range sliders can't be reliably dragged.
         vars_chosen <- last_inter_vars()
         if (length(vars_chosen) == 0) return(character(0))
@@ -358,7 +361,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         vals <- shiny::reactiveValuesToList(filter_defaults_store)
         vals <- vals[!vapply(vals, is.null, logical(1))]
 
-        # Drop any default whose shape doesn't match the widget type —
+        # Drop any default whose shape doesn't match the widget type -
         # a stray character(0) for a numeric slider hard-errors in datamods.
         data <- get_data()
         if (length(vals) > 0 && !is.null(data)) {
@@ -379,7 +382,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       })
     )
 
-    # Debounced mirror for filter_defaults_store only — prevents slider drags
+    # Debounced mirror for filter_defaults_store only - prevents slider drags
     # from triggering a datamods full rebuild on every pixel of movement.
     # Submit still reads dm_filter_res$values() directly (undebounced).
     dm_filter_values_debounced <- shiny::debounce(
@@ -389,7 +392,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     # Mirror settled widget values into filter_defaults_store so `defaults`
     # can restore them on rebuild. For NULL values, only store character(0)
-    # for categorical vars — numeric/date NULL just means not yet mounted.
+    # for categorical vars - numeric/date NULL just means not yet mounted.
     shiny::observe({
       vals <- tryCatch(dm_filter_values_debounced(), error = function(e) NULL)
       if (is.null(vals) || length(vals) == 0) return()
@@ -404,7 +407,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           filter_defaults_store[[nm]] <- v
         }
       }
-      # Value change triggers a full widget rebuild — mark NA echo guards.
+      # Value change triggers a full widget rebuild - mark NA echo guards.
       mark_na_pending_echo(names(vals))
     })
 
@@ -425,8 +428,8 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       }
     })
 
-    # NOTE: we do NOT push na_defaults_store back onto the switch — doing so
-    # creates a feedback loop (push → mirror → push) that made the filter
+    # NOTE: we do NOT push na_defaults_store back onto the switch - doing so
+    # creates a feedback loop (push -> mirror -> push) that made the filter
     # behavior random at Submit time. build_na_aware_condition() reads
     # na_defaults_store directly so the on-screen switch state doesn't matter.
 
@@ -476,7 +479,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     })
 
     # Observer for the interactive filtering modal.
-    # Mark NA echo guards before opening — modal remount triggers spurious
+    # Mark NA echo guards before opening - modal remount triggers spurious
     # switch reports that the mirror observer must discard.
     shiny::observeEvent(input$open_inter_modal, {
       mark_na_pending_echo(last_inter_vars())
@@ -486,7 +489,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         size  = "l",
         easyClose = FALSE,
 
-        # Step 1: column picker — restore from last_inter_vars() since
+        # Step 1: column picker - restore from last_inter_vars() since
         # input$inter_vars is NULL after modal close.
         shinyWidgets::pickerInput(
           inputId  = session$ns("inter_vars"),
@@ -500,14 +503,14 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
             liveSearchPlaceholder = "Search variable...",
             actionsBox            = TRUE,
             selectedTextFormat    = "count > 3",
-            noneSelectedText      = "— pick variables to filter —",
+            noneSelectedText      = "- pick variables to filter -",
             countSelectedText     = "{0} variables selected"
           )
         ),
 
         shiny::br(),
 
-        # Step 2: datamods widgets — referenced via uiOutput so the widget
+        # Step 2: datamods widgets - referenced via uiOutput so the widget
         # is NOT recreated on every modal open (which would reset datamods state)
         shiny::uiOutput(session$ns("dm_filter_ui")),
 
@@ -515,14 +518,14 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         shiny::uiOutput(session$ns("skipped_vars_msg")),
 
         footer = shiny::tagList(
-          # Clear All — resets picker + clears applied condition
+          # Clear All - resets picker + clears applied condition
           shiny::actionButton(
             session$ns("inter_clear_all"),
             "Clear All",
             icon  = shiny::icon("times"),
             class = "btn-danger"
           ),
-          # Submit — stores the current datamods condition
+          # Submit - stores the current datamods condition
           shiny::actionButton(
             session$ns("inter_submit"),
             "Submit",
@@ -550,7 +553,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         nas    <- isTRUE(na_choices[[var]] %||% FALSE)  # our default is "exclude NA"
 
         if (is.numeric(col) || inherits(col, c("Date", "POSIXct"))) {
-          if (is.null(raw_val)) next  # not yet rendered — skip
+          if (is.null(raw_val)) next  # not yet rendered - skip
           val <- raw_val
           full_range <- suppressWarnings(range(col, na.rm = TRUE))
           is_full <- length(val) == 2 &&
@@ -623,7 +626,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
            btn.style.borderColor     = '%s';
          }",
         session$ns("open_inter_modal"),
-        if (is_active) '<i class=\"fa fa-filter\"></i> Interactive Filtering ✓'
+        if (is_active) '<i class=\"fa fa-filter\"></i> Interactive Filtering \u2713'
         else           '<i class=\"fa fa-filter\"></i> Interactive Filtering',
         if (is_active) "#2196F3" else "",
         if (is_active) "white"   else "",
@@ -631,7 +634,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       ))
 
       shiny::showNotification(
-        if (is_active) "✅ Interactive filter applied" else "ℹ️ No filter active",
+        if (is_active) "\u2705 Interactive filter applied" else "\u2139\uFE0F No filter active",
         type     = "message",
         duration = 2
       )
@@ -666,11 +669,11 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         session$ns("open_inter_modal")
       ))
 
-      shiny::showNotification("ℹ️ Interactive filter cleared", type = "message", duration = 2)
+      shiny::showNotification("\u2139\uFE0F Interactive filter cleared", type = "message", duration = 2)
     })
 
     # ==================================================================
-    # NEW BLOCK 3 — Combined filter
+    # NEW BLOCK 3 - Combined filter
     # Both filters applied independently to raw get_data(), combined with &
     # ==================================================================
     combined_filter_df <- shiny::reactive({
@@ -682,7 +685,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       has_text  <- nchar(trimws(text_cond))  > 0
       has_inter <- nchar(trimws(inter_cond)) > 0
 
-      # Neither active — return raw data
+      # Neither active - return raw data
       if (!has_text && !has_inter) return(get_data())
 
       combined_cond <- if (has_text && has_inter) {
@@ -705,7 +708,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     })
 
     # ==================================================================
-    # (UNCHANGED structure) Filter code — text box part (Step 1)
+    # (UNCHANGED structure) Filter code - text box part (Step 1)
     # ==================================================================
     filter_code <- shiny::reactive({
       cond <- active_text_condition()
@@ -713,7 +716,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     })
 
     # ==================================================================
-    # NEW BLOCK 4 — Inter filter code (Step 2)
+    # NEW BLOCK 4 - Inter filter code (Step 2)
     # Extracts the stored condition only when inter is active
     # ==================================================================
     inter_filter_code <- shiny::reactive({
@@ -916,8 +919,8 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       shiny::req(get_data())
       dplyr::left_join(class_df(), att_cols(), by = "colname") |>
         dplyr::mutate(col_name = dplyr::case_when(
-          col_type == "int"    ~ paste0("<span style='font-size:18px'>", "#️⃣", "</span> ", colname),
-          col_type == "dbl"    ~ paste0("<span style='font-size:18px'>", "#️⃣", "</span> ", colname),
+          col_type == "int" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname),
+          col_type == "dbl" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname),,
           col_type == "chr"    ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
           col_type == "fct"    ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
           col_type == "lgl"    ~ paste0("<span style='font-size:18px'>", "\U0001F501", "</span> ", colname),
