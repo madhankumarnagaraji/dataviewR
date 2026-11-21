@@ -105,32 +105,35 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     })
 
     # FIX: Update columns checkboxes with priority and proper selection logic
-    shiny::observe({
-      shiny::req(get_data())
-      # Get columns and current selection state
-      columns    <- names(get_data())
-      select_all <- isTRUE(input$cols_all)
+    shiny::observe(
+      {
+        shiny::req(get_data())
+        # Get columns and current selection state
+        columns <- names(get_data())
+        select_all <- isTRUE(input$cols_all)
 
-      # FIX: Properly respect the checkbox state
-      shiny::updateCheckboxGroupInput(
-        session, "columns",
-        label    = NULL,
-        choices  = columns,
-        selected = if (select_all) columns else NULL  # FIXED: Now respects deselect
-      )
+        # FIX: Properly respect the checkbox state
+        shiny::updateCheckboxGroupInput(
+          session, "columns",
+          label = NULL,
+          choices = columns,
+          selected = if (select_all) columns else NULL # FIXED: Now respects deselect
+        )
 
-      # Mark as initialized after first update
-      if (!initialized()) {
-        initialized(TRUE)
-      }
-    }, priority = 100)  # High priority to ensure it runs first
+        # Mark as initialized after first update
+        if (!initialized()) {
+          initialized(TRUE)
+        }
+      },
+      priority = 100
+    ) # High priority to ensure it runs first
 
     # Update filter placeholder
     shiny::observe({
       shiny::updateTextInput(
         session, "filter",
-        label       = NULL,
-        value       = "",
+        label = NULL,
+        value = "",
         placeholder = "Enter a filter condition e.g., mpg > 20 & cyl == 6"
       )
     })
@@ -141,11 +144,11 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     })
 
     shiny::observeEvent(input$clear,
-                        {
-                          shiny::updateTextInput(session, "filter", value = "")
-                          last_action("clear")
-                        },
-                        priority = 100
+      {
+        shiny::updateTextInput(session, "filter", value = "")
+        last_action("clear")
+      },
+      priority = 100
     )
 
     validate_filter_expression <- function(expr) {
@@ -197,92 +200,104 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           return()
         }
 
-        tryCatch({
-          # Clear any previous error notification on success
-          shiny::removeNotification(id = "filter_error")
-          validate_filter_expression(input$filter)
+        tryCatch(
+          {
+            # Clear any previous error notification on success
+            shiny::removeNotification(id = "filter_error")
+            validate_filter_expression(input$filter)
 
-          # --- PRE-EVALUATION STRICT TYPE CHECK ---
-          # Runs a dry-run with custom operators to catch type mismatches
-          # (e.g. cyl == "6" when cyl is numeric) BEFORE storing the condition.
-          # Only intercepts our custom "Type mismatch:" errors; all others pass through.
-          env <- new.env(parent = globalenv())
+            # --- PRE-EVALUATION STRICT TYPE CHECK ---
+            # Runs a dry-run with custom operators to catch type mismatches
+            # (e.g. cyl == "6" when cyl is numeric) BEFORE storing the condition.
+            # Only intercepts our custom "Type mismatch:" errors; all others pass through.
+            env <- new.env(parent = globalenv())
 
-          get_type_group <- function(x) {
-            if (is.null(x))                               return("null")
-            if (is.numeric(x))                            return("numeric")
-            if (is.character(x) || is.factor(x) || is.ordered(x)) return("character/factor")
-            if (is.logical(x))                            return("logical")
-            if (inherits(x, c("Date", "POSIXt", "POSIXct"))) return("Date/POSIXct")
-            class(x)[1]
-          }
+            get_type_group <- function(x) {
+              if (is.null(x)) {
+                return("null")
+              }
+              if (is.numeric(x)) {
+                return("numeric")
+              }
+              if (is.character(x) || is.factor(x) || is.ordered(x)) {
+                return("character/factor")
+              }
+              if (is.logical(x)) {
+                return("logical")
+              }
+              if (inherits(x, c("Date", "POSIXt", "POSIXct"))) {
+                return("Date/POSIXct")
+              }
+              class(x)[1]
+            }
 
-          make_strict_op <- function(base_op) {
-            function(e1, e2) {
-              if (length(e1) == 0 || length(e2) == 0 ||
+            make_strict_op <- function(base_op) {
+              function(e1, e2) {
+                if (length(e1) == 0 || length(e2) == 0 ||
                   all(is.na(e1)) || all(is.na(e2))) {
-                return(base_op(e1, e2))
-              }
-              tg1 <- get_type_group(e1)
-              tg2 <- get_type_group(e2)
-              if (tg1 != tg2) {
-                msg <- if (length(e1) >= length(e2)) {
-                  sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg2, tg1)
-                } else {
-                  sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg1, tg2)
+                  return(base_op(e1, e2))
                 }
-                stop(msg, call. = FALSE)
+                tg1 <- get_type_group(e1)
+                tg2 <- get_type_group(e2)
+                if (tg1 != tg2) {
+                  msg <- if (length(e1) >= length(e2)) {
+                    sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg2, tg1)
+                  } else {
+                    sprintf("Type mismatch: you're passing a %s value to a %s variable.", tg1, tg2)
+                  }
+                  stop(msg, call. = FALSE)
+                }
+                base_op(e1, e2)
               }
-              base_op(e1, e2)
             }
-          }
 
-          env$`==` <- make_strict_op(base::`==`)
-          env$`!=` <- make_strict_op(base::`!=`)
-          env$`<`  <- make_strict_op(base::`<`)
-          env$`>`  <- make_strict_op(base::`>`)
-          env$`<=` <- make_strict_op(base::`<=`)
-          env$`>=` <- make_strict_op(base::`>=`)
+            env$`==` <- make_strict_op(base::`==`)
+            env$`!=` <- make_strict_op(base::`!=`)
+            env$`<` <- make_strict_op(base::`<`)
+            env$`>` <- make_strict_op(base::`>`)
+            env$`<=` <- make_strict_op(base::`<=`)
+            env$`>=` <- make_strict_op(base::`>=`)
 
-          env$`%in%` <- function(x, table) {
-            if (length(x) == 0 || length(table) == 0 ||
+            env$`%in%` <- function(x, table) {
+              if (length(x) == 0 || length(table) == 0 ||
                 all(is.na(x)) || all(is.na(table))) {
-              return(base::`%in%`(x, table))
-            }
-            tg1 <- get_type_group(x)
-            tg2 <- get_type_group(table)
-            if (tg1 != tg2) {
-              stop(sprintf(
-                "Type mismatch: you're passing a %s value to a %s variable.", tg2, tg1
-              ), call. = FALSE)
-            }
-            base::`%in%`(x, table)
-          }
-
-          tryCatch(
-            {
-              parsed <- parse(text = input$filter)
-              for (e in parsed) {
-                base::eval(e, envir = get_data(), enclos = env)
+                return(base::`%in%`(x, table))
               }
-            },
-            error = function(e) {
-              if (grepl("^Type mismatch:", e$message)) stop(e$message, call. = FALSE)
+              tg1 <- get_type_group(x)
+              tg2 <- get_type_group(table)
+              if (tg1 != tg2) {
+                stop(sprintf(
+                  "Type mismatch: you're passing a %s value to a %s variable.", tg2, tg1
+                ), call. = FALSE)
+              }
+              base::`%in%`(x, table)
             }
-          )
-          # ----------------------------------------
 
-          # Type check passed - store condition for combined_filter_df
-          active_text_condition(trimws(input$filter))
+            tryCatch(
+              {
+                parsed <- parse(text = input$filter)
+                for (e in parsed) {
+                  base::eval(e, envir = get_data(), enclos = env)
+                }
+              },
+              error = function(e) {
+                if (grepl("^Type mismatch:", e$message)) stop(e$message, call. = FALSE)
+              }
+            )
+            # ----------------------------------------
 
-        }, error = function(e) {
-          shiny::showNotification(
-            paste0("Invalid filter condition: ", e$message),
-            type     = "error",
-            duration = 5,
-            id       = "filter_error"
-          )
-        })
+            # Type check passed - store condition for combined_filter_df
+            active_text_condition(trimws(input$filter))
+          },
+          error = function(e) {
+            shiny::showNotification(
+              paste0("Invalid filter condition: ", e$message),
+              type     = "error",
+              duration = 5,
+              id       = "filter_error"
+            )
+          }
+        )
       },
       ignoreInit = TRUE
     )
@@ -293,7 +308,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
     # -- Render the modal UI dynamically so pickerInput + filter_data_ui
     #    live inside the module namespace correctly --
-    output$inter_modal_ui <- shiny::renderUI({ NULL })  # placeholder only
+    output$inter_modal_ui <- shiny::renderUI({
+      NULL
+    }) # placeholder only
 
     # filter_data_ui must be rendered ONCE and persisted - not recreated
     # inside showModal every time, as that resets datamods internal state.
@@ -308,32 +325,35 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Persist picker selection; ignoreNULL = TRUE prevents firing on modal close
     # when input$inter_vars becomes NULL. Seeds new categorical vars with nothing
     # selected (blank slate) and defaults NA switch to OFF for new vars.
-    shiny::observeEvent(input$inter_vars, {
-      new_vars <- input$inter_vars
-      old_vars <- last_inter_vars()
+    shiny::observeEvent(input$inter_vars,
+      {
+        new_vars <- input$inter_vars
+        old_vars <- last_inter_vars()
 
-      added <- setdiff(new_vars, old_vars)
-      data  <- get_data()
-      if (length(added) > 0 && !is.null(data)) {
-        for (v in added) {
-          if (v %in% names(data) && is.null(filter_defaults_store[[v]])) {
-            col <- data[[v]]
-            if (is.character(col) || is.factor(col) || is.logical(col)) {
-              filter_defaults_store[[v]] <- character(0)
+        added <- setdiff(new_vars, old_vars)
+        data <- get_data()
+        if (length(added) > 0 && !is.null(data)) {
+          for (v in added) {
+            if (v %in% names(data) && is.null(filter_defaults_store[[v]])) {
+              col <- data[[v]]
+              if (is.character(col) || is.factor(col) || is.logical(col)) {
+                filter_defaults_store[[v]] <- character(0)
+              }
+            }
+            if (is.null(na_defaults_store[[v]])) {
+              na_defaults_store[[v]] <- FALSE
             }
           }
-          if (is.null(na_defaults_store[[v]])) {
-            na_defaults_store[[v]] <- FALSE
-          }
         }
-      }
 
-      last_inter_vars(new_vars)
+        last_inter_vars(new_vars)
 
-      # Picker change triggers a full datamods widget rebuild - mark all vars
-      # so the NA mirror observer discards the resulting rebuild echoes.
-      mark_na_pending_echo(new_vars)
-    }, ignoreNULL = TRUE)
+        # Picker change triggers a full datamods widget rebuild - mark all vars
+        # so the NA mirror observer discards the resulting rebuild echoes.
+        mark_na_pending_echo(new_vars)
+      },
+      ignoreNULL = TRUE
+    )
 
     # ==================================================================
     # NEW BLOCK 2 - Step 2: datamods interactive filter
@@ -341,23 +361,27 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # vars is driven by what user selects inside the modal picker.
     # ==================================================================
     dm_filter_res <- datamods::filter_data_server(
-      id   = "dm_filter",
+      id = "dm_filter",
       data = shiny::reactive(get_data()),
       vars = shiny::reactive({
         # Use last_inter_vars() - input$inter_vars becomes NULL on modal close.
         # Date/POSIXct excluded: their range sliders can't be reliably dragged.
         vars_chosen <- last_inter_vars()
-        if (length(vars_chosen) == 0) return(character(0))
+        if (length(vars_chosen) == 0) {
+          return(character(0))
+        }
 
         data <- get_data()
-        if (is.null(data)) return(vars_chosen)
+        if (is.null(data)) {
+          return(vars_chosen)
+        }
         is_date_col <- function(v) v %in% names(data) && inherits(data[[v]], c("Date", "POSIXct"))
         vars_chosen[!vapply(vars_chosen, is_date_col, logical(1))]
       }),
-      name      = dataset_name,
-      drop_ids  = drop_ids_cfg,
-      value_na  = FALSE,
-      defaults  = shiny::reactive({
+      name = dataset_name,
+      drop_ids = drop_ids_cfg,
+      value_na = FALSE,
+      defaults = shiny::reactive({
         vals <- shiny::reactiveValuesToList(filter_defaults_store)
         vals <- vals[!vapply(vals, is.null, logical(1))]
 
@@ -366,13 +390,15 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         data <- get_data()
         if (length(vals) > 0 && !is.null(data)) {
           keep <- vapply(names(vals), function(nm) {
-            if (!(nm %in% names(data))) return(FALSE)
+            if (!(nm %in% names(data))) {
+              return(FALSE)
+            }
             col <- data[[nm]]
-            v   <- vals[[nm]]
+            v <- vals[[nm]]
             if (is.numeric(col) || inherits(col, c("Date", "POSIXct"))) {
               length(v) == 2 && !anyNA(suppressWarnings(as.numeric(v)))
             } else {
-              TRUE  # categorical widgets accept any length, including 0
+              TRUE # categorical widgets accept any length, including 0
             }
           }, logical(1))
           vals <- vals[keep]
@@ -395,7 +421,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # for categorical vars - numeric/date NULL just means not yet mounted.
     shiny::observe({
       vals <- tryCatch(dm_filter_values_debounced(), error = function(e) NULL)
-      if (is.null(vals) || length(vals) == 0) return()
+      if (is.null(vals) || length(vals) == 0) {
+        return()
+      }
       data <- get_data()
       for (nm in names(vals)) {
         v <- vals[[nm]]
@@ -416,7 +444,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # doesn't re-trigger this observer before the actual rebuild echo arrives.
     shiny::observe({
       vars_now <- last_inter_vars()
-      if (length(vars_now) == 0) return()
+      if (length(vars_now) == 0) {
+        return()
+      }
       for (v in vars_now) {
         na_val <- input[[na_toggle_input_id(v)]]
         if (is.null(na_val)) next
@@ -436,27 +466,45 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Mirrors datamods' internal drop_id() heuristic to detect which vars
     # get no filter widget (high-cardinality, single-value, Date/POSIXct).
     is_var_skipped <- function(data, v, cfg) {
-      if (!(v %in% names(data))) return(TRUE)
+      if (!(v %in% names(data))) {
+        return(TRUE)
+      }
       col <- data[[v]]
-      if (all(is.na(col))) return(TRUE)
-      if (inherits(col, c("Date", "POSIXct"))) return(TRUE)
-      if (!inherits(col, c("character", "factor"))) return(FALSE)
+      if (all(is.na(col))) {
+        return(TRUE)
+      }
+      if (inherits(col, c("Date", "POSIXct"))) {
+        return(TRUE)
+      }
+      if (!inherits(col, c("character", "factor"))) {
+        return(FALSE)
+      }
       vals <- unique(as.character(col))
       vals <- tryCatch(vals[trimws(vals) != ""], error = function(e) vals)
-      if (length(vals) <= 1) return(TRUE)
-      if (length(vals) >= (length(col) * cfg$p)) return(TRUE)
-      if (length(vals) >= cfg$n) return(TRUE)
+      if (length(vals) <= 1) {
+        return(TRUE)
+      }
+      if (length(vals) >= (length(col) * cfg$p)) {
+        return(TRUE)
+      }
+      if (length(vals) >= cfg$n) {
+        return(TRUE)
+      }
       FALSE
     }
 
     output$skipped_vars_msg <- shiny::renderUI({
       selected <- last_inter_vars()
-      data     <- get_data()
-      if (length(selected) == 0 || is.null(data)) return(NULL)
+      data <- get_data()
+      if (length(selected) == 0 || is.null(data)) {
+        return(NULL)
+      }
 
       skipped <- selected[vapply(selected, is_var_skipped, logical(1), data = data, cfg = drop_ids_cfg)]
 
-      if (length(skipped) == 0) return(NULL)
+      if (length(skipped) == 0) {
+        return(NULL)
+      }
 
       shiny::div(
         style = paste(
@@ -486,19 +534,19 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
       shiny::showModal(shiny::modalDialog(
         title = "Interactive Filtering",
-        size  = "l",
+        size = "l",
         easyClose = FALSE,
 
         # Step 1: column picker - restore from last_inter_vars() since
         # input$inter_vars is NULL after modal close.
         shinyWidgets::pickerInput(
-          inputId  = session$ns("inter_vars"),
-          label    = shiny::tags$strong("Select variables to filter:"),
-          choices  = names(get_data()),
+          inputId = session$ns("inter_vars"),
+          label = shiny::tags$strong("Select variables to filter:"),
+          choices = names(get_data()),
           selected = last_inter_vars(),
           multiple = TRUE,
-          width    = "100%",
-          options  = shinyWidgets::pickerOptions(
+          width = "100%",
+          options = shinyWidgets::pickerOptions(
             liveSearch            = TRUE,
             liveSearchPlaceholder = "Search variable...",
             actionsBox            = TRUE,
@@ -507,7 +555,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
             countSelectedText     = "{0} variables selected"
           )
         ),
-
         shiny::br(),
 
         # Step 2: datamods widgets - referenced via uiOutput so the widget
@@ -516,7 +563,6 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
 
         # Message for high-cardinality variables datamods skipped
         shiny::uiOutput(session$ns("skipped_vars_msg")),
-
         footer = shiny::tagList(
           # Clear All - resets picker + clears applied condition
           shiny::actionButton(
@@ -548,12 +594,12 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         if (!(var %in% names(data))) next
         raw_val <- values_list[[var]]
 
-        col    <- data[[var]]
+        col <- data[[var]]
         any_na <- anyNA(col)
-        nas    <- isTRUE(na_choices[[var]] %||% FALSE)  # our default is "exclude NA"
+        nas <- isTRUE(na_choices[[var]] %||% FALSE) # our default is "exclude NA"
 
         if (is.numeric(col) || inherits(col, c("Date", "POSIXct"))) {
-          if (is.null(raw_val)) next  # not yet rendered - skip
+          if (is.null(raw_val)) next # not yet rendered - skip
           val <- raw_val
           full_range <- suppressWarnings(range(col, na.rm = TRUE))
           is_full <- length(val) == 2 &&
@@ -576,8 +622,8 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           # Categorical: NULL means nothing selected (treat same as character(0)).
           data_vals <- unique(as.character(col))
           data_vals <- data_vals[!is.na(data_vals)]
-          val_chr   <- if (is.null(raw_val)) character(0) else as.character(raw_val)
-          is_full   <- length(val_chr) > 0 && setequal(val_chr, data_vals)
+          val_chr <- if (is.null(raw_val)) character(0) else as.character(raw_val)
+          is_full <- length(val_chr) > 0 && setequal(val_chr, data_vals)
 
           if (length(val_chr) == 0) {
             parts <- c(parts, if (nas) {
@@ -591,7 +637,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
             } else {
               paste0("c(", paste(quote_vec(val_chr), collapse = ", "), ")")
             }
-            base_expr <- sprintf("%s %%in%% %s", var, vals_code)  # %in% excludes NA by default
+            base_expr <- sprintf("%s %%in%% %s", var, vals_code) # %in% excludes NA by default
             if (any_na && nas) base_expr <- sprintf("(%s | is.na(%s))", base_expr, var)
             parts <- c(parts, base_expr)
           } else if (any_na && !nas) {
@@ -606,7 +652,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # -- Modal Submit: build the condition and store it --
     shiny::observeEvent(input$inter_submit, {
       values_list <- tryCatch(dm_filter_res$values(), error = function(e) list())
-      na_state    <- shiny::reactiveValuesToList(na_defaults_store)
+      na_state <- shiny::reactiveValuesToList(na_defaults_store)
 
       condition <- tryCatch(
         build_na_aware_condition(get_data(), values_list, na_state),
@@ -626,10 +672,13 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
            btn.style.borderColor     = '%s';
          }",
         session$ns("open_inter_modal"),
-        if (is_active) '<i class=\"fa fa-filter\"></i> Interactive Filtering \u2713'
-        else           '<i class=\"fa fa-filter\"></i> Interactive Filtering',
+        if (is_active) {
+          '<i class=\"fa fa-filter\"></i> Interactive Filtering \u2713'
+        } else {
+          '<i class=\"fa fa-filter\"></i> Interactive Filtering'
+        },
         if (is_active) "#2196F3" else "",
-        if (is_active) "white"   else "",
+        if (is_active) "white" else "",
         if (is_active) "#1976D2" else ""
       ))
 
@@ -679,14 +728,16 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     combined_filter_df <- shiny::reactive({
       shiny::req(get_data())
 
-      text_cond  <- active_text_condition()
+      text_cond <- active_text_condition()
       inter_cond <- applied_inter_condition()
 
-      has_text  <- nchar(trimws(text_cond))  > 0
+      has_text <- nchar(trimws(text_cond)) > 0
       has_inter <- nchar(trimws(inter_cond)) > 0
 
       # Neither active - return raw data
-      if (!has_text && !has_inter) return(get_data())
+      if (!has_text && !has_inter) {
+        return(get_data())
+      }
 
       combined_cond <- if (has_text && has_inter) {
         paste0("(", text_cond, ") & (", inter_cond, ")")
@@ -696,15 +747,18 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         inter_cond
       }
 
-      tryCatch({
-        dplyr::filter(get_data(), eval(parse(text = combined_cond)))
-      }, error = function(e) {
-        shiny::showNotification(
-          paste0("Filter error: ", e$message),
-          type = "error", duration = 5, id = "combined_filter_error"
-        )
-        get_data()
-      })
+      tryCatch(
+        {
+          dplyr::filter(get_data(), eval(parse(text = combined_cond)))
+        },
+        error = function(e) {
+          shiny::showNotification(
+            paste0("Filter error: ", e$message),
+            type = "error", duration = 5, id = "combined_filter_error"
+          )
+          get_data()
+        }
+      )
     })
 
     # ==================================================================
@@ -727,13 +781,14 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Selected columns code
     selected_cols_code <- shiny::reactive({
       selected_cols <- input$columns
-      all_cols      <- names(get_data())
+      all_cols <- names(get_data())
 
       if (length(selected_cols) > 0 && length(selected_cols) < length(all_cols)) {
-        needs_quotes   <- !grepl("^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols)
+        needs_quotes <- !grepl("^([a-zA-Z]|\\.[a-zA-Z_])[a-zA-Z0-9._]*$", selected_cols)
         formatted_cols <- ifelse(needs_quotes,
-                                 paste0("`", selected_cols, "`"),
-                                 selected_cols)
+          paste0("`", selected_cols, "`"),
+          selected_cols
+        )
         paste0("select(", paste(formatted_cols, collapse = ", "), ")")
       } else {
         NULL
@@ -743,9 +798,9 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
     # Generated code - FIX: Don't add pipe when no operations
     # Includes Step 1 (text filter), Step 2 (inter filter), and select() as needed.
     generated_code <- shiny::reactive({
-      has_filter       <- !is.null(filter_code())
+      has_filter <- !is.null(filter_code())
       has_inter_filter <- !is.null(inter_filter_code())
-      has_select       <- !is.null(selected_cols_code())
+      has_select <- !is.null(selected_cols_code())
 
       # If neither filter nor select, just return the dataset name
       if (!has_filter && !has_inter_filter && !has_select) {
@@ -795,7 +850,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
         shiny::br(),
         shiny::actionButton(session$ns("copy_btn"), "Copy"),
         easyClose = TRUE,
-        footer    = shiny::modalButton("Close")
+        footer = shiny::modalButton("Close")
       ))
     })
 
@@ -920,16 +975,16 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       dplyr::left_join(class_df(), att_cols(), by = "colname") |>
         dplyr::mutate(col_name = dplyr::case_when(
           col_type == "int" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname),
-          col_type == "dbl" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname),,
-          col_type == "chr"    ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
-          col_type == "fct"    ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
-          col_type == "lgl"    ~ paste0("<span style='font-size:18px'>", "\U0001F501", "</span> ", colname),
-          col_type == "date"   ~ paste0("<span style='font-size:18px'>", "\U0001F4C5", "</span> ", colname),
-          col_type == "dttm"   ~ paste0("<span style='font-size:18px'>", "\U0001F4C5\U0001F552", "</span> ", colname),
+          col_type == "dbl" ~ paste0("<span style='font-size:18px'>", "\u0023\uFE0F\u20E3", "</span> ", colname), ,
+          col_type == "chr" ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
+          col_type == "fct" ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname),
+          col_type == "lgl" ~ paste0("<span style='font-size:18px'>", "\U0001F501", "</span> ", colname),
+          col_type == "date" ~ paste0("<span style='font-size:18px'>", "\U0001F4C5", "</span> ", colname),
+          col_type == "dttm" ~ paste0("<span style='font-size:18px'>", "\U0001F4C5\U0001F552", "</span> ", colname),
           col_type == "Period" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
-          col_type == "time"   ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
-          col_type == "drtn"   ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
-          TRUE                 ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname)
+          col_type == "time" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
+          col_type == "drtn" ~ paste0("<span style='font-size:18px'>", "\U0001F552", "</span> ", colname),
+          TRUE ~ paste0("<span style='font-size:18px'>", "\U0001F520", "</span> ", colname)
         )) |>
         dplyr::select(pos, col_name, att, value) |>
         labelled::set_variable_labels(
@@ -965,7 +1020,7 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
           shiny::tableOutput(session$ns("metainfo_modal"))
         ),
         easyClose = TRUE,
-        footer    = shiny::modalButton("Close")
+        footer = shiny::modalButton("Close")
       ))
     })
 
@@ -1022,22 +1077,22 @@ dataviewer_tab_server <- function(id, get_data, dataset_name) {
       DT::datatable(
         df,
         extensions = c("Buttons", "KeyTable"),
-        filter     = "top",
-        class      = "cell-border stripe hover nowrap",
-        selection  = "none",
-        options    = list(
-          pageLength      = 500,
+        filter = "top",
+        class = "cell-border stripe hover nowrap",
+        selection = "none",
+        options = list(
+          pageLength = 500,
           scroller.rowHeight = "auto",
-          scrollCollapse  = FALSE,
-          autoWidth       = FALSE,
+          scrollCollapse = FALSE,
+          autoWidth = FALSE,
           searchHighlight = TRUE,
-          keys            = TRUE,
+          keys = TRUE,
           # Download button removed from DT buttons: it only exported visible/filtered rows.
           # Custom Shiny downloadHandler buttons (CSV & Excel) are now used instead,
           # which export the full current rendered dataset (after filter + column selection).
-          dom             = 'Bfrtip',
-          rowCallback     = DT::JS(row_callback_js),
-          buttons         = list('copy'),
+          dom = "Bfrtip",
+          rowCallback = DT::JS(row_callback_js),
+          buttons = list("copy"),
           drawCallback = DT::JS(sprintf("
             function(settings) {
               var tableId = '%s';
